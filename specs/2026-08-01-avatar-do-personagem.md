@@ -68,8 +68,14 @@ em RGBA de 8 bits em vez de paleta indexada de 4.
 
 ### O acervo esta no meio de uma migracao, e isso decide o desenho
 
-Existem **dois formatos coexistindo**. Medido na amostra: 29.741 arquivos no
-formato antigo, ~27 mil no novo.
+Existem **dois formatos coexistindo**. Medido no clone completo: **76.491**
+arquivos no formato antigo, **11.744** no novo -- soma 88.235, o total do
+acervo.
+
+> Corrigido em @3. Ate entao esta linha dizia "29.741 e ~27 mil", que somam
+> 56.741 -- os mesmos ~56,7 mil que a secao acima ja marca como **errados por
+> truncamento** da API do GitHub. O total foi corrigido quando o clone local
+> chegou; este par ficou para tras. O `build.py` sempre teve os numeros certos.
 
 ```
 spritesheets/hair/afro/adult/idle.png                  <- NOVO: 1 arquivo por animacao,
@@ -103,8 +109,12 @@ em build (decisao 3).
 
 > Por que o esboco inicial nao servia: a Vercel aceita no maximo **15.000
 > arquivos-fonte** por deploy via CLI e **100 MB** de estaticos no plano Hobby.
-> 56.723 PNGs e 81,2 MB estouram os dois. "Servir o repo inteiro" e "ter
-> backend" nunca foram as duas unicas opcoes -- a terceira e curadoria em build.
+> 88.235 PNGs e 129,6 MB estouram os dois com folga. "Servir o repo inteiro" e
+> "ter backend" nunca foram as duas unicas opcoes -- a terceira e curadoria em
+> build.
+>
+> (Ate @3 esta linha citava 56.723 / 81,2 MB, a medicao truncada. O argumento so
+> ficou mais forte com o numero certo.)
 
 **3. Um passo de build produz o acervo do app.** E o coracao desta spec. Ele:
 
