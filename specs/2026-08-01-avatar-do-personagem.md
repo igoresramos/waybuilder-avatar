@@ -1,7 +1,7 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 5
+version: 6
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
@@ -13,6 +13,8 @@ revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   slots que convivem com ela
   @5 (2026-08-01) -- decisoes 5c/5d/5e: a tela vira painel de casas por slot,
   com `combina_com` e `sem_arte`, e o desenho ganha desempate de `zPos`
+  @6 (2026-08-01) -- decisao 3c cumprida: atlas consolidado por slot, com teto
+  de textura. Licenca: uso pessoal nao-comercial, creditos seguem emitidos
 ---
 
 # Spec -- o avatar do personagem
@@ -134,8 +136,16 @@ em build (decisao 3).
      perfil-dir]` -- **verificado visualmente** compondo `body` + `head` e
      olhando o resultado, nao suposto pela convencao. Sozinho, este corte tira
      75% do que sobrou. Consequencia aceita: **nao da para girar o boneco**;
-  c. **empacota em atlas por categoria**, em vez de milhares de arquivos soltos
-     -- resolve o limite de arquivos da Vercel e o request storm da grade;
+  c. **empacota em atlas por SLOT** -- um PNG por (slot, camada, corpo), em vez
+     de milhares de arquivos soltos. Resolve o limite de arquivos da Vercel e o
+     request storm da grade; com a UI de casas (5c), abrir um picker vira **um
+     request**. Ate @5 a spec dizia "por categoria" e o build emitia **um PNG
+     por peca** -- 2.800 arquivos. Cumprido em @6, com dois numeros medidos:
+     custa **~28% de area** em padding (a peca mais larga do slot manda, e o
+     padding transparente o PNG comprime a quase nada), e exige um **teto de
+     16.384 px**, porque sem ele 12 grupos passariam de 19.072 px -- acima do
+     limite de textura que os navegadores garantem, onde o canvas falha e as
+     vezes sem erro;
   d. **emite o atlas de preview**: UM frame por peca (parado, de frente), por
      variante de corpo. Nao sao miniaturas prontas -- ver decisao 5b;
   e. **emite catalogo proprio** com IDs estaveis (decisao 6);
@@ -364,11 +374,17 @@ so a segunda mudou em @3.
 
 | artefato | arquivos | MB |
 |---|---|---|
-| atlas | 2.800 | 6,63 |
-| catalogo.json | 1 | 0,89 |
+| atlas | 469 | 8,29 |
+| catalogo.json | 1 | 0,88 |
 | paletas | 10 | 0,03 |
-| **total** | **2.825** | **7,21** |
+| **total** | **494** | **9,16** |
 
+> Numeros de @6, com o atlas consolidado por slot: **2.800 arquivos viraram
+> 469** ao custo de **+1,95 MB** (27%) em padding. Para um PWA que so ativa o
+> service worker quando TODO o precache baixa, trocar 2.331 requests por 2 MB e
+> o lado certo. O maior atlas ficou em 16.256 px -- o teto de 16.384 pegou por
+> pouco em `charm`.
+>
 > Numeros de @4, depois da correcao de slot. Ate @3 a tabela dizia 2.811
 > arquivos e 7,05 MB -- e o atlas tinha **2.788 PNGs em disco contra 2.800
 > gravados**. Os 12 que faltavam eram pecas homonimas de slots diferentes

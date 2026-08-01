@@ -285,6 +285,33 @@ def salvar_paletizado(im, destino: str) -> int:
     return buf.tell()
 
 
+# Limite de textura que os navegadores garantem. Medido: consolidando por slot
+# sem teto, 12 grupos passariam de 19.072 px -- `wings` sao 11 pecas com muitas
+# cores. Acima disso o canvas falha, as vezes sem erro.
+TETO_DE_TEXTURA = 16384
+
+
+def empacotar_por_teto(alturas: list[int], teto: int = TETO_DE_TEXTURA
+                       ) -> list[list[int]]:
+    """Divide as pecas de um slot em atlas que respeitem o teto de altura.
+
+    Devolve grupos de indices, na ordem. Peca sozinha maior que o teto vai
+    assim mesmo: perde-la seria pior que um atlas grande.
+    """
+    grupos: list[list[int]] = []
+    atual: list[int] = []
+    soma = 0
+    for i, h in enumerate(alturas):
+        if atual and soma + h > teto:
+            grupos.append(atual)
+            atual, soma = [], 0
+        atual.append(i)
+        soma += h
+    if atual:
+        grupos.append(atual)
+    return grupos
+
+
 def montar_atlas(dirbase: str, cores: list[str | None]):
     """
     Um atlas por (peca, camada, corpo): cada COR e uma faixa de 64px.
@@ -420,6 +447,9 @@ def main() -> int:
     bytes_total = 0
     arquivos = 0
     contagem = Counter()
+    # (slot, camada, corpo) -> [(variante, dirbase, cores)], preenchido na 1a
+    # fase e resolvido na 2a, quando as pecas do slot viram um atlas so
+    pendentes: dict[tuple[str, int, str], list[tuple]] = defaultdict(list)
     fora_gpl: list[str] = []
     sem_arte: list[str] = []
     autores: set[str] = set()
@@ -472,22 +502,20 @@ def main() -> int:
                 atlas, mapa, por_cor = montar_atlas(dirbase, cores)
                 if atlas is None:
                     continue
-                # mesmo motivo do id (6b): sob a categoria, duas pecas
-                # homonimas de slots diferentes gravavam no mesmo PNG
-                rel = os.path.join(
-                    "atlas", d["_slot"], slug(d.get("name", "")),
-                    f"L{ordem}", f"{corpo}.png",
-                )
-                bytes_total += salvar_paletizado(atlas, os.path.join(SAIDA, rel))
-                arquivos += 1
-                variantes[corpo] = {
-                    "arq": rel.replace(os.sep, "/"),
+                # `arq` e o deslocamento final saem na 2a fase, quando as pecas
+                # do mesmo slot viram um atlas so
+                variante = {
+                    "arq": None,
                     # `x` desloca a animacao na tira; `y` desloca a cor no atlas
                     "animacoes": [
                         {"nome": a, "frames": n, "x": x} for a, n, x in mapa
                     ],
                     "cores": por_cor,
                 }
+                variantes[corpo] = variante
+                pendentes[(d["_slot"], ordem, corpo)].append(
+                    (variante, dirbase, cores)
+                )
                 alguma = True
 
             if variantes:
@@ -527,6 +555,38 @@ def main() -> int:
         for i in catalogo:
             if i["id"] in pares:
                 i["combina_com"] = pares[i["id"]]
+
+    # -- 2a fase: um atlas por (slot, camada, corpo) ---------------------------
+    #
+    # Um PNG por peca dava 2.800 arquivos -- e o precache do service worker so
+    # ativa quando TODOS baixam, que e o cenario que a decisao 4 quer proteger.
+    # Consolidar por slot custa ~28% de area em padding (a peca mais larga do
+    # slot manda), mas o padding e transparente e o PNG o comprime a quase
+    # nada. Com a UI de casas (5c), abrir um picker passa a ser 1 request.
+    from PIL import Image
+
+    for (slot, ordem, corpo), lista in sorted(pendentes.items()):
+        tiras = [montar_atlas(db, cs)[0] for _, db, cs in lista]
+        alturas = [t.size[1] for t in tiras]
+        for n, grupo in enumerate(empacotar_por_teto(alturas)):
+            largura = max(tiras[i].size[0] for i in grupo)
+            atlas = Image.new(
+                "RGBA", (largura, sum(alturas[i] for i in grupo)), (0, 0, 0, 0)
+            )
+            sufixo = "" if n == 0 else f"-{n}"
+            rel = f"atlas/{slot}/L{ordem}/{corpo}{sufixo}.png"
+            y = 0
+            for i in grupo:
+                atlas.alpha_composite(tiras[i], (0, y))
+                variante = lista[i][0]
+                variante["arq"] = rel
+                # o offset da cor passa a ser absoluto dentro do atlas do slot
+                variante["cores"] = {
+                    c: base + y for c, base in variante["cores"].items()
+                }
+                y += alturas[i]
+            bytes_total += salvar_paletizado(atlas, os.path.join(SAIDA, rel))
+            arquivos += 1
 
     # paletas: o recolor do formato novo acontece no APP, nao aqui -- copiar
     # multiplica arquivo por cor e e exatamente o que o recorte evita.
