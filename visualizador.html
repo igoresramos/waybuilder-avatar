@@ -1,0 +1,313 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Waybuilder -- acervo do avatar</title>
+<style>
+  :root { color-scheme: dark; --bg:#14141a; --painel:#1d1d26; --linha:#2e2e3d;
+          --txt:#e6e6ef; --fraco:#9a9ab0; --acento:#e0803a; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--txt); display:flex; height:100vh;
+         font:14px/1.45 ui-sans-serif,system-ui,sans-serif; }
+  canvas { image-rendering: pixelated; }
+
+  #palco { width:340px; flex:none; padding:20px; border-right:1px solid var(--linha);
+           display:flex; flex-direction:column; gap:14px; overflow:auto; }
+  #bonecoWrap { background:#f4f4f8; border-radius:10px; display:grid; place-items:center;
+                padding:10px; }
+  h1 { font-size:15px; margin:0; letter-spacing:.02em; }
+  .meta { color:var(--fraco); font-size:12px; }
+  .grupo { display:flex; flex-direction:column; gap:5px; }
+  .grupo > label { font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+                   color:var(--fraco); }
+  .chips { display:flex; flex-wrap:wrap; gap:5px; }
+  .chip { background:var(--painel); border:1px solid var(--linha); color:var(--txt);
+          padding:4px 9px; border-radius:999px; cursor:pointer; font-size:12px; }
+  .chip[aria-pressed="true"] { background:var(--acento); border-color:var(--acento);
+                               color:#14141a; font-weight:600; }
+  .equipado { display:flex; flex-direction:column; gap:3px; font-size:12px; }
+  .equipado div { display:flex; justify-content:space-between; gap:8px;
+                  border-bottom:1px dotted var(--linha); padding:2px 0; }
+  .equipado span:last-child { color:var(--fraco); text-align:right; }
+  .equipado button { background:none; border:0; color:var(--acento); cursor:pointer;
+                     font-size:11px; padding:0; }
+
+  #direita { flex:1; display:flex; flex-direction:column; min-width:0; }
+  #abas { display:flex; gap:4px; padding:12px 16px 0; flex-wrap:wrap; }
+  #corBarra { padding:8px 16px; border-bottom:1px solid var(--linha);
+              display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .cor { width:22px; height:22px; border-radius:5px; border:2px solid transparent;
+         cursor:pointer; background:var(--painel); display:grid; place-items:center;
+         font-size:9px; color:var(--fraco); overflow:hidden; }
+  .cor[aria-pressed="true"] { border-color:var(--acento); }
+  #grade { flex:1; overflow:auto; padding:14px 16px 40px;
+           display:grid; grid-template-columns:repeat(auto-fill,minmax(84px,1fr)); gap:8px; }
+  .cel { background:var(--painel); border:1px solid var(--linha); border-radius:8px;
+         cursor:pointer; padding:4px; display:flex; flex-direction:column;
+         align-items:center; gap:2px; }
+  .cel:hover { border-color:var(--acento); }
+  .cel[aria-pressed="true"] { border-color:var(--acento); background:#2a2118; }
+  .cel .nome { font-size:10px; color:var(--fraco); text-align:center; line-height:1.2;
+               max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #carregando { padding:30px; color:var(--fraco); }
+</style>
+
+<div id="palco">
+  <div>
+    <h1>Acervo do avatar</h1>
+    <div class="meta" id="resumo">carregando...</div>
+  </div>
+  <div id="bonecoWrap"><canvas id="boneco" width="256" height="256"></canvas></div>
+
+  <div class="grupo">
+    <label>corpo</label>
+    <div class="chips" id="corpos"></div>
+  </div>
+  <div class="grupo">
+    <label>animacao</label>
+    <div class="chips" id="animacoes"></div>
+  </div>
+  <div class="grupo">
+    <label>equipado</label>
+    <div class="equipado" id="equipado"></div>
+  </div>
+</div>
+
+<div id="direita">
+  <div id="abas"></div>
+  <div id="corBarra"></div>
+  <div id="grade"><div id="carregando">carregando catalogo...</div></div>
+</div>
+
+<script type="module">
+const Q = 64;              // lado do frame
+const ZOOM_BONECO = 4;
+const ZOOM_CEL = 1;
+
+const el = (id) => document.getElementById(id);
+const estado = {
+  corpo: "male", animacao: "idle", frame: 0,
+  escolhas: new Map(),     // categoria -> itemId
+  cores: new Map(),        // itemId -> nome da cor
+  categoria: null,
+};
+let cat, porCategoria, itens, imgs = new Map();
+
+function carregarImagem(src) {
+  if (imgs.has(src)) return imgs.get(src);
+  const p = new Promise((ok, falha) => {
+    const im = new Image();
+    im.onload = () => ok(im);
+    im.onerror = () => falha(new Error(src));
+    im.src = "saida/" + src;
+  });
+  imgs.set(src, p);
+  return p;
+}
+
+/** As camadas desenhaveis de um item, ja com atlas/offset resolvidos. */
+function camadasDe(item, corpo, animacao, corEscolhida) {
+  const fora = [];
+  for (const cam of item.camadas) {
+    const v = cam.corpos[corpo];
+    if (!v) continue;
+    const nomes = Object.keys(v.cores);
+    const cor = (corEscolhida && corEscolhida in v.cores) ? corEscolhida : nomes[0];
+    const a = v.animacoes.find((x) => x.nome === animacao) ?? v.animacoes[0];
+    if (!a) continue;
+    fora.push({ zPos: cam.zPos, arq: v.arq, x: a.x, y: v.cores[cor], frames: a.frames });
+  }
+  return fora;
+}
+
+/** Monta a lista de camadas do personagem, opcionalmente trocando uma peca. */
+function montar({ trocar } = {}) {
+  const escolhas = new Map(estado.escolhas);
+  if (trocar) escolhas.set(trocar.categoria, trocar.id);
+  const camadas = [];
+  for (const [categoria, id] of escolhas) {
+    const item = itens.get(id);
+    if (!item) continue;
+    const cor = (trocar && trocar.id === id && trocar.cor) ? trocar.cor : estado.cores.get(id);
+    camadas.push(...camadasDe(item, estado.corpo, estado.animacao, cor));
+  }
+  camadas.sort((a, b) => a.zPos - b.zPos);
+  return camadas;
+}
+
+async function desenhar(ctx, camadas, frame, zoom) {
+  const c = ctx.canvas;
+  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.imageSmoothingEnabled = false;
+  for (const l of camadas) {
+    let im;
+    try { im = await carregarImagem(l.arq); } catch { continue; }
+    const f = Math.min(frame, Math.max(0, l.frames - 1));
+    ctx.drawImage(im, l.x + f * Q, l.y, Q, Q, 0, 0, Q * zoom, Q * zoom);
+  }
+}
+
+async function pintarBoneco() {
+  const cv = el("boneco");
+  cv.width = Q * ZOOM_BONECO; cv.height = Q * ZOOM_BONECO;
+  await desenhar(cv.getContext("2d"), montar(), estado.frame, ZOOM_BONECO);
+  pintarEquipado();
+}
+
+function pintarEquipado() {
+  const alvo = el("equipado");
+  alvo.innerHTML = "";
+  if (!estado.escolhas.size) {
+    alvo.innerHTML = `<div class="meta">nada equipado -- clique numa peca</div>`;
+    return;
+  }
+  for (const [categoria, id] of estado.escolhas) {
+    const item = itens.get(id);
+    const linha = document.createElement("div");
+    const cor = estado.cores.get(id);
+    linha.innerHTML = `<span>${item?.nome ?? id}</span>
+      <span>${categoria}${cor ? " / " + cor : ""}</span>`;
+    const x = document.createElement("button");
+    x.textContent = "tirar";
+    x.onclick = () => { estado.escolhas.delete(categoria); estado.cores.delete(id);
+                        pintarBoneco(); pintarGrade(); };
+    linha.append(x);
+    alvo.append(linha);
+  }
+}
+
+/** A grade: cada celula e o PERSONAGEM INTEIRO com a peca candidata no lugar. */
+async function pintarGrade() {
+  const grade = el("grade");
+  grade.innerHTML = "";
+  const lista = porCategoria.get(estado.categoria) ?? [];
+  const nenhum = document.createElement("button");
+  nenhum.className = "cel";
+  nenhum.setAttribute("aria-pressed", String(!estado.escolhas.has(estado.categoria)));
+  nenhum.innerHTML = `<canvas width="${Q}" height="${Q}"></canvas><span class="nome">(nenhum)</span>`;
+  nenhum.onclick = () => { estado.escolhas.delete(estado.categoria); pintarBoneco();
+                           pintarGrade(); pintarCores(); };
+  // a celula "(nenhum)" mostra o personagem SEM a peca desta categoria
+  const semEsta = new Map(estado.escolhas);
+  semEsta.delete(estado.categoria);
+  const guardadas = estado.escolhas;
+  estado.escolhas = semEsta;
+  desenhar(nenhum.querySelector("canvas").getContext("2d"), montar(), estado.frame, ZOOM_CEL);
+  estado.escolhas = guardadas;
+  grade.append(nenhum);
+
+  for (const item of lista) {
+    const cel = document.createElement("button");
+    cel.className = "cel";
+    cel.setAttribute("aria-pressed", String(estado.escolhas.get(estado.categoria) === item.id));
+    cel.innerHTML = `<canvas width="${Q}" height="${Q}"></canvas>
+                     <span class="nome" title="${item.nome}">${item.nome}</span>`;
+    cel.onclick = () => {
+      estado.escolhas.set(estado.categoria, item.id);
+      pintarBoneco(); pintarGrade(); pintarCores();
+    };
+    grade.append(cel);
+    // compoe a celula: personagem inteiro, com esta peca trocada
+    desenhar(cel.querySelector("canvas").getContext("2d"),
+             montar({ trocar: { categoria: estado.categoria, id: item.id,
+                                cor: estado.cores.get(item.id) } }),
+             estado.frame, ZOOM_CEL);
+  }
+}
+
+function pintarCores() {
+  const barra = el("corBarra");
+  barra.innerHTML = "";
+  const id = estado.escolhas.get(estado.categoria);
+  const item = id && itens.get(id);
+  if (!item) { barra.innerHTML = `<span class="meta">escolha uma peca para ver as cores</span>`; return; }
+  const v = item.camadas[0]?.corpos[estado.corpo];
+  if (!v) { barra.innerHTML = `<span class="meta">esta peca nao tem arte para ${estado.corpo}</span>`; return; }
+  const nomes = Object.keys(v.cores);
+  const rotulo = document.createElement("span");
+  rotulo.className = "meta";
+  rotulo.textContent = `${item.nome} -- ${nomes.length} ${nomes.length === 1 ? "cor" : "cores"}:`;
+  barra.append(rotulo);
+  for (const nome of nomes) {
+    const b = document.createElement("button");
+    b.className = "cor";
+    b.title = nome;
+    b.textContent = nome.slice(0, 3);
+    b.setAttribute("aria-pressed", String((estado.cores.get(id) ?? nomes[0]) === nome));
+    b.onclick = () => { estado.cores.set(id, nome); pintarBoneco(); pintarGrade(); pintarCores(); };
+    barra.append(b);
+  }
+}
+
+function chips(alvo, valores, atual, aoTrocar) {
+  alvo.innerHTML = "";
+  for (const v of valores) {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = v;
+    b.setAttribute("aria-pressed", String(v === atual()));
+    b.onclick = () => { aoTrocar(v); };
+    alvo.append(b);
+  }
+}
+
+async function iniciar() {
+  const r = await fetch("saida/catalogo.json");
+  if (!r.ok) { el("grade").innerHTML = `<div id="carregando">catalogo.json nao encontrado --
+    rode <code>python3 avatar/build.py</code></div>`; return; }
+  cat = await r.json();
+  itens = new Map(cat.itens.map((i) => [i.id, i]));
+  porCategoria = new Map();
+  for (const i of cat.itens) {
+    if (!porCategoria.has(i.categoria)) porCategoria.set(i.categoria, []);
+    porCategoria.get(i.categoria).push(i);
+  }
+  estado.categoria = [...porCategoria.keys()][0];
+  el("resumo").textContent =
+    `${cat.itens.length} pecas | ${porCategoria.size} categorias | pin ${cat.pin.slice(0, 8)}`
+    + ` | ${cat.recorte.corpos.length} corpos, ${cat.recorte.animacoes.length} animacoes, so de frente`;
+
+  const recarregarChips = () => {
+    chips(el("corpos"), cat.recorte.corpos, () => estado.corpo, (v) => {
+      estado.corpo = v; recarregarChips(); pintarBoneco(); pintarGrade(); pintarCores();
+    });
+    chips(el("animacoes"), cat.recorte.animacoes, () => estado.animacao, (v) => {
+      estado.animacao = v; estado.frame = 0; recarregarChips(); pintarBoneco(); pintarGrade();
+    });
+  };
+  recarregarChips();
+
+  const abas = el("abas");
+  abas.innerHTML = "";
+  for (const c of porCategoria.keys()) {
+    const b = document.createElement("button");
+    b.className = "chip";
+    b.textContent = `${c} (${porCategoria.get(c).length})`;
+    b.setAttribute("aria-pressed", String(c === estado.categoria));
+    b.onclick = () => {
+      estado.categoria = c;
+      [...abas.children].forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      pintarGrade(); pintarCores();
+    };
+    abas.append(b);
+  }
+
+  // corpo default equipado, para o boneco nao nascer invisivel
+  const corpoBase = cat.itens.find((i) => i.categoria === "body");
+  if (corpoBase) estado.escolhas.set("body", corpoBase.id);
+  const cabeca = cat.itens.find((i) => i.categoria === "head" && i.id.includes("human"));
+  if (cabeca) estado.escolhas.set("head", cabeca.id);
+
+  await pintarBoneco();
+  await pintarGrade();
+  pintarCores();
+
+  // anima o boneco grande
+  setInterval(() => {
+    const c = montar();
+    const max = Math.max(1, ...c.map((l) => l.frames));
+    estado.frame = (estado.frame + 1) % max;
+    pintarBoneco();
+  }, 180);
+}
+
+iniciar();
+</script>
