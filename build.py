@@ -71,8 +71,51 @@ def slug(s: str) -> str:
 
 # -- leitura dos sheet_definitions -------------------------------------------
 
+def identidade_da_peca(rel: str, d: dict) -> dict:
+    """Slot e caminho de navegacao de uma peca (spec, decisao 6b).
+
+    O slot decide EXCLUSIVIDADE e vem do `type_name`. Nao do caminho: 25 dos
+    104 slots aparecem em mais de um diretorio -- `weapon` chega a morar dentro
+    de `tools/` --, entao nao existe funcao do caminho que devolva o slot.
+    """
+    return {
+        "slot": d.get("type_name"),
+        "caminho": os.path.dirname(rel).split(os.sep),
+    }
+
+
+def ler_grupos(raiz: str) -> dict[str, dict]:
+    """Os `meta_*.json`: prioridade e rotulo de cada diretorio de navegacao.
+
+    Ate @3 o build pulava todo arquivo `meta_*` junto com as pecas, e com ele ia
+    embora a ordem de exibicao e o nome legivel do grupo ("Human Heads").
+    """
+    fora: dict[str, dict] = {}
+    for base, _, arqs in os.walk(raiz):
+        for a in sorted(arqs):
+            if not (a.startswith("meta_") and a.endswith(".json")):
+                continue
+            try:
+                with open(os.path.join(base, a), encoding="utf-8") as f:
+                    d = json.load(f)
+            except (OSError, json.JSONDecodeError) as e:
+                print(f"  ! meta ilegivel, pulado: {a} ({e})")
+                continue
+            rel = os.path.relpath(base, raiz).replace(os.sep, "/")
+            entrada: dict = {"prioridade": d.get("priority", 0)}
+            if d.get("label"):
+                entrada["rotulo"] = d["label"]
+            fora[rel] = entrada
+    return fora
+
+
 def ler_definitions() -> list[dict]:
-    """Os 768 JSONs, com a categoria vinda do CAMINHO, nao do conteudo."""
+    """Os 768 JSONs, anotados com categoria, slot e caminho.
+
+    A categoria e o primeiro segmento do caminho e serve so para estatistica. O
+    que decide exclusividade e o `_slot`, que vem do `type_name` do conteudo --
+    ver `identidade_da_peca`.
+    """
     raiz = os.path.join(FONTE, "sheet_definitions")
     saida = []
     for base, _, arqs in os.walk(raiz):
@@ -89,6 +132,9 @@ def ler_definitions() -> list[dict]:
                 continue
             d["_arquivo"] = rel
             d["_categoria"] = rel.split(os.sep)[0]
+            ident = identidade_da_peca(rel, d)
+            d["_slot"] = ident["slot"]
+            d["_caminho"] = ident["caminho"]
             saida.append(d)
     return saida
 
@@ -312,11 +358,17 @@ def main() -> int:
             continue
 
         categoria = d["_categoria"]
-        item_id = f"{categoria}/{slug(d.get('name', ''))}"
+        # (6b) o id vem do SLOT, nao da categoria: "Long Topknot" existe como
+        # `hair` e como `ponytail`, e sob a categoria as duas colidiam -- no
+        # catalogo e no atlas, onde uma sobrescrevia os PNGs da outra.
+        item_id = f"{d['_slot']}/{slug(d.get('name', ''))}"
         entrada = {
             "id": item_id,
             "nome": d.get("name") or item_id,
             "categoria": categoria,
+            # (6b) o slot decide exclusividade; o caminho so agrupa na UI
+            "slot": d["_slot"],
+            "caminho": d["_caminho"],
             "camadas": [],
         }
         if isinstance(d.get("recolors"), dict):
@@ -343,8 +395,10 @@ def main() -> int:
                 atlas, mapa, por_cor = montar_atlas(dirbase, cores)
                 if atlas is None:
                     continue
+                # mesmo motivo do id (6b): sob a categoria, duas pecas
+                # homonimas de slots diferentes gravavam no mesmo PNG
                 rel = os.path.join(
-                    "atlas", categoria, slug(d.get("name", "")),
+                    "atlas", d["_slot"], slug(d.get("name", "")),
                     f"L{ordem}", f"{corpo}.png",
                 )
                 bytes_total += salvar_paletizado(atlas, os.path.join(SAIDA, rel))
@@ -397,6 +451,8 @@ def main() -> int:
                 "direcao": "frente",
                 "altura_do_frame": ALTURA,
             },
+            # (6b) mapa de navegacao: prioridade e rotulo por diretorio
+            "grupos": ler_grupos(os.path.join(FONTE, "sheet_definitions")),
             "itens": catalogo,
         }, f, ensure_ascii=False, separators=(",", ":"))
 

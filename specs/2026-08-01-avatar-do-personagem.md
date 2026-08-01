@@ -1,13 +1,16 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 3
+version: 4
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   renderer e a entrega de assets; a estrutura de dados foi remedida depois
   @3 (2026-08-01) -- o acervo saiu para o repo `waybuilder-avatar`; as
   decisoes 8b e 10 foram reescritas e a ponte de deploy virou divida declarada
+  @4 (2026-08-01) -- decisao 6b: o slot vem do `type_name`, nunca do caminho.
+  Nasceu de um prototipo que tratou `head` como escolha unica e apagou os 15
+  slots que convivem com ela
 ---
 
 # Spec -- o avatar do personagem
@@ -196,6 +199,42 @@ sumiu entre snapshots) produz **avatar parcial mais aviso** -- nunca crash,
 nunca silencio. E o mesmo padrao de `pin`/`nascida_em_pin` que `app/src/doc.ts`
 ja aplica a base canonica.
 
+**6b. O SLOT vem do `type_name`, nunca do caminho.** Adicionada em @4, depois de
+um prototipo errado.
+
+Duas coisas que o acervo trata como distintas, e que o build ate @3 confundia
+numa so:
+
+- **slot** -- o lugar do boneco que a peca ocupa. Peca com o mesmo `type_name`
+  e **mutuamente exclusiva**: entra uma, sai a outra.
+- **caminho** -- a hierarquia de navegacao (`head/heads/human`). Serve para a
+  UI agrupar, e **nada mais**.
+
+Medido no pin `0f898bb6`: **104 slots** distintos, e nenhuma peca sem
+`type_name`. O build ate @3 usava `rel.split(os.sep)[0]` -- o primeiro segmento
+do caminho -- e achatava os 104 em **10 categorias**, jogando o `type_name`
+fora.
+
+> Nao e imprecisao que da para remendar: **25 dos 104 slots aparecem em mais de
+> um diretorio.** `hair` em 10, `hat` em 9, `weapon` em 7 -- e `weapon` aparece
+> dentro de `tools/`. **Nao existe funcao do caminho que devolva o slot.**
+
+O caso que o prototipo errou: `head` como slot sao **45 pecas em 6
+diretorios** (`human`, `beast`, `fantasy`, `farm`, `reptile`, `undead`), todas
+disputando um lugar so. Mas dentro do *caminho* `head/` moram **16 slots
+independentes** -- `eyes`, `eyebrows`, `expression`, `nose`, `ears`, `neck`,
+`necklace`, `charm`, `horns`, `fins`, `wrinkles` -- que coexistem sem conflito.
+Tratar `head/` como escolha unica apaga quinze deles.
+
+Entao o catalogo carrega, por peca: `slot` (do `type_name`), `caminho` (a
+hierarquia inteira) e `prioridade` (o `priority` do `meta_*.json` do diretorio,
+que o build ate @3 nem lia, porque pulava todo arquivo `meta_*`).
+
+A regra de composicao que sai disso: **uma peca por slot, quantos slots
+quiser.** Um chapeu completo, por exemplo, sao varias entradas coexistindo --
+`hat` + `hat_trim` + `hat_overlay` + `hat_buckle` sao quatro slots, nao quatro
+alternativas.
+
 **7. O documento guarda a selecao, nunca a imagem.** Meia duzia de strings,
 como o hash de URL do gerador (`body=...&hair=...`). O canvas recompoe.
 
@@ -280,10 +319,16 @@ so a segunda mudou em @3.
 
 | artefato | arquivos | MB |
 |---|---|---|
-| atlas | 2.800 | 6,17 |
-| catalogo.json | 1 | 0,85 |
+| atlas | 2.800 | 6,63 |
+| catalogo.json | 1 | 0,89 |
 | paletas | 10 | 0,03 |
-| **total** | **2.811** | **7,05** |
+| **total** | **2.825** | **7,21** |
+
+> Numeros de @4, depois da correcao de slot. Ate @3 a tabela dizia 2.811
+> arquivos e 7,05 MB -- e o atlas tinha **2.788 PNGs em disco contra 2.800
+> gravados**. Os 12 que faltavam eram pecas homonimas de slots diferentes
+> escrevendo no mesmo caminho, uma por cima da outra. Com o id vindo do slot,
+> disco e relatorio batem.
 
 O atlas guarda **uma cor por faixa de 64px**: um arquivo por (peca, camada,
 corpo), com `x` deslocando a animacao e `y` deslocando a cor. Antes de
