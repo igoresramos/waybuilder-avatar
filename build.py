@@ -27,7 +27,7 @@ O que este passo faz, e por que (decisao 3 da spec):
   g. emite os creditos a partir do CREDITS.csv da raiz do repo.
   h. registra peso e contagem medidos em `saida/relatorio.md`.
 
-Rode: python3 avatar/build.py
+Rode: python3 build.py
 """
 from __future__ import annotations
 

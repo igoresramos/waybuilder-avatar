@@ -1,0 +1,10 @@
+# Clone do acervo LPC no pin -- reconstruivel por `buscar_fonte.sh`, mesmo
+# criterio de `pipeline/dados_brutos/` do waybuilder.
+#
+# `saida/` NAO entra aqui: e o produto deste repo e nao ha como regera-lo em 45
+# segundos de build (spec, decisao 8b).
+fontes/
+
+__pycache__/
+*.pyc
+.DS_Store
