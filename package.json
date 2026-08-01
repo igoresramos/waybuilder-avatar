@@ -5,23 +5,14 @@
   "type": "module",
   "types": "./dist/indice.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/indice.d.ts",
-      "default": "./dist/indice.js"
-    },
+    ".": { "types": "./dist/indice.d.ts", "default": "./dist/indice.js" },
     "./catalogo.json": "./saida/catalogo.json",
     "./saida/*": "./saida/*"
   },
-  "files": [
-    "dist",
-    "saida",
-    "src"
-  ],
+  "files": ["dist", "saida"],
   "scripts": {
     "build": "tsc",
-    "prepare": "tsc",
     "test": "vitest run",
-    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

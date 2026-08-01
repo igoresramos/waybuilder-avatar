@@ -14,8 +14,8 @@ Pin da fonte: `0f898bb675a1abe16ce430e82e3bf9daed278690`
 |---|---|---|
 | atlas | 469 | 8.69 |
 | paletas | - | 0.03 |
-| catalogo.json | 1 | 0.88 |
-| **total** | **470** | **9.60** |
+| catalogo.json | 1 | 0.89 |
+| **total** | **470** | **9.61** |
 
 ## Itens por categoria
 

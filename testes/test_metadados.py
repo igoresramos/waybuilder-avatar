@@ -9,7 +9,8 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from build import GRUPO_DE_SLOT, grupo_do_slot, parear_por_prefixo, sem_arte_em
+from build import (GRUPO_DE_SLOT, grupo_do_slot, normalizar_recolors,
+                   parear_por_prefixo, sem_arte_em)
 
 
 class TestPareamento(unittest.TestCase):
@@ -89,6 +90,38 @@ class TestGrupoDeSlot(unittest.TestCase):
                 self.assertNotIn(s, vistos, f"{s} em {grupo} e em {vistos.get(s)}")
                 vistos[s] = grupo
 
+
+class TestNormalizarRecolors(unittest.TestCase):
+    """O upstream declara cor de dois jeitos; a decisao 3a manda o app ver um.
+
+    359 itens usam o formato direto e 27 declaram dois canais independentes --
+    um elmo com metal e tiras de tecido tem duas cores, nao uma.
+    """
+
+    def test_formato_direto_vira_um_canal(self):
+        canais = normalizar_recolors(
+            {"material": "metal", "palettes": ["ulpc", "lpcr"]}
+        )
+        self.assertEqual(canais, [
+            {"nome": "cor", "material": "metal", "paletas": ["ulpc", "lpcr"]},
+        ])
+
+    def test_formato_por_cor_vira_um_canal_por_cor(self):
+        canais = normalizar_recolors({
+            "color_1": {"material": "metal", "palettes": ["ulpc"]},
+            "color_2": {"type_name": "hat_secondary", "label": "Helmet Strands",
+                        "material": "cloth", "base": "brown",
+                        "palettes": ["ulpc"]},
+        })
+        self.assertEqual(canais, [
+            {"nome": "color_1", "material": "metal", "paletas": ["ulpc"]},
+            {"nome": "hat_secondary", "rotulo": "Helmet Strands",
+             "material": "cloth", "base": "brown", "paletas": ["ulpc"]},
+        ])
+
+    def test_sem_recolors_nao_gera_canal(self):
+        self.assertEqual(normalizar_recolors(None), [])
+        self.assertEqual(normalizar_recolors({}), [])
 
 if __name__ == "__main__":
     unittest.main()

@@ -130,6 +130,35 @@ def grupo_do_slot(slot: str) -> str:
     return _DE_SLOT.get(slot, "Outros")
 
 
+def normalizar_recolors(r: dict | None) -> list[dict]:
+    """Um formato so de cor, como manda a decisao 3a.
+
+    O upstream declara de dois jeitos: `{material, palettes}` direto (359
+    itens) ou um bloco por cor (27 itens). Um elmo com metal e tiras de tecido
+    tem **duas cores independentes**, nao uma -- por isso o app recebe sempre
+    uma lista de canais, e nunca precisa saber qual formato o item usava.
+    """
+    if not isinstance(r, dict) or not r:
+        return []
+
+    def canal(nome: str, d: dict) -> dict:
+        fora = {"nome": nome, "material": d["material"],
+                "paletas": d.get("palettes", [])}
+        if d.get("label"):
+            fora["rotulo"] = d["label"]
+        if d.get("base"):
+            fora["base"] = d["base"]
+        return fora
+
+    if "material" in r:
+        return [canal("cor", r)]
+    return [
+        canal(v.get("type_name") or k, v)
+        for k, v in sorted(r.items())
+        if isinstance(v, dict) and "material" in v
+    ]
+
+
 def parear_por_prefixo(
     acessorios: list[dict], principais: list[dict]
 ) -> dict[str, list[str]]:
@@ -478,8 +507,10 @@ def main() -> int:
             "grupo": grupo_do_slot(d["_slot"]),
             "camadas": [],
         }
-        if isinstance(d.get("recolors"), dict):
-            entrada["recolors"] = d["recolors"]
+        # (3a) um formato so de cor: o app nunca ve os dois do upstream
+        canais = normalizar_recolors(d.get("recolors"))
+        if canais:
+            entrada["canais_de_cor"] = canais
 
         alguma = False
         for ordem, camada in camadas(d):
