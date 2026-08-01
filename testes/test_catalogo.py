@@ -62,6 +62,33 @@ class TestCatalogo(unittest.TestCase):
         repetidos = {k: v for k, v in vistos.items() if v > 1}
         self.assertEqual(repetidos, {})
 
+    def test_todo_item_tem_grupo_de_quadradinho(self):
+        sem = [i["id"] for i in self.itens if not i.get("grupo")]
+        self.assertEqual(sem, [])
+
+    def test_nenhum_slot_caiu_no_grupo_de_sobra(self):
+        """"Outros" existe para slot novo do upstream nao sumir da tela. Se
+        aparecer no pin atual, e tabela desatualizada, nao caso de borda."""
+        orfaos = sorted({i["slot"] for i in self.itens if i["grupo"] == "Outros"})
+        self.assertEqual(orfaos, [])
+
+    def test_sem_arte_so_lista_corpos_do_recorte(self):
+        corpos = set(self.cat["recorte"]["corpos"])
+        for i in self.itens:
+            self.assertLessEqual(set(i.get("sem_arte", [])), corpos, i["id"])
+
+    def test_peca_sem_arte_em_todos_os_corpos_nao_entra(self):
+        corpos = set(self.cat["recorte"]["corpos"])
+        for i in self.itens:
+            self.assertNotEqual(set(i.get("sem_arte", [])), corpos, i["id"])
+
+    def test_combina_com_aponta_para_chapeu_existente(self):
+        ids = {i["id"] for i in self.itens}
+        pares = [(i["id"], a) for i in self.itens for a in i.get("combina_com", [])]
+        self.assertTrue(pares, "nenhum acessorio de chapeu foi pareado")
+        for origem, alvo in pares:
+            self.assertIn(alvo, ids, f"{origem} aponta para {alvo}, que nao existe")
+
     def test_o_catalogo_traz_os_grupos_de_navegacao(self):
         grupos = self.cat.get("grupos")
         self.assertTrue(grupos, "catalogo sem mapa de grupos")

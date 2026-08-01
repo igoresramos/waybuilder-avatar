@@ -84,6 +84,82 @@ def identidade_da_peca(rel: str, d: dict) -> dict:
     }
 
 
+# -- agrupamento dos quadradinhos ---------------------------------------------
+#
+# A UI e um painel de casas, uma por slot: a casa mostra o que esta equipado e
+# clicar nela abre o picker daquele slot. Isso torna a exclusividade visivel --
+# uma casa, uma peca -- e e o motivo de o grupo NUNCA decidir exclusividade.
+#
+# Curado a mao porque o caminho do upstream agrupa mal (25 slots aparecem em
+# mais de um diretorio). Tabela versionada e auditavel; slot novo cai em
+# "Outros" com aviso, nunca some da tela.
+GRUPO_DE_SLOT: dict[str, tuple[str, ...]] = {
+    "Corpo": ("body", "shadow", "tail", "wings", "wings_dots", "wings_edge",
+              "fins", "horns", "prosthesis_hand", "prosthesis_leg",
+              "wheelchair"),
+    "Marcas": ("wound_arm", "wound_brain", "wound_eye_left", "wound_eye_right",
+               "wound_mouth", "wound_ribs", "wrinkles", "bandages"),
+    "Cabeca": ("head", "ears", "ears_inner", "furry_ears", "furry_ears_skin",
+               "nose"),
+    "Rosto": ("eyes", "facial_eyes", "expression", "expression_crying",
+              "eyebrows", "beard", "mustache", "facial_mask", "facial_left",
+              "facial_left_trim", "facial_right", "facial_right_trim"),
+    "Cabelo": ("hair", "hairextl", "hairextr", "ponytail", "updo", "hairtie",
+               "hairtie_rune"),
+    "Chapeu": ("hat", "hat_trim", "hat_overlay", "hat_accessory", "hat_buckle",
+               "headcover", "headcover_rune", "bandana", "bandana_overlay",
+               "visor"),
+    "Torso": ("clothes", "jacket", "jacket_trim", "jacket_collar",
+              "jacket_pockets", "vest", "dress", "dress_trim", "dress_sleeves",
+              "dress_sleeves_trim", "sleeves", "apron", "overalls", "sash",
+              "sash_tie", "cargo", "chainmail"),
+    "Pernas e pes": ("legs", "shoes", "shoes_toe", "socks"),
+    "Armadura": ("armour", "bauldron", "bracers", "gloves", "wrists",
+                 "shoulders", "arms", "belt", "buckles"),
+    "Acessorios": ("neck", "necklace", "charm", "earrings", "earring_left",
+                   "earring_right", "ring", "accessory", "cape", "cape_trim",
+                   "backpack", "backpack_straps", "quiver"),
+    "Armas": ("weapon", "weapon_magic_crystal", "ammo", "shield",
+              "shield_pattern", "shield_trim", "shield_paint"),
+}
+
+_DE_SLOT = {s: g for g, ss in GRUPO_DE_SLOT.items() for s in ss}
+
+
+def grupo_do_slot(slot: str) -> str:
+    return _DE_SLOT.get(slot, "Outros")
+
+
+def parear_por_prefixo(
+    acessorios: list[dict], principais: list[dict]
+) -> dict[str, list[str]]:
+    """`combina_com`: liga trim/overlay/fivela ao chapeu de mesmo prefixo.
+
+    Os slots continuam separados (decisao do dono): isto so deixa a UI filtrar
+    a grade pelo chapeu equipado e avisar quando o acessorio fica orfao. Casa
+    17 dos 21 acessorios do pin; o resto e curadoria.
+    """
+    fora: dict[str, list[str]] = {}
+    for a in acessorios:
+        cands = [p for p in principais if a["nome"].startswith(p["nome"])]
+        if not cands:
+            continue
+        # o par certo e o mais especifico: "Tricorne Captain" e nao "Tricorne"
+        melhor = max(cands, key=lambda p: len(p["nome"]))
+        fora[a["id"]] = [melhor["id"]]
+    return fora
+
+
+def sem_arte_em(item: dict, corpos: list[str]) -> list[str]:
+    """Variantes de corpo em que a peca nao aparece.
+
+    Sem isto a celula da grade mostra o personagem inalterado e o preview
+    mente por omissao -- 92 pecas nao tem arte para `pregnant`.
+    """
+    tem = {c for cam in item["camadas"] for c in cam["corpos"]}
+    return [c for c in corpos if c not in tem]
+
+
 def ler_grupos(raiz: str) -> dict[str, dict]:
     """Os `meta_*.json`: prioridade e rotulo de cada diretorio de navegacao.
 
@@ -369,6 +445,7 @@ def main() -> int:
             # (6b) o slot decide exclusividade; o caminho so agrupa na UI
             "slot": d["_slot"],
             "caminho": d["_caminho"],
+            "grupo": grupo_do_slot(d["_slot"]),
             "camadas": [],
         }
         if isinstance(d.get("recolors"), dict):
@@ -428,8 +505,28 @@ def main() -> int:
             for l in c.get("licenses", []) or []:
                 licencas_vistas[l] += 1
 
+        # a celula da grade mostra a peca NO personagem; sem isto ela exibe o
+        # boneco inalterado quando a peca nao cobre o corpo atual, e o preview
+        # mente por omissao
+        faltantes = sem_arte_em(entrada, CORPOS)
+        if faltantes:
+            entrada["sem_arte"] = faltantes
+
         catalogo.append(entrada)
         contagem[categoria] += 1
+
+    # `combina_com`: trim/overlay/fivela pareados ao chapeu. Depois do laco
+    # porque precisa do catalogo inteiro montado.
+    ACESSORIOS_DE = {"hat": ("hat_trim", "hat_overlay", "hat_accessory",
+                             "hat_buckle")}
+    for principal, acessorios in ACESSORIOS_DE.items():
+        pares = parear_por_prefixo(
+            [i for i in catalogo if i["slot"] in acessorios],
+            [i for i in catalogo if i["slot"] == principal],
+        )
+        for i in catalogo:
+            if i["id"] in pares:
+                i["combina_com"] = pares[i["id"]]
 
     # paletas: o recolor do formato novo acontece no APP, nao aqui -- copiar
     # multiplica arquivo por cor e e exatamente o que o recorte evita.

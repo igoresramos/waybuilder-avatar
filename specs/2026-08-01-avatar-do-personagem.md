@@ -1,7 +1,7 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 4
+version: 5
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
@@ -11,6 +11,8 @@ revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   @4 (2026-08-01) -- decisao 6b: o slot vem do `type_name`, nunca do caminho.
   Nasceu de um prototipo que tratou `head` como escolha unica e apagou os 15
   slots que convivem com ela
+  @5 (2026-08-01) -- decisoes 5c/5d/5e: a tela vira painel de casas por slot,
+  com `combina_com` e `sem_arte`, e o desenho ganha desempate de `zPos`
 ---
 
 # Spec -- o avatar do personagem
@@ -165,6 +167,49 @@ no canvas. Ele precisa de tres coisas que o esboco inicial nao previa:
   - **`layer_1..layer_N`**, cada uma com seu proprio `zPos`.
 
 Nao e um loop de `drawImage` -- e um renderer pequeno. Orcar como tal.
+
+**5c. A tela e um painel de casas, uma por slot.** Adicionada em @5.
+
+Cada slot vira um **quadradinho** que mostra o que esta equipado ali; clicar
+abre o picker daquele slot. A exclusividade fica visivel -- uma casa, uma peca
+-- e os 41 slots de peca unica viram liga/desliga em vez de grade.
+
+As casas se agrupam em **11 secoes** (`Corpo`, `Marcas`, `Cabeca`, `Rosto`,
+`Cabelo`, `Chapeu`, `Torso`, `Pernas e pes`, `Armadura`, `Acessorios`,
+`Armas`), por tabela curada no build (`GRUPO_DE_SLOT`). O grupo decide **so**
+em que secao a casa aparece; **nunca** exclusividade, que e do slot.
+
+> Por que curada e nao derivada do caminho: o caminho agrupa mal. `hair` vive
+> em 10 diretorios -- o jogador equipa em `hair/short`, navega para
+> `hair/braids` e a peca equipada nao aparece marcada em lugar nenhum, porque o
+> estado e por slot e a navegacao seria por pasta. Slot novo no upstream cai em
+> `Outros` com aviso; nunca some da tela.
+
+O padrao ja existe no app: `app/src/componentes/Slot.tsx` faz casa -> modal com
+busca, filtros e lista virtual, com botao de limpar. Muda a apresentacao do
+gatilho (quadrado em vez de linha), nao a mecanica.
+
+**5d. `combina_com` e `sem_arte`.** Dois metadados que a tela de casas exige:
+
+- **`combina_com`** -- `hat_trim`, `hat_overlay`, `hat_accessory` e
+  `hat_buckle` continuam **slots separados** (decisao do dono), mas o build
+  pareia cada um ao chapeu de mesmo prefixo de nome: medido, **17 dos 21**
+  casam ("Tricorne Captain Trim" -> "Tricorne Captain"), preferindo sempre o
+  nome mais longo. O picker filtra pelo chapeu equipado, e trocar de chapeu
+  avisa quando o acessorio fica orfao -- nunca troca em silencio.
+- **`sem_arte`** -- as variantes de corpo em que a peca nao aparece. Medido:
+  **92 pecas nao tem arte para `pregnant`**, 68 para `teen`, 27 para `male`, 21
+  para `female`. Sem marcar, a celula da 5b mostra o personagem inalterado e o
+  preview que "nunca mente" mente por omissao.
+
+**5e. A ordem de desenho precisa de desempate.** Medido: **30 dos 64 valores de
+`zPos` sao compartilhados por mais de um slot** (o `zPos` 115 tem 13). Ordenar
+so por `zPos` deixa o resto por conta da ordem de insercao -- e no
+`visualizador.html:132` isso significa que **a ordem em que o jogador clicou
+decide o render**. Duas fichas com a mesma selecao desenham diferente.
+
+O renderer ordena por `(zPos, slot, ordem_da_camada)`, e a fixture byte a byte
+das Travas **tem de variar a ordem de insercao**, senao nunca pega a regressao.
 
 **5b. A grade mostra a peca NO personagem, nao isolada.** Igual ao Stardew: o
 jogador ve o proprio boneco mudando enquanto navega, nao um catalogo de pecas
