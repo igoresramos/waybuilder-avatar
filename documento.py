@@ -63,11 +63,20 @@ def sobrepor(fundo, frente):
     return saida
 
 
-def tira(frames, zoom=ZOOM):
-    """Uma faixa horizontal com os frames do ciclo, ampliada, em data URI."""
+def tira(frames):
+    """Uma faixa horizontal com os frames do ciclo, em data URI.
+
+    Em tamanho NATIVO -- quem amplia e o CSS, com `image-rendering: pixelated`.
+    Gravar ja ampliado multiplicava o peso por nove sem ganhar nitidez nenhuma,
+    e com 235 pecas na pagina isso e a diferenca entre abrir e nao abrir.
+    """
     faixa = np.concatenate(frames, axis=1)
     im = Image.fromarray(faixa)
-    im = im.resize((im.width * zoom, im.height * zoom), Image.NEAREST)
+    # paleta em vez de RGBA: a arte tem 6 cores por rampa, e guardar 32 bits por
+    # pixel para isso e o que fazia a pagina passar de 18 MB
+    # FASTOCTREE e o unico quantizador que aceita RGBA, e aqui o alpha PRECISA
+    # sobreviver: e ele que deixa o fundo da pagina aparecer atras do boneco
+    im = im.quantize(colors=255, method=Image.FASTOCTREE)
     buf = io.BytesIO()
     im.save(buf, format="PNG", optimize=True)
     return base64.b64encode(buf.getvalue()).decode()
@@ -76,6 +85,9 @@ def tira(frames, zoom=ZOOM):
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--por-classe", type=int, default=14)
+    p.add_argument("--corpo", default="male",
+                   help="'todos' inclui os seis; o padrao e so o masculino, "
+                        "que e o corpo com mais arte e o que o app abre")
     p.add_argument("--preenchimento", default="preenchimento")
     p.add_argument("--saida", default="docs/2026-08-02_animacoes-geradas.html")
     args = p.parse_args()
@@ -89,6 +101,8 @@ def main():
     # mostrar a peca inteira de uma vez
     por_peca = defaultdict(list)
     for r in lacunas:
+        if args.corpo != "todos" and r["corpo"] != args.corpo:
+            continue
         por_peca[(r["id"], r["corpo"], r["camada"])].append(r)
 
     # amostra equilibrada: as duas vias tem qualidade diferente e precisam ser
@@ -96,8 +110,11 @@ def main():
     escolhidas = {"analoga": [], "corpo": []}
     for chave, rs in sorted(por_peca.items()):
         via = "corpo" if all(r["via"] == "corpo" for r in rs) else "analoga"
-        if len(escolhidas[via]) < args.por_classe:
-            escolhidas[via].append((chave, rs))
+        # `--por-classe 0` mostra TODAS: e o modo de conferencia de verdade,
+        # amostra serve para iterar no layout
+        if args.por_classe and len(escolhidas[via]) >= args.por_classe:
+            continue
+        escolhidas[via].append((chave, rs))
 
     corpo_base = byid.get("body/body-color")
     blocos = []
@@ -251,7 +268,9 @@ def montar(blocos, resumo, total, pecas):
   .fita {{ margin:0; display:flex; flex-direction:column; gap:5px; }}
   .palco {{ width:{Q*ZOOM}px; height:{Q*ZOOM}px; image-rendering:pixelated;
             border:1px solid var(--linha); border-radius:6px;
-            background-repeat:no-repeat; background-size:calc(var(--n) * 100%) 100%;
+            background-repeat:no-repeat;
+            /* a tira vem em 64px por quadro; o CSS e que amplia */
+            background-size:calc(var(--n) * {Q*ZOOM}px) {Q*ZOOM}px;
             animation:anda var(--dur) steps(var(--n)) infinite; }}
   @keyframes anda {{ from {{ background-position:0 0; }}
                      to {{ background-position:var(--fim) 0; }} }}
