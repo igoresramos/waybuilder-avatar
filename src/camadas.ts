@@ -45,6 +45,7 @@ export function montarCamadas(
     }
 
     let desenhou = false;
+    let substituiu = false;
     for (const camada of item.camadas) {
       const variante = camada.corpos[corpo];
       if (!variante) continue;
@@ -57,11 +58,28 @@ export function montarCamadas(
         pedidaPrincipal !== undefined && pedidaPrincipal in variante.cores
           ? pedidaPrincipal
           : nomes[0]!;
-      // Peca que nao tem a animacao atual NAO desenha nesta linha. Cair na
-      // primeira desenharia a tira errada -- a peca ficaria parada enquanto o
-      // resto anda. E o que o gerador faz (`canvas/renderer.ts:343`).
-      const anim = variante.animacoes.find((a) => a.nome === animacao);
+      // Peca sem a animacao atual aparece PARADA, nao some.
+      //
+      // O gerador omite a camada (`canvas/renderer.ts:343`) e nos copiavamos.
+      // Medido no acervo, isso apagava 170 dos 627 itens -- 77% da armadura,
+      // 75% dos acessorios --, pecas do formato legado que nunca ganharam as
+      // animacoes novas. O jogador equipava e a peca sumia sem explicacao.
+      //
+      // A substituicao trava no PRIMEIRO frame (`frames: 1` abaixo), e nunca
+      // roda a tira alheia em movimento -- esse era o risco que o gerador
+      // evitava, e ele continua evitado. A ordem vem do RECORTE, nao da ordem
+      // em que o build gravou: duas fichas com a mesma selecao tem de desenhar
+      // igual.
+      let anim = variante.animacoes.find((a) => a.nome === animacao);
+      const substituta = anim === undefined;
+      if (substituta) {
+        for (const nome of catalogo.recorte.animacoes) {
+          const alt = variante.animacoes.find((a) => a.nome === nome);
+          if (alt) { anim = alt; break; }
+        }
+      }
       if (!anim) continue;
+      if (substituta) substituiu = true;
 
       // Cor pedida que nao e faixa do atlas vira recolor em runtime, um por
       // canal. Sao 383 dos 609 itens -- inclui pele e cabelo, que o `build.py`
@@ -97,7 +115,7 @@ export function montarCamadas(
         arq: variante.arq,
         x: anim.x,
         y: variante.cores[escolhida]!,
-        frames: anim.frames,
+        frames: substituta ? 1 : anim.frames,
         zPos: camada.zPos,
         slot,
         ordem: camada.ordem,
@@ -110,6 +128,10 @@ export function montarCamadas(
     // grade mostraria o personagem inalterado e o preview mentiria por omissao.
     if (!desenhou) {
       avisos.push({ slot, id: escolha.id, motivo: "sem-arte-no-corpo" });
+    } else if (substituiu) {
+      // desenhou, mas travada: a tela precisa poder dizer isso, senao o
+      // jogador acha que a peca e que esta com defeito
+      avisos.push({ slot, id: escolha.id, motivo: "animacao-substituida" });
     }
   }
 

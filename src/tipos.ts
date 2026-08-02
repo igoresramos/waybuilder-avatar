@@ -144,7 +144,7 @@ export interface CamadaDesenhavel {
 export interface Aviso {
   slot: Slot;
   id: string;
-  motivo: "id-orfao" | "sem-arte-no-corpo";
+  motivo: "id-orfao" | "sem-arte-no-corpo" | "animacao-substituida";
 }
 
 export interface Composicao {

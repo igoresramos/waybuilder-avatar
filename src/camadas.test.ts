@@ -133,13 +133,51 @@ describe("montarCamadas", () => {
     expect(camadas[0]!.y).toBe(0);
   });
 
-  it("peca sem a animacao atual NAO desenha, em vez de congelar noutra", () => {
-    // O gerador omite a camada naquela linha (`canvas/renderer.ts:343`). Cair
-    // na primeira animacao desenharia a tira errada -- a peca ficaria parada
-    // enquanto o resto anda.
+  it("peca sem a animacao atual aparece PARADA, em vez de sumir", () => {
+    // DECISAO DO DONO, revendo o que o gerador faz. Ele omite a camada naquela
+    // linha (`canvas/renderer.ts:343`), e nos copiavamos: a peca simplesmente
+    // desaparecia. Medido, isso atinge 170 dos 627 itens -- 77% da armadura e
+    // 75% dos acessorios --, porque sao pecas do formato legado do LPC, que
+    // nunca ganharam as animacoes novas. Equipar e ver sumir e pior do que ver
+    // parada: o jogador nao tem como saber que a peca esta equipada.
+    //
+    // A peca cai no PRIMEIRO frame de uma animacao que ela tenha, e fica ali:
+    // congelada de proposito. Nunca na tira errada em movimento, que era o
+    // risco que o gerador evita.
     const cat = catalogo([peca({ id: "hair/afro", slot: "hair" })]);
     const { camadas, avisos } = montarCamadas(
       cat, { hair: { id: "hair/afro" } }, "male", "run",
+    );
+    expect(camadas).toHaveLength(1);
+    // um frame so: o desenho trava aqui enquanto o resto do boneco anda
+    expect(camadas[0]!.frames).toBe(1);
+    expect(camadas[0]!.x).toBe(0);
+    expect(avisos).toEqual([
+      { slot: "hair", id: "hair/afro", motivo: "animacao-substituida" },
+    ]);
+  });
+
+  it("a substituicao respeita a ordem do recorte, para ser deterministica", () => {
+    // Duas fichas com a mesma selecao tem de desenhar igual. Sem uma ordem
+    // declarada, a escolha cairia na ordem em que o build gravou as animacoes.
+    const p = peca({ id: "hair/afro", slot: "hair" });
+    p.camadas[0]!.corpos["male"]!.animacoes = [
+      { nome: "sit", frames: 3, x: 500 },
+      { nome: "walk", frames: 8, x: 100 },
+    ];
+    const cat = catalogo([p]);
+    cat.recorte.animacoes = ["idle", "walk", "sit"];
+    const { camadas } = montarCamadas(cat, { hair: { id: "hair/afro" } }, "male", "idle");
+    // `walk` vem antes de `sit` no recorte, mesmo estando depois na peca
+    expect(camadas[0]!.x).toBe(100);
+  });
+
+  it("peca que nao cobre este corpo continua sem desenhar", () => {
+    // A substituicao e por ANIMACAO. Corpo que a peca nao veste nao tem arte
+    // nenhuma para congelar -- e outro caso, e continua avisando o que era.
+    const p = peca({ id: "hair/afro", slot: "hair" });
+    const { camadas, avisos } = montarCamadas(
+      catalogo([p]), { hair: { id: "hair/afro" } }, "female", "idle",
     );
     expect(camadas).toEqual([]);
     expect(avisos).toEqual([
