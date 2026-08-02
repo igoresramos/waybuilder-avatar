@@ -172,8 +172,12 @@ def montar(blocos, resumo, total, pecas):
         fonte = (f'<p class="fonte">molde: {f["doadora"]}'
                  + (f' &middot; silhueta {int(f["iou"]*100)}%' if f["iou"] else '')
                  + '</p>') if f["sintetica"] and f["doadora"] else ''
+        # `--fim` e a largura TOTAL da tira, em px. Sem ela a animacao percorria
+        # a largura de um frame so e cada passo deslizava uma fracao -- a peca
+        # escorregava para o lado em vez de trocar de quadro.
         return f"""          <figure class="fita">
             <div class="palco" style="--n:{f['n']};--dur:{dur}s;
+                 --fim:-{f['n'] * Q * ZOOM}px;
                  background-image:url(data:image/png;base64,{f['b64']})"
                  role="img" aria-label="{f['rotulo']}{' gerada' if f['sintetica'] else ' original'}"></div>
             <figcaption>{f['rotulo']} {marca}{fonte}</figcaption>
@@ -250,7 +254,7 @@ def montar(blocos, resumo, total, pecas):
             background-repeat:no-repeat; background-size:calc(var(--n) * 100%) 100%;
             animation:anda var(--dur) steps(var(--n)) infinite; }}
   @keyframes anda {{ from {{ background-position:0 0; }}
-                     to {{ background-position:-{Q*ZOOM}px 0; }} }}
+                     to {{ background-position:var(--fim) 0; }} }}
   @media (prefers-reduced-motion: reduce) {{ .palco {{ animation:none; }} }}
   figcaption {{ font-size:.76rem; color:var(--fraco); max-width:{Q*ZOOM}px; }}
   .etiqueta {{ font-family:var(--mono); font-size:.62rem; letter-spacing:.08em;
