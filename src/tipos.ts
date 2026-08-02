@@ -22,6 +22,15 @@ export interface Variante {
   animacoes: Animacao[];
   /** nome da cor -> deslocamento vertical no atlas. */
   cores: Record<string, number>;
+  /**
+   * A cor de cada faixa nomeada, para a tela desenhar o quadradinho -- 5f.
+   *
+   * Uma cor por faixa: o acervo nao tem faixa bicolor, e a premissa contraria
+   * foi medida e caiu (nome composto como `kite_blue_blue` e slug da peca mais
+   * cor, nao duas cores). Opcional porque acervo anterior a decisao nao traz o
+   * campo, e ai a tela cai no nome escrito, que era o comportamento antigo.
+   */
+  amostras?: Record<string, string>;
 }
 
 export interface Camada {

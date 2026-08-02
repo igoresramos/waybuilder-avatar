@@ -559,6 +559,59 @@ def recortar_frente(im, largura_alvo: int, linha: int = LINHA_DA_FRENTE):
     return tela
 
 
+def amostra_da_faixa(arr) -> str | None:
+    """A cor que representa uma faixa do atlas -- spec, decisao 5f.
+
+    O painel mostrava quadradinho colorido para a peca com paleta e o NOME
+    escrito para a peca do formato antigo, porque so no primeiro caso o app
+    sabe o RGB. Aqui o build olha a arte e resolve isso para as duas.
+
+    NAO e a cor mais frequente: o contorno e quase preto e costuma ser o tom
+    mais comum numa peca pequena, entao amostrar por frequencia pintaria o
+    acervo de preto. Descartamos as pontas -- contorno e brilho -- e ficamos com
+    o miolo, que e o mesmo criterio que o app ja aplica as rampas de paleta.
+
+    **Uma cor por faixa, nunca duas.** A primeira versao devolvia um par quando
+    a faixa parecia bicolor, porque 99 dos 182 nomes de faixa sao compostos
+    (`kite_blue_blue`, `base_black`). A premissa estava errada: o nome composto
+    e artefato de nomenclatura -- `kite_blue_blue` e o slug da peca (`kite_blue`)
+    mais a cor (`blue`), como o rotulo "Azul e Azul" ja tinha denunciado --, nao
+    duas cores. Medido no acervo, o detector marcava 40% das faixas como
+    bicolor; apertado, ainda marcava 4,5%, e ao olhar a arte dos casos que
+    sobraram (`docs/2026-08-02_amostras-suspeitas.png`) todos eram de uma cor
+    so, com o par saindo do contorno ou de dois tons da mesma rampa. Zero
+    bicolor de verdade.
+    """
+    import numpy as np
+
+    px = arr.reshape(-1, 4)
+    px = px[px[:, 3] > 0]
+    if len(px) == 0:
+        return None
+
+    cores, contagem = np.unique(px[:, :3], axis=0, return_counts=True)
+    # luminancia perceptual, para saber o que e contorno e o que e brilho
+    lum = cores @ np.array([0.299, 0.587, 0.114])
+
+    def miolo(idx):
+        """O tom do meio de um conjunto, ponderado por quanto cada um aparece."""
+        ordem = idx[np.argsort(lum[idx], kind="stable")]
+        peso = np.cumsum(contagem[ordem])
+        # a mediana ponderada cai no tom que a peca de fato usa como cor
+        alvo = peso[-1] / 2
+        return ordem[int(np.searchsorted(peso, alvo))]
+
+    todos = np.arange(len(cores))
+    # O CONTORNO SAI ANTES DA CONTA. Ele e quase preto e chega a ser MAIORIA
+    # numa peca pequena -- e ai a mediana ponderada cai nele e a peca inteira
+    # vira um quadradinho preto. O piso e relativo ao tom mais claro da propria
+    # faixa, porque a peca inteira pode ser escura.
+    miolo_valido = todos[lum > lum.max() * 0.30]
+    if len(miolo_valido) == 0:  # peca sem nenhum tom claro: vale o que houver
+        miolo_valido = todos
+    return "#%02x%02x%02x" % tuple(cores[miolo(miolo_valido)])
+
+
 def quantizar_exato(im):
     """Indexa mantendo cada cor RGB intacta.
 
@@ -693,15 +746,24 @@ def montar_atlas(dirbase: str, cores: list[str | None]):
             mapa_anim = mapa
         faixas.append((cor or "base", tira))
     if not faixas:
-        return None, [], {}
+        return None, [], {}, {}
+
+    import numpy as np
 
     largura = max(t.size[0] for _, t in faixas)
     atlas = Image.new("RGBA", (largura, ALTURA * len(faixas)), (0, 0, 0, 0))
     por_cor: dict[str, int] = {}
+    amostras: dict[str, str] = {}
     for i, (nome, tira) in enumerate(faixas):
         atlas.alpha_composite(tira, (0, i * ALTURA))
         por_cor[nome] = i * ALTURA
-    return atlas, mapa_anim, por_cor
+        # a cor que o painel vai mostrar no quadradinho (5f). So faz sentido
+        # para a faixa NOMEADA: `base` e a arte crua, que o app recolore.
+        if nome != "base":
+            a = amostra_da_faixa(np.array(tira.convert("RGBA")))
+            if a:
+                amostras[nome] = a
+    return atlas, mapa_anim, por_cor, amostras
 
 
 def montar_folha(dirbase: str, cor_alvo: str | None):
@@ -894,7 +956,7 @@ def main() -> int:
                 if not cores:
                     continue
 
-                atlas, mapa, por_cor = montar_atlas(dirbase, cores)
+                atlas, mapa, por_cor, amostras = montar_atlas(dirbase, cores)
                 if atlas is None:
                     continue
                 cores_da_arte |= cores_de(atlas)
@@ -907,6 +969,9 @@ def main() -> int:
                         {"nome": a, "frames": n, "x": x} for a, n, x in mapa
                     ],
                     "cores": por_cor,
+                    # a cor de cada faixa, para o painel desenhar o mesmo
+                    # quadradinho que ja desenha para as pecas com paleta (5f)
+                    "amostras": amostras,
                 }
                 variantes[corpo] = variante
                 pendentes[(d["_slot"], ordem, corpo)].append(
