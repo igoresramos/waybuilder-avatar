@@ -12,8 +12,8 @@ O que este passo faz, e por que (decisao 3 da spec):
      "cor e arquivo" para "cor e paleta", e os dois coexistem (medido: 76.491
      arquivos no formato antigo, 11.744 no novo). O app so ve um.
   b. recorta as animacoes para cinco: idle, combat_idle, walk, sit, run.
-  b2. recorta as variantes de corpo: child, muscular, skeleton e zombie ficam
-     fora. Entram male, female, pregnant, teen.
+  b2. recorta as variantes de corpo: skeleton e zombie ficam fora. Entram os
+     seis do gerador -- male, female, teen, child, muscular, pregnant.
   b3. recorta a DIRECAO: so a de frente. O LPC empilha 4 direcoes por folha, em
      linhas de 64px, na ordem [costas, perfil-esq, FRENTE, perfil-dir] --
      verificado visualmente, nao suposto. Sozinho, este corte tira 75%.
@@ -47,7 +47,25 @@ SAIDA = os.path.join(AQUI, "saida")
 # -- o recorte ---------------------------------------------------------------
 
 ANIMACOES = ["idle", "combat_idle", "walk", "sit", "run"]
-CORPOS = ["male", "female", "pregnant", "teen"]
+
+# Ordem do gerador (`sources/state/constants.ts:9`). `child` e `muscular`
+# voltaram em @9: o corte da 3b2 escondia 19 definitions que so tinham arte de
+# crianca -- elas caiam em "sem arte" e sumiam da tela.
+CORPOS = ["male", "female", "teen", "child", "muscular", "pregnant"]
+
+# O gerador nao toca os frames em ordem crua: anima por CICLO, a 8 FPS
+# (`sources/canvas/preview-animation.ts:74,180`; ciclos em
+# `state/constants.ts:124-154`). `walk` pula o frame 0, que e pose parada --
+# sem o ciclo a caminhada soluca uma pose parada a cada volta. `combat_idle`
+# usa o ciclo de `combat`, que e como o gerador chama a mesma linha.
+CICLOS: dict[str, list[int]] = {
+    "idle": [0, 0, 1],
+    "combat_idle": [0, 0, 1],
+    "walk": [1, 2, 3, 4, 5, 6, 7, 8],
+    "sit": [0] * 5 + [1] * 5 + [2] * 5,
+    "run": [0, 1, 2, 3, 4, 5, 6, 7],
+}
+FPS = 8
 
 # a folha empilha 4 direcoes em linhas de 64px; a de frente e a TERCEIRA.
 # Verificado compondo body+head e olhando: linha 0 nao tem olhos (costas),
@@ -99,24 +117,24 @@ GRUPO_DE_SLOT: dict[str, tuple[str, ...]] = {
               "wheelchair"),
     "Marcas": ("wound_arm", "wound_brain", "wound_eye_left", "wound_eye_right",
                "wound_mouth", "wound_ribs", "wrinkles", "bandages"),
-    "Cabeca": ("head", "ears", "ears_inner", "furry_ears", "furry_ears_skin",
+    "Cabeça": ("head", "ears", "ears_inner", "furry_ears", "furry_ears_skin",
                "nose"),
     "Rosto": ("eyes", "facial_eyes", "expression", "expression_crying",
               "eyebrows", "beard", "mustache", "facial_mask", "facial_left",
               "facial_left_trim", "facial_right", "facial_right_trim"),
     "Cabelo": ("hair", "hairextl", "hairextr", "ponytail", "updo", "hairtie",
                "hairtie_rune"),
-    "Chapeu": ("hat", "hat_trim", "hat_overlay", "hat_accessory", "hat_buckle",
+    "Chapéu": ("hat", "hat_trim", "hat_overlay", "hat_accessory", "hat_buckle",
                "headcover", "headcover_rune", "bandana", "bandana_overlay",
                "visor"),
     "Torso": ("clothes", "jacket", "jacket_trim", "jacket_collar",
               "jacket_pockets", "vest", "dress", "dress_trim", "dress_sleeves",
               "dress_sleeves_trim", "sleeves", "apron", "overalls", "sash",
               "sash_tie", "cargo", "chainmail"),
-    "Pernas e pes": ("legs", "shoes", "shoes_toe", "socks"),
+    "Pernas e Pés": ("legs", "shoes", "shoes_toe", "socks"),
     "Armadura": ("armour", "bauldron", "bracers", "gloves", "wrists",
                  "shoulders", "arms", "belt", "buckles"),
-    "Acessorios": ("neck", "necklace", "charm", "earrings", "earring_left",
+    "Acessórios": ("neck", "necklace", "charm", "earrings", "earring_left",
                    "earring_right", "ring", "accessory", "cape", "cape_trim",
                    "backpack", "backpack_straps", "quiver"),
     "Armas": ("weapon", "weapon_magic_crystal", "ammo", "shield",
@@ -141,24 +159,80 @@ def segue_cor_do_corpo(d: dict) -> bool:
     return bool(d.get("match_body_color"))
 
 
-def normalizar_recolors(r: dict | None) -> list[dict]:
+def ler_metas_de_material(raiz: str | None = None) -> dict[str, dict]:
+    """`meta_<material>.json` de cada material de paleta: `default` e `base`.
+
+    Sao eles que dizem em que rampa a arte foi pintada -- o cabelo nasce em
+    `ulpc.orange`, a pele em `ulpc.light`. Sem isso o recolor nao tem de onde
+    sair.
+    """
+    raiz = raiz or os.path.join(FONTE, "palette_definitions")
+    fora: dict[str, dict] = {}
+    if not os.path.isdir(raiz):
+        return fora
+    for mat in sorted(os.listdir(raiz)):
+        caminho = os.path.join(raiz, mat, f"meta_{mat}.json")
+        if not os.path.isfile(caminho):
+            continue
+        try:
+            with open(caminho, encoding="utf-8") as f:
+                d = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            continue
+        if d.get("type") == "material":
+            fora[mat] = d
+    return fora
+
+
+def base_do_canal(material: str, base: str | None,
+                  metas: dict[str, dict]) -> str | None:
+    """A rampa de ORIGEM do canal, sempre no formato `<versao>.<rampa>`.
+
+    Regra do gerador (`scripts/generateSources/item-helper.js:55-66`):
+    sem `base`, vale `<default>.<base>` do material; com `base` sem ponto, a
+    versao e a padrao do material; com ponto, manda inteiro.
+
+    41 canais do acervo declaram base proprio (`cloth.brown`,
+    `body.lpcr.ivory`). O app usava sempre o base do material e o recolor nao
+    casava pixel nenhum: a cor aparecia na lista e nao pintava.
+    """
+    md = metas.get(material)
+    if md is None:
+        return None
+    if not base:
+        return f"{md['default']}.{md['base']}"
+    return base if "." in base else f"{md['default']}.{base}"
+
+
+def normalizar_recolors(r: dict | None,
+                        metas: dict[str, dict] | None = None) -> list[dict]:
     """Um formato so de cor, como manda a decisao 3a.
 
     O upstream declara de dois jeitos: `{material, palettes}` direto (359
     itens) ou um bloco por cor (27 itens). Um elmo com metal e tiras de tecido
     tem **duas cores independentes**, nao uma -- por isso o app recebe sempre
     uma lista de canais, e nunca precisa saber qual formato o item usava.
+
+    Cada canal sai com a rampa de ORIGEM ja resolvida (`base`, e `fonte` quando
+    o proprio canal traz as cores). O app nao reimplementa a regra -- e quando
+    reimplementou, reimplementou errado.
     """
     if not isinstance(r, dict) or not r:
         return []
+    metas = metas if metas is not None else {}
 
     def canal(nome: str, d: dict) -> dict:
         fora = {"nome": nome, "material": d["material"],
                 "paletas": d.get("palettes", [])}
         if d.get("label"):
             fora["rotulo"] = d["label"]
-        if d.get("base"):
-            fora["base"] = d["base"]
+        base = base_do_canal(d["material"], d.get("base"), metas)
+        if base:
+            fora["base"] = base
+        # `source` vence a busca por paleta: sao as cores da arte, escritas na
+        # propria definition (`sources/state/palettes.ts:179-182`)
+        if isinstance(d.get("source"), list) and d["source"]:
+            fora["fonte"] = d["source"]
         return fora
 
     if "material" in r:
@@ -168,6 +242,145 @@ def normalizar_recolors(r: dict | None) -> list[dict]:
         for k, v in sorted(r.items())
         if isinstance(v, dict) and "material" in v
     ]
+
+
+def faixas_declaradas(achadas: list, variants: list[str] | None) -> list:
+    """So e cor da peca a faixa que a peca DECLARA em `variants`.
+
+    O diretorio da animacao tem arquivos que nao sao variante -- `_leather`,
+    `_brown`, `crown_red`, `spear`. Medido: 55 faixas assim entravam no
+    catalogo e viravam botao de cor que o gerador oficial nunca ofereceu.
+
+    A declaracao usa espaco onde o arquivo usa underscore
+    (`variantToFilename`: `"kite blue blue"` -> `kite_blue_blue.png`).
+
+    Peca sem `variants` mantem o que achou: 4 do acervo estao nessa situacao e
+    filtrar por lista vazia as apagaria. Se nada casar, tambem mantem -- perder
+    a arte e pior que oferecer uma cor a mais.
+    """
+    if not variants:
+        return achadas
+    permitidas = {v.replace(" ", "_") for v in variants}
+    filtradas = [c for c in achadas if c is None or c in permitidas]
+    return filtradas or achadas
+
+
+NOMES = os.path.join(AQUI, "nomes")
+
+
+def ler_nomes_ptbr(raiz: str | None = None) -> dict[str, str]:
+    """`id do item -> nome em pt-BR`, unido dos mapas de `nomes/`.
+
+    Traduzido a mao em tres blocos, um por frente de trabalho. A uniao tem de
+    ser disjunta: id em dois arquivos e conflito de traducao, e o build avisa
+    em vez de escolher em silencio.
+    """
+    raiz = raiz or NOMES
+    fora: dict[str, str] = {}
+    if not os.path.isdir(raiz):
+        return fora
+    for a in sorted(os.listdir(raiz)):
+        if not a.endswith(".json") or a == "slots.json":
+            continue
+        try:
+            with open(os.path.join(raiz, a), encoding="utf-8") as f:
+                d = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            print(f"  ! mapa de nomes ilegivel, pulado: {a} ({e})")
+            continue
+        for k, v in d.items():
+            if k in fora and fora[k] != v:
+                print(f"  ! id traduzido duas vezes: {k} "
+                      f"({fora[k]!r} / {v!r}) -- vale o primeiro")
+                continue
+            fora[k] = v
+    return fora
+
+
+def _ler_mapa(nome: str, raiz: str | None = None) -> dict[str, str]:
+    caminho = os.path.join(raiz or NOMES, nome)
+    if not os.path.isfile(caminho):
+        return {}
+    try:
+        with open(caminho, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        print(f"  ! {nome} ilegivel ({e})")
+        return {}
+
+
+def ler_rotulos_de_slot(raiz: str | None = None) -> dict[str, str]:
+    """`slot -> rotulo em pt-BR`. A casa mostrava `facial_eyes` cru."""
+    return _ler_mapa("slots.json", raiz)
+
+
+def ler_rotulos_de_cor(raiz: str | None = None) -> dict[str, str]:
+    """`nome cru da cor -> rotulo em pt-BR`.
+
+    Cobre os dois mundos: rampa de paleta (`emerald`) e faixa de atlas
+    (`kite_blue_blue`). A chave e o nome CRU, com prefixo de peca -- a
+    traducao ja descarta o prefixo no valor ("Azul e Azul"), menos nos
+    amuletos, onde o metal e informacao de cor ("Aco e Amarelo").
+    """
+    return _ler_mapa("cores.json", raiz)
+
+
+def ler_paletas(raiz: str | None = None) -> dict[tuple[str, str], dict]:
+    """`(material, versao) -> {rampa: [hex]}` de `palette_definitions`."""
+    raiz = raiz or os.path.join(FONTE, "palette_definitions")
+    fora: dict[tuple[str, str], dict] = {}
+    if not os.path.isdir(raiz):
+        return fora
+    for mat in sorted(os.listdir(raiz)):
+        d = os.path.join(raiz, mat)
+        if not os.path.isdir(d):
+            continue
+        for a in sorted(os.listdir(d)):
+            if a.startswith("meta_") or not a.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(d, a), encoding="utf-8") as f:
+                    fora[(mat, a[len(mat) + 1:-5])] = json.load(f)
+            except (OSError, json.JSONDecodeError, IndexError):
+                continue
+    return fora
+
+
+def _rgb(hexa: str) -> tuple[int, int, int]:
+    n = int(hexa.lstrip("#"), 16)
+    return ((n >> 16) & 255, (n >> 8) & 255, n & 255)
+
+
+def rampa_de_origem(canal: dict, paletas: dict[tuple[str, str], dict]
+                    ) -> list[str] | None:
+    """As cores em que a arte do canal foi pintada.
+
+    `fonte` vence a busca por paleta -- e o que o gerador faz quando a
+    definition traz `source` (`sources/state/palettes.ts:179-182`).
+    """
+    if canal.get("fonte"):
+        return canal["fonte"]
+    base = canal.get("base")
+    if not base or "." not in base:
+        return None
+    versao, rampa = base.split(".", 1)
+    return paletas.get((canal["material"], versao), {}).get(rampa)
+
+
+def canal_pinta(canal: dict, cores_da_arte: set,
+                paletas: dict[tuple[str, str], dict]) -> bool:
+    """O recolor deste canal muda algum pixel desta peca?
+
+    Medido: 9 dos 413 canais do acervo declaram uma rampa de origem que NAO
+    aparece em nenhum pixel da arte -- os olhos das cabecas idosas, o laco dos
+    cabelos amarrados, as expressoes `-alt`. Eles ofereciam ate 121 cores e
+    nenhuma pintava. O pedido do dono e literal: a cor listada tem de ser real
+    e pareavel com o asset.
+    """
+    rampa = rampa_de_origem(canal, paletas)
+    if not rampa:
+        return False
+    return bool(cores_da_arte & {_rgb(c) for c in rampa})
 
 
 def parear_por_prefixo(
@@ -551,6 +764,18 @@ def main() -> int:
     except OSError:
         pass
 
+    # A contagem do build ANTERIOR, lida antes de apagar a saida: perda de cor
+    # e invisivel (609 itens continuam 609 enquanto as cores caem), e ja
+    # aconteceu. O portao avisa quando um slot perde faixa.
+    anterior: dict = {}
+    marco = os.path.join(SAIDA, "contagem_de_cores.json")
+    if os.path.isfile(marco):
+        try:
+            with open(marco, encoding="utf-8") as f:
+                anterior = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            anterior = {}
+
     if os.path.isdir(SAIDA):
         shutil.rmtree(SAIDA)
     os.makedirs(SAIDA, exist_ok=True)
@@ -559,6 +784,13 @@ def main() -> int:
     print(f"definitions lidas: {len(defs)}")
 
     creditos_csv = ler_creditos()
+    metas_material = ler_metas_de_material()
+    paletas_material = ler_paletas()
+    canais_mudos: list[str] = []
+    nomes_ptbr = ler_nomes_ptbr()
+    rotulos_de_slot = ler_rotulos_de_slot()
+    rotulos_de_cor = ler_rotulos_de_cor()
+    sem_traducao: list[str] = []
 
     catalogo: list[dict] = []
     bytes_total = 0
@@ -595,14 +827,17 @@ def main() -> int:
             "grupo": grupo_do_slot(d["_slot"]),
             "camadas": [],
         }
+        # o nome em pt-BR e campo PROPRIO: o original continua disponivel como
+        # fallback e para depurar id que dessincronizou depois de um rebuild
+        if nomes_ptbr.get(item_id):
+            entrada["nome_ptbr"] = nomes_ptbr[item_id]
         # (3a) um formato so de cor: o app nunca ve os dois do upstream
-        canais = normalizar_recolors(d.get("recolors"))
-        if canais:
-            entrada["canais_de_cor"] = canais
+        canais = normalizar_recolors(d.get("recolors"), metas_material)
         if segue_cor_do_corpo(d):
             entrada["segue_cor_do_corpo"] = True
 
         alguma = False
+        cores_da_arte: set = set()
         for ordem, camada in camadas(d):
             zpos = camada.get("zPos", 0)
             variantes: dict[str, dict] = {}
@@ -617,12 +852,16 @@ def main() -> int:
                     if achados:
                         cores = [c for c, _ in achados]
                         break
+                # so e cor da peca a faixa que a peca declara -- o diretorio da
+                # animacao guarda arquivo solto que nao e variante
+                cores = faixas_declaradas(cores, d.get("variants"))
                 if not cores:
                     continue
 
                 atlas, mapa, por_cor = montar_atlas(dirbase, cores)
                 if atlas is None:
                     continue
+                cores_da_arte |= cores_de(atlas)
                 # `arq` e o deslocamento final saem na 2a fase, quando as pecas
                 # do mesmo slot viram um atlas so
                 variante = {
@@ -648,6 +887,17 @@ def main() -> int:
             sem_arte.append(d["_arquivo"])
             continue
 
+        # (bug 2) a cor listada tem de pintar. Canal cuja rampa de origem nao
+        # aparece em pixel nenhum da arte oferece cor que nao muda nada.
+        pintam = [c for c in canais if canal_pinta(c, cores_da_arte,
+                                                   paletas_material)]
+        for c in canais:
+            if c not in pintam:
+                canais_mudos.append(f"{item_id} [{c['nome']}] "
+                                    f"{c['material']}.{c.get('base')}")
+        if pintam:
+            entrada["canais_de_cor"] = pintam
+
         for c in d.get("credits", []) or []:
             for a in c.get("authors", []) or []:
                 autores.add(a)
@@ -660,6 +910,11 @@ def main() -> int:
         faltantes = sem_arte_em(entrada, CORPOS)
         if faltantes:
             entrada["sem_arte"] = faltantes
+
+        # so conta como nao-traduzida a peca que ENTRA no catalogo: as 47
+        # descartadas por falta de arte no recorte nunca chegam a tela
+        if not entrada.get("nome_ptbr"):
+            sem_traducao.append(item_id)
 
         catalogo.append(entrada)
         contagem[categoria] += 1
@@ -728,9 +983,19 @@ def main() -> int:
                 "corpos": CORPOS,
                 "direcao": "frente",
                 "altura_do_frame": ALTURA,
+                # o app anima por ciclo, nao em ordem crua
+                "ciclos": CICLOS,
+                "fps": FPS,
             },
             # (6b) mapa de navegacao: prioridade e rotulo por diretorio
             "grupos": ler_grupos(os.path.join(FONTE, "sheet_definitions")),
+            # a casa mostrava o slot cru (`facial_eyes`); o rotulo e o que o
+            # jogador le
+            "slots": rotulos_de_slot,
+            # nome cru da cor -> rotulo em pt-BR, para os dois mundos (rampa de
+            # paleta e faixa de atlas). Chave sobrando nao custa nada; chave
+            # faltando deixa rotulo cru na tela.
+            "cores": rotulos_de_cor,
             "itens": catalogo,
         }, f, ensure_ascii=False, separators=(",", ":"))
 
@@ -744,6 +1009,31 @@ def main() -> int:
             "licencas": dict(licencas_vistas.most_common()),
             "linhas_do_credits_csv": len(creditos_csv),
         }, f, ensure_ascii=False, indent=1)
+
+    # -- portao das cores ------------------------------------------------------
+    #
+    # Contagem de faixas de atlas por slot, comparada com o build anterior.
+    agora: dict[str, int] = {}
+    for i in catalogo:
+        faixas = {
+            c
+            for cam in i["camadas"]
+            for v in cam["corpos"].values()
+            for c in v["cores"]
+            if c != "base"
+        }
+        agora[i["slot"]] = agora.get(i["slot"], 0) + len(faixas)
+    quedas = [
+        (k, anterior[k], agora.get(k, 0))
+        for k in sorted(anterior)
+        if agora.get(k, 0) < anterior[k]
+    ]
+    with open(marco, "w", encoding="utf-8") as f:
+        json.dump(agora, f, ensure_ascii=False, indent=1, sort_keys=True)
+    if quedas:
+        print("\n  ! CORES A MENOS que no build anterior:")
+        for k, a, d in quedas:
+            print(f"    {k}: {a} -> {d}")
 
     tam_cat = os.path.getsize(os.path.join(SAIDA, "catalogo.json"))
     total = bytes_total + bytes_paletas + tam_cat
@@ -771,8 +1061,32 @@ def main() -> int:
         "", f"Total de itens no catalogo: **{len(catalogo)}**", "",
         "## Excluidos", "",
         f"- por licenca GPL-only: **{len(fora_gpl)}**",
-        f"- sem arte no recorte: **{len(sem_arte)}**", "",
+        f"- sem arte no recorte: **{len(sem_arte)}**",
+        # canal cuja rampa de origem nao aparece em pixel nenhum da arte: ele
+        # oferecia cor que nao pintava
+        f"- canais de cor mudos (nao pintam nada): **{len(canais_mudos)}**", "",
+        "## Cores por slot (faixas do atlas)", "",
+        "| slot | faixas | antes |", "|---|---|---|",
     ]
+    for k in sorted(agora):
+        linhas.append(f"| {k} | {agora[k]} | {anterior.get(k, '-')} |")
+    linhas += [
+        "", f"Total de faixas: **{sum(agora.values())}**"
+        + (f" (antes: {sum(anterior.values())})" if anterior else ""), "",
+        "## Traducao", "",
+        f"- itens com nome em pt-BR: **{len(catalogo) - len(sem_traducao)}**",
+        f"- itens SEM traducao (ficam com o nome original): "
+        f"**{len(sem_traducao)}**",
+        f"- slots com rotulo em pt-BR: **{len(rotulos_de_slot)}**", "",
+    ]
+    if sem_traducao:
+        linhas += ["<details><summary>sem traducao</summary>", ""]
+        linhas += [f"- `{n}`" for n in sorted(sem_traducao)]
+        linhas += ["", "</details>", ""]
+    if canais_mudos:
+        linhas += ["<details><summary>canais mudos</summary>", ""]
+        linhas += [f"- `{n}`" for n in sorted(canais_mudos)]
+        linhas += ["", "</details>", ""]
     if fora_gpl:
         linhas += ["<details><summary>GPL-only</summary>", ""]
         linhas += [f"- {n}" for n in sorted(fora_gpl)]
@@ -785,6 +1099,8 @@ def main() -> int:
     print(f"paletas: {bytes_paletas / 1e6:.2f} MB | catalogo: {tam_cat / 1e6:.2f} MB")
     print(f"TOTAL: {total / 1e6:.2f} MB")
     print(f"excluidos: {len(fora_gpl)} GPL-only, {len(sem_arte)} sem arte")
+    print(f"canais de cor mudos: {len(canais_mudos)}")
+    print(f"itens sem nome pt-BR: {len(sem_traducao)} de {len(catalogo)}")
     print(f"relatorio: {os.path.relpath(os.path.join(SAIDA, 'relatorio.md'), AQUI)}")
     return 0
 

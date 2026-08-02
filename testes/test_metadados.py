@@ -74,7 +74,7 @@ class TestGrupoDeSlot(unittest.TestCase):
     que secao o quadradinho aparece -- nunca exclusividade, que e do slot."""
 
     def test_cada_slot_cai_num_grupo(self):
-        self.assertEqual(grupo_do_slot("hat"), "Chapeu")
+        self.assertEqual(grupo_do_slot("hat"), "Chapéu")
         self.assertEqual(grupo_do_slot("hair"), "Cabelo")
         self.assertEqual(grupo_do_slot("shield_pattern"), "Armas")
 
@@ -98,12 +98,18 @@ class TestNormalizarRecolors(unittest.TestCase):
     um elmo com metal e tiras de tecido tem duas cores, nao uma.
     """
 
+    # os `meta_<material>.json` dizem em que rampa a arte foi pintada; sem eles
+    # o canal sai sem `base` e o app nao tem de onde recolorir
+    METAS = {"metal": {"default": "ulpc", "base": "steel"},
+             "cloth": {"default": "ulpc", "base": "white"}}
+
     def test_formato_direto_vira_um_canal(self):
         canais = normalizar_recolors(
-            {"material": "metal", "palettes": ["ulpc", "lpcr"]}
+            {"material": "metal", "palettes": ["ulpc", "lpcr"]}, self.METAS
         )
         self.assertEqual(canais, [
-            {"nome": "cor", "material": "metal", "paletas": ["ulpc", "lpcr"]},
+            {"nome": "cor", "material": "metal", "paletas": ["ulpc", "lpcr"],
+             "base": "ulpc.steel"},
         ])
 
     def test_formato_por_cor_vira_um_canal_por_cor(self):
@@ -112,16 +118,17 @@ class TestNormalizarRecolors(unittest.TestCase):
             "color_2": {"type_name": "hat_secondary", "label": "Helmet Strands",
                         "material": "cloth", "base": "brown",
                         "palettes": ["ulpc"]},
-        })
+        }, self.METAS)
         self.assertEqual(canais, [
-            {"nome": "color_1", "material": "metal", "paletas": ["ulpc"]},
+            {"nome": "color_1", "material": "metal", "paletas": ["ulpc"],
+             "base": "ulpc.steel"},
             {"nome": "hat_secondary", "rotulo": "Helmet Strands",
-             "material": "cloth", "base": "brown", "paletas": ["ulpc"]},
+             "material": "cloth", "base": "ulpc.brown", "paletas": ["ulpc"]},
         ])
 
     def test_sem_recolors_nao_gera_canal(self):
-        self.assertEqual(normalizar_recolors(None), [])
-        self.assertEqual(normalizar_recolors({}), [])
+        self.assertEqual(normalizar_recolors(None, self.METAS), [])
+        self.assertEqual(normalizar_recolors({}, self.METAS), [])
 
 class TestSegueCorDoCorpo(unittest.TestCase):
     """`match_body_color` -- 79 definitions do acervo.

@@ -29,14 +29,29 @@ export interface Camada {
 export interface CanalDeCor {
     nome: string;
     material: string;
+    /**
+     * Paletas oferecidas. `all.lpcr` quer dizer MATERIAL `all`, paleta `lpcr`:
+     * o ponto separa os dois, e e por isso que a chave da cor precisa ser o par
+     * `paleta:nome`.
+     */
     paletas: string[];
     rotulo?: string;
-    /** Rampa que a arte usa; sem ela, vale o `base` do material. */
+    /**
+     * Rampa em que a arte foi pintada, no formato `<versao>.<rampa>` -- ja
+     * resolvida pelo build (`base_do_canal`). 41 canais declaram uma propria; o
+     * app que deduzisse pelo material recolorizaria a partir da rampa errada e a
+     * cor nao pintaria.
+     */
     base?: string;
+    /** Rampa de origem embutida na peca (`source`); vence a busca por paleta. */
+    fonte?: string[];
 }
 export interface Item {
     id: string;
+    /** Nome do upstream, em ingles. Fallback quando falta traducao. */
     nome: string;
+    /** Nome em pt-BR -- e o que a tela mostra. */
+    nome_ptbr?: string;
     categoria: string;
     slot: Slot;
     caminho: string[];
@@ -57,11 +72,23 @@ export interface Catalogo {
         corpos: string[];
         direcao: string;
         altura_do_frame: number;
+        /**
+         * Ciclo de frames por animacao, do gerador
+         * (`state/constants.ts:124-154`). `walk` e [1..8] e pula o frame 0, que e
+         * pose parada: em ordem crua a caminhada soluca a cada volta.
+         */
+        ciclos?: Record<string, number[]>;
+        /** Quadros por segundo (`canvas/preview-animation.ts:180`). */
+        fps?: number;
     };
     grupos: Record<string, {
         prioridade: number;
         rotulo?: string;
     }>;
+    /** slot -> rotulo em pt-BR. A casa mostrava `facial_eyes` cru. */
+    slots?: Record<string, string>;
+    /** nome cru da cor -> rotulo em pt-BR (rampa de paleta e faixa de atlas). */
+    cores?: Record<string, string>;
     itens: Item[];
 }
 /**
@@ -94,9 +121,15 @@ export interface CamadaDesenhavel {
     ordem: number;
     /** Recolors a aplicar em runtime, um por canal pedido. */
     recolor?: {
+        /** Material do CANAL -- decide de onde sai a rampa de origem. */
         material: string;
+        /** Paleta de DESTINO; pode ser de outro material (`all.lpcr`). */
         paleta: string;
         cor: string;
+        /** Rampa de origem, `<versao>.<rampa>` dentro de `material`. */
+        base?: string;
+        /** Rampa de origem embutida; quando existe, dispensa `base`. */
+        fonte?: string[];
     }[];
 }
 /** Por que uma peca escolhida nao entrou no desenho. */

@@ -65,7 +65,16 @@ export function montarCamadas(catalogo, selecao, corpo, animacao) {
                     : [canal.paletas[0], cor];
                 if (qual === undefined)
                     return [];
-                return [{ material: canal.material, paleta: qual, cor: nome }];
+                // A rampa de ORIGEM viaja junto: 41 canais declaram um `base` proprio
+                // e o app, deduzindo pelo material, recolorizava a partir da rampa
+                // errada -- a cor aparecia na lista e nao pintava nada.
+                return [{
+                        material: canal.material,
+                        paleta: qual,
+                        cor: nome,
+                        ...(canal.base !== undefined ? { base: canal.base } : {}),
+                        ...(canal.fonte !== undefined ? { fonte: canal.fonte } : {}),
+                    }];
             });
             camadas.push({
                 arq: variante.arq,

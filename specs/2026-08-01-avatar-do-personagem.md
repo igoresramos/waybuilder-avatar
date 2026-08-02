@@ -147,13 +147,53 @@ em build (decisao 3).
      upstream);
   b. **recorta as animacoes** para cinco: `idle`, `combat_idle`, `walk`, `sit`,
      `run`. As outras ~12 nao entram;
-  b2. **recorta as variantes de corpo**: `child` e `muscular` ficam **fora**.
-     Entram `male`, `female`, `pregnant` e `teen`;
+  b2. **recorta as variantes de corpo**: `skeleton` e `zombie` ficam **fora**.
+     Entram os **seis** do gerador (`sources/state/constants.ts:9`): `male`,
+     `female`, `teen`, `child`, `muscular`, `pregnant`.
+
+     > **@9 -- `child` e `muscular` voltaram.** O corte original derrubava 18
+     > definitions que so tinham arte de crianca: elas caiam em "sem arte" e
+     > sumiam da tela. Medido no build: catalogo de **609 -> 627 itens**,
+     > "sem arte no recorte" de **47 -> 29**, acervo de **23,8 -> 30,6 MB**
+     > (+28%).
+     >
+     > Nem toda peca existe em todo corpo, e a diferenca e enorme: `male` tem
+     > 582 das 627, `female` 588, `teen` 541, `muscular` 503, `pregnant` 517 e
+     > **`child` so 98**. Por isso o picker passou a **nao oferecer** peca sem
+     > arte no corpo atual -- e o que o gerador faz
+     > (`components/tree/TreeNode.ts:163`, filtrando por `required`, que ele
+     > deriva dos corpos declarados no `layer_1`). A peca **equipada** continua
+     > listada e marcada: escondida, ela sumiria sem explicacao ao trocar de
+     > corpo. Medido no gerador: `required_tags` e `excluded_tags` **nao**
+     > participam da compatibilidade de corpo -- nao ha uma so referencia a
+     > eles em `sources/`;
   b3. **recorta a direcao**: so a de **frente**. O LPC empilha 4 direcoes por
      folha, em linhas de 64px, na ordem `[costas, perfil-esq, FRENTE,
      perfil-dir]` -- **verificado visualmente** compondo `body` + `head` e
      olhando o resultado, nao suposto pela convencao. Sozinho, este corte tira
-     75% do que sobrou. Consequencia aceita: **nao da para girar o boneco**;
+     75% do que sobrou. Consequencia aceita: **nao da para girar o boneco**.
+
+     > **@9 -- girar o boneco foi pedido e esbarra no limite do deploy.**
+     > Projecao medida numa amostra de 44 pecas de 8 slots, refazendo a tira
+     > com as 4 linhas e recomprimindo do mesmo jeito que o build:
+     >
+     > | cenario | razao | atlas projetado |
+     > |---|---|---|
+     > | 1 direcao, 5 animacoes (hoje, 6 corpos) | 1,00x | **29,2 MB** |
+     > | 4 direcoes, 5 animacoes | 4,04x | **118,0 MB** |
+     > | 4 direcoes, sem `run` | 3,11x | 91,0 MB |
+     > | 4 direcoes, sem `run` e sem `sit` | 2,68x | 78,4 MB |
+     > | 4 direcoes, so `idle` + `walk` | 2,41x | 70,4 MB |
+     >
+     > O teto de **100 MB de estaticos no plano Hobby** foi reconferido na
+     > fonte (https://vercel.com/docs/limits, "Static File uploads", pagina
+     > atualizada em 2026-07-01): o numero da decisao 2 esta **correto**. Vale
+     > para o upload de fontes via CLI -- deploy por Git nao sobe
+     > `public/avatar/`, que e derivado do pacote.
+     >
+     > Como 118 MB passa do teto, **a escolha do aperto e do dono**, nao do
+     > build (decisao 3 manda apertar o recorte e registrar o que saiu).
+     > Enquanto nao houver decisao, o recorte segue em 1 direcao;
   c. **empacota em atlas por SLOT** -- um PNG por (slot, camada, corpo), em vez
      de milhares de arquivos soltos. Resolve o limite de arquivos da Vercel e o
      request storm da grade; com a UI de casas (5c), abrir um picker vira **um

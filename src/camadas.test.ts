@@ -228,6 +228,93 @@ describe("montarCamadas", () => {
     ]);
   });
 
+  it("leva a rampa de ORIGEM do canal junto do recolor", () => {
+    // 41 canais do acervo declaram um `base` proprio (`ulpc.brown`,
+    // `lpcr.ivory`). Sem carregar isso ate a camada, o app usava o base do
+    // MATERIAL, o recolor nao casava pixel nenhum e a cor aparecia na lista
+    // sem pintar no boneco.
+    const base = peca({ id: "hat/coif", slot: "hat" });
+    base.canais_de_cor = [{
+      nome: "cor", material: "cloth", paletas: ["ulpc"], base: "ulpc.brown",
+    }];
+    const { camadas } = montarCamadas(
+      catalogo([base]),
+      { hat: { id: "hat/coif", cores: { cor: "teal" } } },
+      "male",
+      "idle",
+    );
+    expect(camadas[0]!.recolor).toEqual([
+      { material: "cloth", paleta: "ulpc", cor: "teal", base: "ulpc.brown" },
+    ]);
+  });
+
+  it("leva a rampa embutida (`fonte`) quando o canal traz as cores", () => {
+    // `getBasePalette` do gerador devolve o `source` direto, sem consultar
+    // paleta nenhuma (`state/palettes.ts:179-182`). 10 definitions usam isso.
+    const base = peca({ id: "hair/long-tied", slot: "hair" });
+    base.canais_de_cor = [{
+      nome: "hair_tie", material: "cloth", paletas: ["ulpc"],
+      base: "ulpc.white", fonte: ["#111111", "#222222"],
+    }];
+    const { camadas } = montarCamadas(
+      catalogo([base]),
+      { hair: { id: "hair/long-tied", cores: { hair_tie: "red" } } },
+      "male",
+      "idle",
+    );
+    expect(camadas[0]!.recolor![0]!.fonte).toEqual(["#111111", "#222222"]);
+  });
+
+  it("a cor qualificada separa material e paleta do nome da rampa", () => {
+    // `all.lpcr:emerald` = material `all`, paleta `lpcr`, rampa `emerald`. A
+    // identidade da cor e o par (paleta, nome): ha tres `white` e tres
+    // `orange` distintos entre as paletas de um canal.
+    const base = peca({ id: "hair/afro", slot: "hair" });
+    base.canais_de_cor = [{
+      nome: "cor", material: "hair", paletas: ["ulpc", "all.lpcr"],
+      base: "ulpc.orange",
+    }];
+    const { camadas } = montarCamadas(
+      catalogo([base]),
+      { hair: { id: "hair/afro", cores: { cor: "all.lpcr:emerald" } } },
+      "male",
+      "idle",
+    );
+    expect(camadas[0]!.recolor).toEqual([
+      { material: "hair", paleta: "all.lpcr", cor: "emerald",
+        base: "ulpc.orange" },
+    ]);
+  });
+
+  it("a heranca de pele sobrevive a cor qualificada", () => {
+    // O seletor de tom de pele passou a usar a chave `paleta:nome`; as 54
+    // pecas com `segue_cor_do_corpo` herdam a string inteira, senao o rosto
+    // fica de um tom e o torso de outro.
+    const corpo = peca({ id: "body/body-color", slot: "body" });
+    corpo.canais_de_cor = [{
+      nome: "cor", material: "body", paletas: ["ulpc", "all.lpcr"],
+      base: "ulpc.light",
+    }];
+    const cabeca = peca({ id: "head/human-male", slot: "head" });
+    cabeca.canais_de_cor = [{
+      nome: "color_1", material: "body", paletas: ["ulpc", "all.lpcr"],
+      base: "ulpc.light",
+    }];
+    cabeca.segue_cor_do_corpo = true;
+
+    const { camadas } = montarCamadas(
+      catalogo([corpo, cabeca]),
+      { body: { id: "body/body-color", cores: { cor: "all.lpcr:emerald" } },
+        head: { id: "head/human-male" } },
+      "male",
+      "idle",
+    );
+    expect(camadas.find((c) => c.slot === "head")!.recolor).toEqual([
+      { material: "body", paleta: "all.lpcr", cor: "emerald",
+        base: "ulpc.light" },
+    ]);
+  });
+
   it("nao pede recolor quando a cor ja e uma faixa do atlas", () => {
     const base = peca({ id: "torso/blusa", slot: "torso" });
     base.camadas[0]!.corpos.male!.cores = { base: 0, azul: 64 };
