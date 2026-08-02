@@ -1,7 +1,7 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 6
+version: 7
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
@@ -15,6 +15,10 @@ revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   com `combina_com` e `sem_arte`, e o desenho ganha desempate de `zPos`
   @6 (2026-08-01) -- decisao 3c cumprida: atlas consolidado por slot, com teto
   de textura. Licenca: uso pessoal nao-comercial, creditos seguem emitidos
+  @7 (2026-08-02) -- decisoes 11 e 12: as 170 pecas legadas deixam de sumir. A
+  animacao que falta e gerada por transplante de peca analoga (deterministico,
+  defeito medido e assumido pelo dono), e o que o transplante nao cobrir aparece
+  parado. Tres caminhos medidos antes, relatorios em `docs/`
 ---
 
 # Spec -- o avatar do personagem
@@ -449,6 +453,65 @@ so a segunda mudou em @3.
 > acervo versionado com build proprio e pin nao corre esse risco: ele tem dono,
 > historico e relatorio de peso. A fronteira que importa e "a tela mora junto do
 > app", e ela segue de pe.
+
+### 11. Animacao que falta e GERADA por transplante de peca analoga (@7)
+
+**Decisao do dono, tomada olhando a arte, nao a metrica.**
+
+170 dos 627 itens nao tem as animacoes novas -- 77% da armadura, 75% dos
+acessorios. Sao pecas do formato legado do LPC. Tres caminhos foram medidos
+antes desta decisao, e os relatorios estao em `docs/`:
+
+| caminho | resultado |
+|---|---|
+| remapear frames identicos entre animacoes | **0** dos 170 recuperados |
+| aprender a transformacao a partir do corpo | 67,9% por pixel, contra 99,57% que um frame exige |
+| **transplante de peca analoga** | erro medio **-62%**; 9,1% dos frames exatos |
+
+O transplante ganha de longe e ainda assim quase nao produz frame exato. O que
+decidiu foi ver a figura (`docs/2026-08-02_doadora-analoga.png`): a peca gerada
+sai **estruturalmente certa** -- volume, sombreamento e forma no lugar --, com o
+defeito concentrado numa regiao (o saiote da armadura, os ombros da manga), nao
+espalhado. Na Armadura Legionaria sao 29 px de 246. *"o erro n ta tipo escroto
+inutilizavel, acho q da pra seguir assim mesmo"*.
+
+**Como funciona.** Para a peca ALVO que nao tem a animacao X:
+
+1. escolhe a DOADORA: a peca do mesmo slot com maior IoU de silhueta na
+   animacao que as duas tem em comum;
+2. mede na doadora, que tem as duas, para onde cada pixel foi ao mudar de pose
+   -- busca do patch 5x5 mais parecido numa janela de mais ou menos 6 px;
+3. aplica esse mesmo deslocamento a peca alvo.
+
+Deterministico: mesma entrada, mesma saida. Nao ha modelo, nao ha peso, nao ha
+aleatoriedade -- o build continua reproduzivel byte a byte, que e a trava 3.
+
+**O que fica registrado.** A peca marca no catalogo qual animacao e gerada e de
+qual doadora veio. Duas razoes: a tela poder dizer, e o dia em que o LPC
+publicar a arte de verdade a substituicao ser um diff, nao uma arqueologia.
+
+**Licenca: fora de escopo por decisao do dono** -- *"ignora o licenciamento
+cara, n vou vender"*. O uso e pessoal e nao-comercial, como a nota da v6 ja
+registra, e os creditos seguem emitidos com todos os autores e licencas do
+acervo. Fica anotado que a peca gerada deriva de DUAS pecas, e que restringir a
+doadora a licenca compativel seria barato (`build.py:475` ja extrai o conjunto)
+caso o uso mude.
+
+**O que isto NAO e.** Nao e "as animacoes que faltavam agora existem". E arte
+aproximada, com defeito medido e assumido, ocupando o lugar de arte que nao
+existe. O fallback estatico da decisao 12 continua valendo para o que o
+transplante nao cobrir.
+
+### 12. Peca sem a animacao aparece PARADA, nao some (@7)
+
+O gerador omite a camada naquela linha (`canvas/renderer.ts:343`) e nos
+copiavamos: a peca desaparecia ao ser equipada, sem dizer nada. Agora ela cai no
+primeiro frame de uma animacao que tenha e trava ali, com aviso
+`animacao-substituida` para a tela explicar.
+
+Nunca roda a tira alheia em movimento -- o risco que o gerador evitava segue
+evitado. A substituta vem da ordem do RECORTE, nao da ordem em que o build
+gravou: duas fichas iguais tem de desenhar igual.
 
 ## Resultado do passo 1, medido (2026-08-01)
 
