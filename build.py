@@ -59,7 +59,11 @@ CORPOS = ["male", "female", "teen", "child", "muscular", "pregnant"]
 # sem o ciclo a caminhada soluca uma pose parada a cada volta. `combat_idle`
 # usa o ciclo de `combat`, que e como o gerador chama a mesma linha.
 CICLOS: dict[str, list[int]] = {
-    "idle": [0, 0, 1],
+    # DECISAO DO DONO, contra o gerador: ele usa [0, 0, 1], que a 8 FPS deixa a
+    # primeira pose o dobro do tempo da segunda -- na tela a respiracao fica
+    # torta, meio truncada. Com [0, 0, 1, 1] os dois lados duram igual e o
+    # balanco fecha. "tem que ser 0-0-1-1, repetindo frames mesmo".
+    "idle": [0, 0, 1, 1],
     "combat_idle": [0, 0, 1],
     "walk": [1, 2, 3, 4, 5, 6, 7, 8],
     "sit": [0] * 5 + [1] * 5 + [2] * 5,
