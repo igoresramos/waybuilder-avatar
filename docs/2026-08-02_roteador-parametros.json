@@ -1,0 +1,62 @@
+{
+  "gerado_em": "2026-08-02",
+  "escopo": "roteador por rigidez, walk k=0 -> idle k=1, pecas legadas com par de treino no slot",
+  "metodo": "varredura de limiar (n_min de treino nao-legado x fracao_min de concordancia) por leave-one-out, testado sobre pecas legadas com idle ja medido (unica populacao onde acerto/erro sao verificaveis)",
+  "recomendado": {
+    "n_min_treino_nao_legado": 2,
+    "fracao_min_concordancia": 0.70
+  },
+  "chute_original_recomendacao_3": {
+    "n_min_treino_nao_legado": 3,
+    "fracao_min_concordancia": 0.80,
+    "sobrevive": false,
+    "motivo": "estritamente dominado no male (n=76): 10,5% exatos contra 14,5% do recomendado, mesmas 0 regressoes; confirmado em 5 corpos adicionais (n=392 pooled): 6,9% contra 11,0%, 0 regressoes nos dois em todos os corpos"
+  },
+  "regra": "se o slot tem >= n_min pecas de treino NAO-LEGADAS (completas nas 5 animacoes) no mesmo slot/corpo, E a fracao que concorda no (dy,dx) otimo (moda) e >= fracao_min -> aplicar translacao com o deslocamento da moda; caso contrario -> nao mexer (copiar walk k=0)",
+  "medicao_primaria": {
+    "corpo": "male",
+    "n_testado": 76,
+    "descricao": "pecas de formato legado (nao tem as 5 animacoes) que JA TEM idle medido no male",
+    "n_treino_pool": 388,
+    "controle_nao_mexer_em_nada": {"exatos_pct": 5.3, "mediana": 70.0},
+    "no_parametro_recomendado_2_070": {
+      "exatos": 11, "exatos_pct": 14.5, "regressoes": 0, "regressoes_sobre_exata": 0,
+      "n_aplicar": 15, "n_naomexer": 61, "mediana_diff": 56.0
+    },
+    "no_chute_3_080": {
+      "exatos": 8, "exatos_pct": 10.5, "regressoes": 0, "regressoes_sobre_exata": 0,
+      "n_aplicar": 11, "n_naomexer": 65, "mediana_diff": 62.0
+    },
+    "empate_medido_com_recomendado": [
+      [1, 0.50], [1, 0.60], [1, 0.70], [2, 0.50], [2, 0.60], [2, 0.70]
+    ],
+    "nota_empate": "n_min=2 foi escolhido dentro do empate por robustez (evita decidir o slot inteiro com 1 unica peca de treino); resultado identico ao de n_min=1 nesta amostra"
+  },
+  "validacao_secundaria_outros_corpos": {
+    "descricao": "mesmo par walk0->idle1, mesmo metodo, rodado em female/teen/muscular/pregnant/child para checar se o par (2,0.70) generaliza",
+    "por_corpo": {
+      "female":   {"n": 86, "exatos_2_070_pct": 9.3,  "exatos_3_080_pct": 5.8, "regressoes_ambos": 0},
+      "teen":     {"n": 83, "exatos_2_070_pct": 10.8, "exatos_3_080_pct": 6.0, "regressoes_ambos": 0},
+      "muscular": {"n": 68, "exatos_2_070_pct": 11.8, "exatos_3_080_pct": 7.4, "regressoes_ambos": 0},
+      "pregnant": {"n": 71, "exatos_2_070_pct": 8.5,  "exatos_3_080_pct": 4.2, "regressoes_ambos": 0},
+      "child":    {"n": 8,  "exatos_2_070_pct": 12.5, "exatos_3_080_pct": 12.5, "regressoes_ambos": 0}
+    },
+    "pooled_6_corpos": {
+      "n_total": 392,
+      "exatos_2_070_pct": 11.0,
+      "exatos_3_080_pct": 6.9,
+      "regressoes_2_070": 0,
+      "regressoes_3_080": 0,
+      "ressalva": "amostras correlacionadas entre corpos (mesma peca aparece varias vezes com arte distinta); nao e n independente de 392, e complementar ao male"
+    }
+  },
+  "contagem_canonica_lacunas": {
+    "unidade": "item x corpo x animacao (peca composta de todas as camadas), animacoes-alvo = idle+combat_idle+sit+run, corpo contado so onde existe por completo em TODAS as camadas do item",
+    "valor": 2864,
+    "frames": 11495,
+    "reconciliacao": {
+      "2041": "mesmo metodo, mas restrito aos 170 itens com taxonomia.pecas[id].legado=true (curadoria); 2864-2041=823 celulas vem de itens NAO tagueados 'legado' que ainda assim tem lacuna pontual em 1+ animacao",
+      "3666": "unidade mais fina: item x corpo x CAMADA x animacao (nao colapsa camadas multiplas na mesma peca), TODOS os 627 itens, INCLUI walk como animacao-alvo, e e contagem de lacunas PREENCHIDAS COM SUCESSO (exclui 128 combinacoes camada x animacao sem doadora nem fallback de corpo, de um total bruto de 3794 tentativas). Nao e uma contagem de lacunas -- e uma contagem de saidas do preencher.py."
+    }
+  }
+}

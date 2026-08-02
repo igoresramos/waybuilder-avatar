@@ -1,7 +1,7 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 10
+version: 11
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
@@ -26,6 +26,12 @@ revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   consumo em runtime; a decisao 4 e reconciliada com o codigo.
   (O `version` pula de 7 para 10 porque o corpo ja carregava blocos @9 que o
   frontmatter nunca registrou -- a numeracao do corpo e que estava certa.)
+  @11 (2026-08-02) -- decisoes 11b e 11c, saidas da pesquisa do transplante com
+  passe adversarial: o `idle` sai do transplante e passa a um roteador por
+  RIGIDEZ, com limiares medidos (os que a propria pesquisa recomendou eram
+  chute e perderam na varredura); `sit` deixa de ser gerado; `idle` k=0 vira
+  copia de `walk` k=0. Fecha o item 145. O numero de manchete da pesquisa
+  (77,6%) e das pecas que ja tem a arte -- em alvo legado real e ~14%
 ---
 
 # Spec -- o avatar do personagem
@@ -286,7 +292,8 @@ Pages deste repo, e `sincronizar-avatar.sh` sai do fluxo.
      da rampa `light`. Com matching exato, o recolor de pele nunca repintaria o
      contorno.
 
-**4. O acervo cabe no precache.** Com o recorte de (3b), a estimativa e de
+**4. O NUCLEO cabe no precache; o acervo e runtime cache** (titulo reescrito em
+@10 -- ate ali dizia "o acervo cabe no precache", que o codigo ja nao cumpria). Com o recorte de (3b), a estimativa e de
 ~4/17 do volume, antes do corte de cor. O numero real sai do build.
 
 > Por que precache e nao carga sob demanda: `app/vite.config.ts` abre declarando
@@ -295,9 +302,11 @@ Pages deste repo, e `sincronizar-avatar.sh` sai do fluxo.
 > demanda daria grade vazia na primeira abertura sem rede, e silhueta quebrada
 > numa ficha aberta em maquina que nunca compos aquele avatar.
 
-Se o acervo recortado nao couber, a saida **nao** e runtime cache: e apertar o
+~~Se o acervo recortado nao couber, a saida **nao** e runtime cache: e apertar o
 recorte (menos variantes de corpo, menos animacoes) ate caber, e registrar o que
-saiu.
+saiu.~~ **SUPERADO em @10** -- vale para o nucleo; para o acervo do avatar a
+saida FOI runtime cache, por decisao do dono em 2026-08-01, e a 2a construiu em
+cima disso. Fica como registro do que se decidiu antes.
 
 > **@10 -- reconciliacao com o codigo.** A decisao do dono de 2026-08-01
 > (registrada em `app/vite.config.ts`) ja tinha tirado o acervo do precache:
@@ -560,6 +569,136 @@ caso o uso mude.
 aproximada, com defeito medido e assumido, ocupando o lugar de arte que nao
 existe. O fallback estatico da decisao 12 continua valendo para o que o
 transplante nao cobrir.
+
+### 11b. O transplante sai da frente do `idle`: roteador por RIGIDEZ (@11)
+
+A decisao 11 mandava gerar toda animacao que falta por transplante de peca
+analoga. Uma pesquisa de dez frentes com passe adversarial
+(`docs/2026-08-02_PESQUISA-transplante.md`) mediu que existe caminho melhor
+para o `idle` -- e, mais importante, mediu **onde ele nao vale**.
+
+**O achado.** `idle` k=1 e quase sempre `walk` k=0 deslocado alguns pixels.
+Onde existe um (dy, dx) exato -- 78,7% do acervo -- a translacao acerta
+**98,5%** dos frames e a doadora nem e consultada. Nos outros 21,3% ela acerta
+**0,0%**, e ali e PIOR que o transplante: mediana de 88 pixels errados contra
+51, com 80,2% dos fracassos acima de um quarto da area da peca.
+
+Por isso a escolha nao e por slot, e por **rigidez**, e a terceira saida --
+**nao mexer** -- e resposta legitima: em 61 das 76 pecas legadas medidas foi a
+decisao certa.
+
+| regra | valor | origem |
+|---|---|---|
+| pecas de referencia minimas no slot | **2** | desempate dentro de empate medido |
+| concordancia minima no (dy, dx) | **0,70** | desempate dentro de empate medido |
+
+**Referencia e peca COMPLETA** -- a que tem todas as animacoes do recorte. Ter
+`walk` e `idle` nao basta, e a definicao nao e detalhe: e ela que sustenta os
+numeros desta tabela. A calibracao mediu zero regressao justamente porque
+restringiu o treino assim, e atribuiu as 13 regressoes da medicao anterior ao
+treino contaminado por pecas legadas -- inclusive o caso `hat/tiara`, arte que
+estava EXATA e foi destruida pela moda do slot. `roteador.eh_referencia` guarda
+a regra, e `testes/test_roteador.py` trava.
+
+> **Os limiares que a propria pesquisa recomendou eram chute, e perderam.** Ela
+> propos (3 pecas, 80%) declarando que nao os havia medido. A varredura por
+> leave-one-out das 48 combinacoes
+> (`docs/2026-08-02_calibracao-do-roteador.md`) mostrou o chute
+> **estritamente dominado**: 10,5% de frames exatos contra 14,5%, com as mesmas
+> zero regressoes. Nao havia trade-off -- era so mais conservador sem comprar
+> nada.
+>
+> **O que a varredura mediu foi o que PERDE, nao um vencedor unico.** O par
+> adotado esta num empate de **6 combinacoes** com resultado identico, de
+> (1; 0,50) a (2; 0,70). Escolher `n_min = 2` dentro do empate e preferencia de
+> robustez -- nao deixar uma unica peca decidir o slot inteiro --, e a propria
+> calibracao a rotula como opiniao. Registrado para que uma recalibracao futura
+> que devolva (1; 0,50) nao pareca contradizer esta spec. `test_roteador.py`
+> trava os dois numeros contra volta ao chute, nao contra o empate.
+
+**O tamanho honesto da entrega.** Nas 76 pecas legadas medidas o roteador
+aplica translacao em 15: **9 melhoram, 6 ficam iguais, 0 pioram**. As outras 61
+nao sao tocadas. O numero de manchete da pesquisa -- 77,6% de frames exatos --
+e das pecas que **ja tem** a arte; em alvo legado real cai para ~14%, e a tabela
+por slot so cobre 28,2% das lacunas. `shield_pattern`, `weapon` e `charm` nao
+tem peca de referencia nenhuma.
+
+**O que o roteador NAO cobre**, e cada excecao continua na decisao 11:
+
+- `combat_idle` e `run`: os 68,0% e 59,3% que a pesquisa mostra para eles
+  vieram de reaplicacao aproximada da tabela de `idle`, **sem leave-one-out
+  proprio**. Migra-los agora seria repetir o erro do parametro chutado.
+- **Peca sem `walk`** (135 celulas na contagem canonica): `walk` k=0 e a base
+  da copia e da translacao. Sem ela nao ha do que partir, e o transplante
+  segue sendo a unica saida.
+
+**Arte duplicada sai do treino.** 13 grupos de pecas byte a byte identicas sob
+ids diferentes (`hat/bascinet` = `hat/round-bascinet`, `head/wolf-female` =
+`head/wolf-male`) inflavam qualquer medicao em ate 5 pontos percentuais sem
+ensinar nada. A deduplicacao e por conteudo, em tempo de build, para sobreviver
+a troca de pin.
+
+### 11c. `sit` nao e gerado, e `idle` k=0 e copia (@11)
+
+Fecha o item 145 -- o veredito por animacao, com numero.
+
+| animacao | veredito | medido |
+|---|---|---|
+| `idle` k=0 | **copia de `walk` k=0** | identicos byte a byte em 88,4% de 493 pecas |
+| `idle` k=1 | **roteador por rigidez** (11b) | 9 melhoram, 6 iguais, 0 pioram em 15 aplicadas |
+| `combat_idle` | transplante, como esta | falta LOO proprio |
+| `run` | transplante, como esta | falta LOO proprio; e o IoU e cego ali (correlacao -0,001) |
+| `sit` | **nunca gerar** | 0,0% de exatos em duas amostras (n=349 e n=366) |
+
+`sit` produz ruido, nao arte aproximada: mediana de 118-123 pixels errados e
+96,2% das pecas com mais de um quarto da area errada. Os **3,6%** de "exatos"
+que a H2 mediu eram **artefato**: 13 dos 13 frames exatos eram quadros VAZIOS
+contando como acerto, em pecas cuja `camadas[0]` e vazia (chifres, asas,
+caudas, escudo). Corrigido, cai a 0,0%. A peca cai no fallback parado da
+decisao 12, que e honesto.
+
+> Os **0,5%** que aparecem na tabela de hipoteses para `sit` sao outro numero
+> -- o baseline de transplante da amostra da H1 (n=374), que nunca foi
+> decomposto. Os dois nao devem ser confundidos: a prova dos quadros vazios foi
+> feita sobre o 3,6%.
+
+**Os vereditos acima valem para a direcao de FRENTE.** Tudo em 11b e 11c foi
+medido no recorte frontal, que era o unico que existia quando a pesquisa rodou.
+A decisao 3b3 @10 acabou de ligar as **4 direcoes**: a superficie de arte
+gerada quadruplica e o erro em perfil e de costas nao foi medido. Antes de
+estender o roteador ou o transplante as linhas novas, revalidar **por
+direcao** -- gatilho fixado pelo proprio parecer que ligou as 4 direcoes.
+
+**Corte por regiao em `combat_idle` e `run`: medido, NAO adotado.** A H2 mediu
+0,0% de exatos nas 4 celulas em que a peca tem pixel em pernas ou pes nessas
+animacoes (mediana 10-38 px, fracao de area errada de 37,5% a 90,2%), e o passe
+adversarial preservou a conclusao. Nao esta implementado: exige o mapa de
+regiao por peca, que hoje so existe como artefato de pesquisa
+(`docs/2026-08-02_mapa-de-movimento.json`). Fica registrado como divida com
+numero, nao como esquecimento.
+
+**Nao existe nota de confianca automatica, e nao vai existir tao cedo.** A
+pesquisa tentou construir um preditor de qualidade sem gabarito -- o que
+permitiria reprovar automaticamente a peca mal gerada, ja que nas lacunas reais
+nao ha original para comparar. Ele **falhou**, e o motivo importa mais que o
+resultado: precisao de 50,5% no quartil pior, contra o criterio de 70% fixado
+antes. E o criterio era inalcançavel por construcao -- com so 17,6% das pecas
+errando sob translacao, o desenho do teste (sinalizar 25%) capa qualquer
+classificador em **69,7%**, abaixo do proprio criterio. O relatorio esta em
+`docs/2026-08-02_pesquisa-h5-preditor-de-qualidade.md`.
+
+> Isso nao deixa o acervo desprotegido, porque **o roteador ja e o gate**: ele
+> so translada onde o treino do slot concorda, e nas 76 pecas medidas isso deu
+> zero regressoes. A protecao vem de nao gerar, nao de gerar e filtrar. O preco
+> esta declarado: ~77% das lacunas ficam sem arte gerada, esperando arte de
+> verdade ou revisao humana.
+
+> **Ressalva que vale para as duas decisoes acima:** os 88,4% e a regra de
+> rigidez foram medidos em pecas COMPLETAS. O passe adversarial mostrou que as
+> legadas sao outra populacao -- 55,3% rigidas contra 83,5%, area mediana de
+> 101 px contra 209,5, e 25,8% delas com mais de 6 tons contra 18,3%. Os
+> numeros **nao transferem**; o que sustenta a decisao e que nenhuma das 76
+> legadas medidas piorou.
 
 ### 12. Peca sem a animacao aparece PARADA, nao some (@7)
 

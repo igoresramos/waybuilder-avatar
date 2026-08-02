@@ -23,6 +23,7 @@ from collections import Counter, defaultdict
 import numpy as np
 from PIL import Image
 
+from roteador import decidir, deslocamento_otimo, eh_referencia, transladar
 from transplante import (
     aplicar_campo,
     campo_de_deslocamento,
@@ -36,6 +37,30 @@ Q = 64
 # Quantos frames DISTINTOS cada animacao tem. O ciclo repete alguns (`idle` toca
 # 0-0-1-1), mas a arte e so a lista abaixo.
 DISTINTOS = {"idle": 2, "combat_idle": 2, "walk": 8, "sit": 3, "run": 8}
+
+# `sit` NAO e gerado -- spec, decisao 11b. Medido em duas amostras independentes
+# (n=349 e n=366): 0,0% de frames exatos, mediana de 118-123 pixels errados,
+# 96,2% das pecas com mais de um quarto da area errada. Nem o transplante nem a
+# translacao produzem arte aproximada ali -- produzem ruido. A peca cai no
+# fallback parado da decisao 12, que e honesto.
+#
+# O 3,6% que a H2 mediu era artefato: 13 dos 13 frames "exatos" eram quadros
+# VAZIOS contando como acerto, em pecas cuja `camadas[0]` e vazia (chifres,
+# asas, caudas, escudo). Corrigido, 0,0%.
+NAO_GERAR = {"sit"}
+
+# `idle` k=0 nao precisa ser gerado: e `walk` k=0. Medido byte a byte em 88,4%
+# de 493 pecas (e 92,6% de 391 numa segunda frente). Copiar corta metade do
+# escopo de idle a custo zero.
+#
+# RESSALVA registrada: os 88,4% sao de pecas COMPLETAS. O passe adversarial
+# mediu que as legadas sao outra populacao (55,3% rigidas contra 83,5%), entao o
+# numero nao transfere. Copiar segue sendo melhor que a alternativa -- a peca
+# ja aparece assim hoje, travada no primeiro frame que tem (decisao 12).
+COPIA_DIRETA = {("idle", 0): ("walk", 0)}
+
+# treino medido por (slot, corpo, camada) -- ver `treino_do_slot`
+_TREINO: dict[tuple, dict] = {}
 
 
 def carregar(caminho: str, _cache: dict = {}) -> np.ndarray:
@@ -103,6 +128,53 @@ def gerar(alvo_v, doadora_v, falta, comum):
     return saida
 
 
+def treino_do_slot(presentes, alvo, slot, corpo, camada, recorte):
+    """O (dy, dx) otimo das pecas de REFERENCIA do mesmo slot -- spec 11b.
+
+    Referencia e a peca COMPLETA -- a que tem todas as animacoes do recorte.
+    Ter `walk` e `idle` nao basta: a calibracao mediu zero regressao justamente
+    porque restringiu o treino assim, e atribuiu as 13 regressoes da medicao
+    anterior ao treino contaminado por pecas legadas (`eh_referencia`, em
+    `roteador.py`, guarda a regra e o porque). A peca sob decisao nunca entra na
+    propria lista -- e o leave-one-out, e sem ele a medicao se valida sozinha.
+
+    Arte duplicada e descartada: 13 grupos de pecas byte a byte identicas sob
+    ids diferentes (`hat/bascinet` = `hat/round-bascinet`, `head/wolf-female` =
+    `head/wolf-male`) inflavam qualquer medicao em ate 5 pontos percentuais sem
+    ensinar nada. Deduplicar aqui, em vez de manter lista chumbada, sobrevive a
+    troca de pin do acervo.
+    """
+    # O deslocamento de cada referencia nao depende do alvo -- so o descarte da
+    # propria peca depende. Medir uma vez por (slot, corpo, camada) e filtrar
+    # depois evita refazer a mesma busca para cada peca do slot.
+    chave_cache = (slot, corpo, camada)
+    if chave_cache not in _TREINO:
+        medidos = {}
+        for outro in presentes:
+            if outro.get("slot") != slot:
+                continue
+            vo = variante(outro, corpo, camada)
+            if vo is None:
+                continue
+            if not eh_referencia(animacoes(vo), recorte):
+                continue
+            base = quadro(vo, "walk", 0)
+            if base is None:
+                continue
+            chave = base.tobytes()
+            if chave in medidos:
+                continue  # gemea byte a byte: nao ensina nada
+            d = deslocamento_otimo(base, quadro(vo, "idle", 1))
+            # peca nao-rigida nao vota: ela nao tem deslocamento para ensinar
+            if d is not None:
+                medidos[chave] = (outro["id"], d)
+        _TREINO[chave_cache] = medidos
+    return [d for ident, d in _TREINO[chave_cache].values()
+            if ident != alvo["id"]]
+
+
+
+
 def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--limite", type=int, default=0, help="para depurar")
@@ -130,6 +202,41 @@ def main() -> int:
                 if not tem:
                     continue
                 for falta in sorted(set(anims_do_recorte) - tem):
+                    if falta in NAO_GERAR:
+                        conta["nao gerada (ruido medido)"] += 1
+                        continue
+
+                    # `idle` nao passa pelo transplante -- spec, decisao 11b.
+                    # O k=0 e copia de `walk` k=0 e o k=1 sai do roteador por
+                    # rigidez, que decide entre transladar e nao mexer.
+                    if falta == "idle" and "walk" in tem:
+                        base = quadro(av, "walk", 0)
+                        treino = treino_do_slot(
+                            presentes, alvo, alvo.get("slot"), corpo, c,
+                            anims_do_recorte)
+                        acao, (dy, dx) = decidir(treino)
+                        frames = [base, transladar(base, dy, dx)
+                                  if acao == "transladar" else base]
+                        tira = np.concatenate(frames, axis=1)
+                        destino = os.path.join(
+                            args.saida, "frames", alvo["id"].replace("/", "__"),
+                            corpo, f"c{c}")
+                        os.makedirs(destino, exist_ok=True)
+                        Image.fromarray(tira).save(
+                            os.path.join(destino, f"{falta}.png"))
+                        registro.append({
+                            "id": alvo["id"], "corpo": corpo, "camada": c,
+                            "animacao": falta, "doadora": None,
+                            "via": acao, "deslocamento": [dy, dx],
+                            "treino": len(treino),
+                            "partiu_de": "walk", "frames": len(frames),
+                        })
+                        conta[acao] += 1
+                        n += 1
+                        if args.limite and n >= args.limite:
+                            break
+                        continue
+
                     doadora, iou, comum = achar_doadora(
                         av, tem, falta, presentes, corpo, c)
                     via = "analoga"
