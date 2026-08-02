@@ -205,7 +205,7 @@ describe("montarCamadas", () => {
     ]);
   });
 
-  it("cor explicita na peca vence a heranca do corpo", () => {
+  it("a heranca do corpo VENCE a cor explicita da peca", () => {
     const corpo = peca({ id: "body/body-color", slot: "body" });
     corpo.canais_de_cor = [{ nome: "cor", material: "body", paletas: ["ulpc"] }];
     const cabeca = peca({ id: "head/human-male", slot: "head" });
@@ -219,8 +219,12 @@ describe("montarCamadas", () => {
       "male",
       "idle",
     );
+    // O gerador FORCA a cor do corpo nesses itens em render
+    // (`state/palettes.ts:119-123`): a pele tem de ser uma so. Sem isso, uma
+    // cor gravada na peca deixaria o rosto de um tom e o torso de outro --
+    // medido na tela antes desta correcao.
     expect(camadas.find((c) => c.slot === "head")!.recolor).toEqual([
-      { material: "body", paleta: "ulpc", cor: "olive" },
+      { material: "body", paleta: "ulpc", cor: "bronze" },
     ]);
   });
 

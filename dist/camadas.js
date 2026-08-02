@@ -51,11 +51,10 @@ export function montarCamadas(catalogo, selecao, corpo, animacao) {
             // deixa explicitamente para o app. Um elmo tem metal e tecido, dois
             // canais independentes.
             const recolors = (item.canais_de_cor ?? []).flatMap((canal) => {
-                // cor explicita na peca vence a heranca
-                const cor = pedidas[canal.nome] ??
-                    (item.segue_cor_do_corpo && canal.material === "body"
-                        ? corDoCorpo
-                        : undefined);
+                // A heranca FORCA: a pele tem de ser uma so. Uma cor gravada na peca
+                // deixaria rosto e torso em tons diferentes.
+                const herda = item.segue_cor_do_corpo && canal.material === "body" && corDoCorpo;
+                const cor = herda ? corDoCorpo : pedidas[canal.nome];
                 if (cor === undefined || cor in variante.cores)
                     return [];
                 const paleta = canal.paletas[0];
