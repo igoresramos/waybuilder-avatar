@@ -1,0 +1,4494 @@
+{
+ "gerado_em": "2026-08-02",
+ "o_que_e": "Como cada animacao move o corpo, por regiao. Medido no corpo base male (body/body-color) com o motor de transplante.py.",
+ "convencao_de_sinal": "dy>0 desce na tela, dx>0 vai para a direita. E o MOVIMENTO do pixel entre origem e destino, ou seja o simetrico do campo devolvido por campo_de_deslocamento.",
+ "regioes": {
+  "cabeca": "y<38 e 15<=x<49 -- calota do cranio e ombros",
+  "torso": "38<=y<50 e 23<=x<41",
+  "bracos": "38<=y<50, 15<=x<23 ou 41<=x<49",
+  "pernas": "50<=y<57 e 15<=x<49",
+  "pes": "y>=57 e 15<=x<49",
+  "externo": "x<15 ou x>=49 -- fora do corpo: capa, asa, arma"
+ },
+ "amostra": {
+  "corpo": "male",
+  "camada": 0,
+  "quadros_por_animacao": {
+   "idle": 2,
+   "combat_idle": 2,
+   "walk": 8,
+   "sit": 3,
+   "run": 8
+  },
+  "pecas_completas": 391,
+  "origem_dos_pares": "animacao de origem sempre no quadro k=0"
+ },
+ "movimento": {
+  "idle->idle": {
+   "origem": "idle",
+   "destino": "idle",
+   "quadros_destino": 1,
+   "regioes": {
+    "cabeca": {
+     "n": 180,
+     "dy_medio": -1.04,
+     "dx_medio": 0.0,
+     "dy_dp": 0.68,
+     "dx_dp": 0.92,
+     "mag_media": 1.15,
+     "mag_mediana": 1.0,
+     "mag_max": 7.81,
+     "var_interna": 1.32,
+     "parados": 0.078
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.21,
+     "dx_medio": 0.0,
+     "dy_dp": 0.96,
+     "dx_dp": 0.83,
+     "mag_media": 0.73,
+     "mag_mediana": 0.0,
+     "mag_max": 6.08,
+     "var_interna": 1.61,
+     "parados": 0.547
+    },
+    "bracos": {
+     "n": 134,
+     "dy_medio": -0.34,
+     "dx_medio": 0.0,
+     "dy_dp": 0.47,
+     "dx_dp": 0.21,
+     "mag_media": 0.39,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.27,
+     "parados": 0.612
+    },
+    "pernas": {
+     "n": 108,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.14,
+     "mag_media": 0.02,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.02,
+     "parados": 0.981
+    },
+    "pes": {
+     "n": 80,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 180,
+     "dy_medio": -1.04,
+     "dx_medio": 0.0,
+     "dy_dp": 0.68,
+     "dx_dp": 0.92,
+     "mag_media": 1.15,
+     "mag_mediana": 1.0,
+     "mag_max": 7.81,
+     "var_interna": 1.32,
+     "parados": 0.078
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.21,
+     "dx_medio": 0.0,
+     "dy_dp": 0.96,
+     "dx_dp": 0.83,
+     "mag_media": 0.73,
+     "mag_mediana": 0.0,
+     "mag_max": 6.08,
+     "var_interna": 1.61,
+     "parados": 0.547
+    },
+    "bracos": {
+     "n": 134,
+     "dy_medio": -0.34,
+     "dx_medio": 0.0,
+     "dy_dp": 0.47,
+     "dx_dp": 0.21,
+     "mag_media": 0.39,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.27,
+     "parados": 0.612
+    },
+    "pernas": {
+     "n": 108,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.14,
+     "mag_media": 0.02,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.02,
+     "parados": 0.981
+    },
+    "pes": {
+     "n": 80,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.39,
+    "dx_medio": 0.0,
+    "mag_media": 0.58,
+    "var_total": 1.02,
+    "var_dentro_das_regioes": 0.86,
+    "var_entre_regioes": 0.16,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.154
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.006,
+    "vetores_distintos": 22.0,
+    "coerencia_vizinha": 0.83,
+    "teto_erro_relativo": 0.092
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 714.0,
+    "campo_por_pixel": 66.0,
+    "campo_por_regiao": 104.0,
+    "campo_unico_global": 162.0,
+    "sem_mover": 162.0
+   }
+  },
+  "idle->combat_idle": {
+   "origem": "idle",
+   "destino": "combat_idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 138,
+     "dy_medio": -0.04,
+     "dx_medio": -0.3,
+     "dy_dp": 2.04,
+     "dx_dp": 3.54,
+     "mag_media": 3.76,
+     "mag_mediana": 3.61,
+     "mag_max": 7.81,
+     "var_interna": 16.72,
+     "parados": 0.014
+    },
+    "torso": {
+     "n": 383,
+     "dy_medio": -1.21,
+     "dx_medio": 0.34,
+     "dy_dp": 3.42,
+     "dx_dp": 3.71,
+     "mag_media": 4.84,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 25.43,
+     "parados": 0.021
+    },
+    "bracos": {
+     "n": 30,
+     "dy_medio": -2.27,
+     "dx_medio": 1.93,
+     "dy_dp": 3.38,
+     "dx_dp": 3.51,
+     "mag_media": 5.54,
+     "mag_mediana": 5.66,
+     "mag_max": 7.81,
+     "var_interna": 23.72,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 182,
+     "dy_medio": 0.6,
+     "dx_medio": -0.16,
+     "dy_dp": 3.66,
+     "dx_dp": 3.9,
+     "mag_media": 5.22,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 28.57,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 86,
+     "dy_medio": 1.33,
+     "dx_medio": -4.3,
+     "dy_dp": 1.41,
+     "dx_dp": 0.59,
+     "mag_media": 4.7,
+     "mag_mediana": 4.47,
+     "mag_max": 6.71,
+     "var_interna": 2.34,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 53,
+     "dy_medio": 1.38,
+     "dx_medio": -0.72,
+     "dy_dp": 1.36,
+     "dx_dp": 3.6,
+     "mag_media": 3.8,
+     "mag_mediana": 4.24,
+     "mag_max": 6.71,
+     "var_interna": 14.85,
+     "parados": 0.019
+    },
+    "torso": {
+     "n": 193,
+     "dy_medio": -0.84,
+     "dx_medio": 0.44,
+     "dy_dp": 3.5,
+     "dx_dp": 3.63,
+     "mag_media": 4.74,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 25.37,
+     "parados": 0.021
+    },
+    "bracos": {
+     "n": 16,
+     "dy_medio": -2.0,
+     "dx_medio": 1.5,
+     "dy_dp": 3.41,
+     "dx_dp": 3.79,
+     "mag_media": 5.52,
+     "mag_mediana": 5.66,
+     "mag_max": 7.81,
+     "var_interna": 26.0,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 92,
+     "dy_medio": 0.66,
+     "dx_medio": -0.18,
+     "dy_dp": 3.63,
+     "dx_dp": 3.88,
+     "mag_media": 5.17,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 28.2,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 43,
+     "dy_medio": 1.33,
+     "dx_medio": -4.3,
+     "dy_dp": 1.41,
+     "dx_dp": 0.59,
+     "mag_media": 4.7,
+     "mag_mediana": 4.47,
+     "mag_max": 6.71,
+     "var_interna": 2.34,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.38,
+    "dx_medio": -0.31,
+    "mag_media": 4.75,
+    "var_total": 25.23,
+    "var_dentro_das_regioes": 22.17,
+    "var_entre_regioes": 3.05,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.121
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.209,
+    "vetores_distintos": 105.0,
+    "coerencia_vizinha": 0.383,
+    "teto_erro_relativo": 0.581
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 409.5,
+    "campo_por_pixel": 238.0,
+    "campo_por_regiao": 291.0,
+    "campo_unico_global": 328.0,
+    "sem_mover": 327.5
+   }
+  },
+  "idle->walk": {
+   "origem": "idle",
+   "destino": "walk",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 1094,
+     "dy_medio": 0.34,
+     "dx_medio": -0.0,
+     "dy_dp": 0.72,
+     "dx_dp": 0.75,
+     "mag_media": 0.53,
+     "mag_mediana": 0.0,
+     "mag_max": 6.4,
+     "var_interna": 1.09,
+     "parados": 0.668
+    },
+    "torso": {
+     "n": 1704,
+     "dy_medio": 0.21,
+     "dx_medio": -0.01,
+     "dy_dp": 1.03,
+     "dx_dp": 0.52,
+     "mag_media": 0.57,
+     "mag_mediana": 0.0,
+     "mag_max": 7.21,
+     "var_interna": 1.34,
+     "parados": 0.653
+    },
+    "bracos": {
+     "n": 1040,
+     "dy_medio": -0.07,
+     "dx_medio": 0.03,
+     "dy_dp": 1.8,
+     "dx_dp": 1.33,
+     "mag_media": 1.28,
+     "mag_mediana": 1.0,
+     "mag_max": 8.49,
+     "var_interna": 4.99,
+     "parados": 0.442
+    },
+    "pernas": {
+     "n": 934,
+     "dy_medio": 0.17,
+     "dx_medio": -0.02,
+     "dy_dp": 1.89,
+     "dx_dp": 1.79,
+     "mag_media": 2.05,
+     "mag_mediana": 2.0,
+     "mag_max": 8.49,
+     "var_interna": 6.79,
+     "parados": 0.142
+    },
+    "pes": {
+     "n": 634,
+     "dy_medio": 0.19,
+     "dx_medio": -0.06,
+     "dy_dp": 1.32,
+     "dx_dp": 1.73,
+     "mag_media": 1.87,
+     "mag_mediana": 2.24,
+     "mag_max": 6.08,
+     "var_interna": 4.74,
+     "parados": 0.126
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 154,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.0,
+     "dx_medio": 0.02,
+     "dy_dp": 0.31,
+     "dx_dp": 0.15,
+     "mag_media": 0.05,
+     "mag_mediana": 0.0,
+     "mag_max": 4.12,
+     "var_interna": 0.12,
+     "parados": 0.967
+    },
+    "bracos": {
+     "n": 136,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "pernas": {
+     "n": 112,
+     "dy_medio": -0.18,
+     "dx_medio": 0.48,
+     "dy_dp": 1.14,
+     "dx_dp": 1.46,
+     "mag_media": 1.59,
+     "mag_mediana": 1.0,
+     "mag_max": 6.71,
+     "var_interna": 3.43,
+     "parados": 0.071
+    },
+    "pes": {
+     "n": 83,
+     "dy_medio": 0.19,
+     "dx_medio": 0.55,
+     "dy_dp": 1.05,
+     "dx_dp": 1.58,
+     "mag_media": 1.73,
+     "mag_mediana": 2.0,
+     "mag_max": 6.0,
+     "var_interna": 3.58,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.17,
+    "dx_medio": -0.01,
+    "mag_media": 1.11,
+    "var_total": 3.35,
+    "var_dentro_das_regioes": 3.33,
+    "var_entre_regioes": 0.02,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.005
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.02,
+    "vetores_distintos": 38.375,
+    "coerencia_vizinha": 0.817,
+    "teto_erro_relativo": 0.147
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 675.8,
+    "campo_por_pixel": 97.5,
+    "campo_por_regiao": 199.8,
+    "campo_unico_global": 222.0,
+    "sem_mover": 240.4
+   }
+  },
+  "idle->sit": {
+   "origem": "idle",
+   "destino": "sit",
+   "quadros_destino": 3,
+   "regioes": {
+    "cabeca": {
+     "n": 243,
+     "dy_medio": -0.34,
+     "dx_medio": -0.03,
+     "dy_dp": 1.87,
+     "dx_dp": 1.31,
+     "mag_media": 2.17,
+     "mag_mediana": 2.0,
+     "mag_max": 4.47,
+     "var_interna": 5.2,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 626,
+     "dy_medio": 1.24,
+     "dx_medio": 0.29,
+     "dy_dp": 3.65,
+     "dx_dp": 2.61,
+     "mag_media": 4.2,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 20.1,
+     "parados": 0.006
+    },
+    "bracos": {
+     "n": 171,
+     "dy_medio": -1.16,
+     "dx_medio": 0.37,
+     "dy_dp": 3.62,
+     "dx_dp": 2.87,
+     "mag_media": 4.6,
+     "mag_mediana": 4.24,
+     "mag_max": 7.81,
+     "var_interna": 21.35,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 399,
+     "dy_medio": 1.28,
+     "dx_medio": -0.08,
+     "dy_dp": 3.32,
+     "dx_dp": 3.32,
+     "mag_media": 4.31,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 21.99,
+     "parados": 0.005
+    },
+    "pes": {
+     "n": 195,
+     "dy_medio": 0.46,
+     "dx_medio": -0.13,
+     "dy_dp": 2.4,
+     "dx_dp": 3.21,
+     "mag_media": 3.39,
+     "mag_mediana": 2.24,
+     "mag_max": 8.49,
+     "var_interna": 16.06,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 0
+    },
+    "torso": {
+     "n": 194,
+     "dy_medio": 3.77,
+     "dx_medio": -0.12,
+     "dy_dp": 3.22,
+     "dx_dp": 2.78,
+     "mag_media": 5.52,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 18.15,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 48,
+     "dy_medio": 0.79,
+     "dx_medio": 0.52,
+     "dy_dp": 3.68,
+     "dx_dp": 2.61,
+     "mag_media": 4.52,
+     "mag_mediana": 4.24,
+     "mag_max": 6.71,
+     "var_interna": 20.37,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 166,
+     "dy_medio": 1.92,
+     "dx_medio": -0.75,
+     "dy_dp": 3.2,
+     "dx_dp": 3.11,
+     "mag_media": 4.61,
+     "mag_mediana": 4.47,
+     "mag_max": 8.49,
+     "var_interna": 19.89,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 81,
+     "dy_medio": 0.99,
+     "dx_medio": -1.99,
+     "dy_dp": 3.39,
+     "dx_dp": 3.39,
+     "mag_media": 4.88,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 22.99,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.67,
+    "dx_medio": 0.11,
+    "mag_media": 3.87,
+    "var_total": 18.76,
+    "var_dentro_das_regioes": 17.99,
+    "var_entre_regioes": 0.76,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.041
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.243,
+    "vetores_distintos": 93.333,
+    "coerencia_vizinha": 0.418,
+    "teto_erro_relativo": 0.457
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 544.7,
+    "campo_por_pixel": 247.3,
+    "campo_por_regiao": 356.3,
+    "campo_unico_global": 394.0,
+    "sem_mover": 419.7
+   }
+  },
+  "idle->run": {
+   "origem": "idle",
+   "destino": "run",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 736,
+     "dy_medio": 0.35,
+     "dx_medio": 0.0,
+     "dy_dp": 1.69,
+     "dx_dp": 2.85,
+     "mag_media": 3.08,
+     "mag_mediana": 3.16,
+     "mag_max": 7.21,
+     "var_interna": 10.94,
+     "parados": 0.019
+    },
+    "torso": {
+     "n": 1670,
+     "dy_medio": -0.4,
+     "dx_medio": -0.0,
+     "dy_dp": 2.92,
+     "dx_dp": 2.72,
+     "mag_media": 3.51,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 15.92,
+     "parados": 0.028
+    },
+    "bracos": {
+     "n": 310,
+     "dy_medio": -1.84,
+     "dx_medio": -0.02,
+     "dy_dp": 2.71,
+     "dx_dp": 3.18,
+     "mag_media": 4.35,
+     "mag_mediana": 4.12,
+     "mag_max": 7.81,
+     "var_interna": 17.44,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 756,
+     "dy_medio": 0.69,
+     "dx_medio": 0.0,
+     "dy_dp": 2.83,
+     "dx_dp": 3.33,
+     "mag_media": 4.09,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 19.11,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 358,
+     "dy_medio": 1.33,
+     "dx_medio": 0.0,
+     "dy_dp": 2.33,
+     "dx_dp": 2.8,
+     "mag_media": 3.69,
+     "mag_mediana": 3.61,
+     "mag_max": 7.21,
+     "var_interna": 13.27,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 59,
+     "dy_medio": 2.39,
+     "dx_medio": 0.12,
+     "dy_dp": 0.96,
+     "dx_dp": 3.14,
+     "mag_media": 3.79,
+     "mag_mediana": 3.61,
+     "mag_max": 7.21,
+     "var_interna": 10.78,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 215,
+     "dy_medio": 0.67,
+     "dx_medio": -0.89,
+     "dy_dp": 2.72,
+     "dx_dp": 2.52,
+     "mag_media": 3.49,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 13.75,
+     "parados": 0.019
+    },
+    "bracos": {
+     "n": 53,
+     "dy_medio": -0.43,
+     "dx_medio": 0.45,
+     "dy_dp": 2.54,
+     "dx_dp": 3.03,
+     "mag_media": 3.88,
+     "mag_mediana": 3.61,
+     "mag_max": 6.71,
+     "var_interna": 15.66,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 98,
+     "dy_medio": 0.96,
+     "dx_medio": -1.36,
+     "dy_dp": 3.23,
+     "dx_dp": 2.94,
+     "mag_media": 4.26,
+     "mag_mediana": 4.0,
+     "mag_max": 7.81,
+     "var_interna": 19.06,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 50,
+     "dy_medio": 2.58,
+     "dx_medio": 1.56,
+     "dy_dp": 1.04,
+     "dx_dp": 0.67,
+     "mag_media": 3.14,
+     "mag_mediana": 3.0,
+     "mag_max": 6.0,
+     "var_interna": 1.53,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.0,
+    "dx_medio": -0.0,
+    "mag_media": 3.62,
+    "var_total": 16.09,
+    "var_dentro_das_regioes": 15.47,
+    "var_entre_regioes": 0.63,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.039
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.11,
+    "vetores_distintos": 89.5,
+    "coerencia_vizinha": 0.413,
+    "teto_erro_relativo": 0.481
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 478.8,
+    "campo_por_pixel": 229.8,
+    "campo_por_regiao": 313.5,
+    "campo_unico_global": 324.2,
+    "sem_mover": 354.8
+   }
+  },
+  "combat_idle->idle": {
+   "origem": "combat_idle",
+   "destino": "idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 334,
+     "dy_medio": -1.36,
+     "dx_medio": -0.14,
+     "dy_dp": 1.92,
+     "dx_dp": 3.31,
+     "mag_media": 3.66,
+     "mag_mediana": 4.0,
+     "mag_max": 6.71,
+     "var_interna": 14.61,
+     "parados": 0.036
+    },
+    "torso": {
+     "n": 424,
+     "dy_medio": 0.67,
+     "dx_medio": -0.33,
+     "dy_dp": 3.59,
+     "dx_dp": 3.55,
+     "mag_media": 4.8,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 25.46,
+     "parados": 0.005
+    },
+    "bracos": {
+     "n": 270,
+     "dy_medio": 2.98,
+     "dx_medio": 0.86,
+     "dy_dp": 2.9,
+     "dx_dp": 4.72,
+     "mag_media": 6.17,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 30.65,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 218,
+     "dy_medio": 1.2,
+     "dx_medio": -0.26,
+     "dy_dp": 3.87,
+     "dx_dp": 4.28,
+     "mag_media": 5.71,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 33.34,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 160,
+     "dy_medio": 2.04,
+     "dx_medio": 0.26,
+     "dy_dp": 2.97,
+     "dx_dp": 4.27,
+     "mag_media": 5.47,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 27.05,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 180,
+     "dy_medio": -1.75,
+     "dx_medio": -0.16,
+     "dy_dp": 1.82,
+     "dx_dp": 3.32,
+     "mag_media": 3.75,
+     "mag_mediana": 4.0,
+     "mag_max": 6.71,
+     "var_interna": 14.34,
+     "parados": 0.039
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": 0.67,
+     "dx_medio": -0.29,
+     "dy_dp": 3.65,
+     "dx_dp": 3.58,
+     "mag_media": 4.86,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 26.14,
+     "parados": 0.009
+    },
+    "bracos": {
+     "n": 134,
+     "dy_medio": 2.81,
+     "dx_medio": 0.84,
+     "dy_dp": 2.88,
+     "dx_dp": 4.75,
+     "mag_media": 6.11,
+     "mag_mediana": 5.83,
+     "mag_max": 8.49,
+     "var_interna": 30.88,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 108,
+     "dy_medio": 1.08,
+     "dx_medio": -0.3,
+     "dy_dp": 3.87,
+     "dx_dp": 4.3,
+     "mag_media": 5.7,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 33.49,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 80,
+     "dy_medio": 2.04,
+     "dx_medio": 0.26,
+     "dy_dp": 2.97,
+     "dx_dp": 4.27,
+     "mag_media": 5.47,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 27.05,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.87,
+    "dx_medio": 0.02,
+    "mag_media": 5.01,
+    "var_total": 27.7,
+    "var_dentro_das_regioes": 25.28,
+    "var_entre_regioes": 2.42,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.087
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.264,
+    "vetores_distintos": 138.5,
+    "coerencia_vizinha": 0.374,
+    "teto_erro_relativo": 0.549
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 703.0,
+    "campo_por_pixel": 386.0,
+    "campo_por_regiao": 605.5,
+    "campo_unico_global": 613.5,
+    "sem_mover": 614.0
+   }
+  },
+  "combat_idle->combat_idle": {
+   "origem": "combat_idle",
+   "destino": "combat_idle",
+   "quadros_destino": 1,
+   "regioes": {
+    "cabeca": {
+     "n": 53,
+     "dy_medio": 1.58,
+     "dx_medio": 0.17,
+     "dy_dp": 1.39,
+     "dx_dp": 1.48,
+     "mag_media": 2.26,
+     "mag_mediana": 2.0,
+     "mag_max": 7.21,
+     "var_interna": 4.12,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 193,
+     "dy_medio": 1.11,
+     "dx_medio": 0.0,
+     "dy_dp": 0.63,
+     "dx_dp": 0.2,
+     "mag_media": 1.19,
+     "mag_mediana": 1.0,
+     "mag_max": 6.32,
+     "var_interna": 0.44,
+     "parados": 0.005
+    },
+    "bracos": {
+     "n": 16,
+     "dy_medio": 1.19,
+     "dx_medio": 0.0,
+     "dy_dp": 0.39,
+     "dx_dp": 0.0,
+     "mag_media": 1.19,
+     "mag_mediana": 1.0,
+     "mag_max": 2.0,
+     "var_interna": 0.15,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 92,
+     "dy_medio": 0.25,
+     "dx_medio": -0.05,
+     "dy_dp": 0.77,
+     "dx_dp": 0.23,
+     "mag_media": 0.48,
+     "mag_mediana": 0.0,
+     "mag_max": 2.24,
+     "var_interna": 0.65,
+     "parados": 0.63
+    },
+    "pes": {
+     "n": 43,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 53,
+     "dy_medio": 1.58,
+     "dx_medio": 0.17,
+     "dy_dp": 1.39,
+     "dx_dp": 1.48,
+     "mag_media": 2.26,
+     "mag_mediana": 2.0,
+     "mag_max": 7.21,
+     "var_interna": 4.12,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 193,
+     "dy_medio": 1.11,
+     "dx_medio": 0.0,
+     "dy_dp": 0.63,
+     "dx_dp": 0.2,
+     "mag_media": 1.19,
+     "mag_mediana": 1.0,
+     "mag_max": 6.32,
+     "var_interna": 0.44,
+     "parados": 0.005
+    },
+    "bracos": {
+     "n": 16,
+     "dy_medio": 1.19,
+     "dx_medio": 0.0,
+     "dy_dp": 0.39,
+     "dx_dp": 0.0,
+     "mag_media": 1.19,
+     "mag_mediana": 1.0,
+     "mag_max": 2.0,
+     "var_interna": 0.15,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 92,
+     "dy_medio": 0.25,
+     "dx_medio": -0.05,
+     "dy_dp": 0.77,
+     "dx_dp": 0.23,
+     "mag_media": 0.48,
+     "mag_mediana": 0.0,
+     "mag_max": 2.24,
+     "var_interna": 0.65,
+     "parados": 0.63
+    },
+    "pes": {
+     "n": 43,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.86,
+    "dx_medio": 0.01,
+    "mag_media": 1.04,
+    "var_total": 1.2,
+    "var_dentro_das_regioes": 0.92,
+    "var_entre_regioes": 0.28,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.232
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.01,
+    "vetores_distintos": 8.0,
+    "coerencia_vizinha": 0.899,
+    "teto_erro_relativo": 0.101
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 397.0,
+    "campo_por_pixel": 40.0,
+    "campo_por_regiao": 52.0,
+    "campo_unico_global": 118.0,
+    "sem_mover": 182.0
+   }
+  },
+  "combat_idle->walk": {
+   "origem": "combat_idle",
+   "destino": "walk",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 1094,
+     "dy_medio": -0.51,
+     "dx_medio": -0.06,
+     "dy_dp": 1.97,
+     "dx_dp": 3.32,
+     "mag_media": 3.57,
+     "mag_mediana": 4.0,
+     "mag_max": 6.32,
+     "var_interna": 14.9,
+     "parados": 0.015
+    },
+    "torso": {
+     "n": 1704,
+     "dy_medio": 0.47,
+     "dx_medio": -0.45,
+     "dy_dp": 3.52,
+     "dx_dp": 3.52,
+     "mag_media": 4.75,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 24.78,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 1040,
+     "dy_medio": 2.85,
+     "dx_medio": 0.78,
+     "dy_dp": 3.01,
+     "dx_dp": 4.58,
+     "mag_media": 6.02,
+     "mag_mediana": 6.32,
+     "mag_max": 8.49,
+     "var_interna": 30.05,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 934,
+     "dy_medio": 0.86,
+     "dx_medio": -0.65,
+     "dy_dp": 3.56,
+     "dx_dp": 3.78,
+     "mag_media": 4.94,
+     "mag_mediana": 4.47,
+     "mag_max": 8.49,
+     "var_interna": 26.95,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 634,
+     "dy_medio": 1.94,
+     "dx_medio": -0.14,
+     "dy_dp": 3.08,
+     "dx_dp": 3.44,
+     "mag_media": 4.62,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 21.32,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 154,
+     "dy_medio": -0.91,
+     "dx_medio": -0.12,
+     "dy_dp": 1.93,
+     "dx_dp": 3.29,
+     "mag_media": 3.55,
+     "mag_mediana": 4.0,
+     "mag_max": 6.32,
+     "var_interna": 14.53,
+     "parados": 0.032
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": 0.66,
+     "dx_medio": -0.35,
+     "dy_dp": 3.45,
+     "dx_dp": 3.48,
+     "mag_media": 4.66,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 23.96,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 136,
+     "dy_medio": 3.18,
+     "dx_medio": 0.9,
+     "dy_dp": 2.88,
+     "dx_dp": 4.69,
+     "mag_media": 6.23,
+     "mag_mediana": 6.4,
+     "mag_max": 8.49,
+     "var_interna": 30.25,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 112,
+     "dy_medio": 0.59,
+     "dx_medio": -0.75,
+     "dy_dp": 3.18,
+     "dx_dp": 3.78,
+     "mag_media": 4.7,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 24.36,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 83,
+     "dy_medio": 2.0,
+     "dx_medio": -0.24,
+     "dy_dp": 3.15,
+     "dx_dp": 3.9,
+     "mag_media": 5.07,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 25.12,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.97,
+    "dx_medio": -0.13,
+    "mag_media": 4.77,
+    "var_total": 25.32,
+    "var_dentro_das_regioes": 23.76,
+    "var_entre_regioes": 1.55,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.061
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.262,
+    "vetores_distintos": 131.5,
+    "coerencia_vizinha": 0.375,
+    "teto_erro_relativo": 0.548
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 675.8,
+    "campo_por_pixel": 370.5,
+    "campo_por_regiao": 574.1,
+    "campo_unico_global": 587.0,
+    "sem_mover": 591.5
+   }
+  },
+  "combat_idle->sit": {
+   "origem": "combat_idle",
+   "destino": "sit",
+   "quadros_destino": 3,
+   "regioes": {
+    "cabeca": {
+     "n": 243,
+     "dy_medio": -0.75,
+     "dx_medio": -0.55,
+     "dy_dp": 2.22,
+     "dx_dp": 2.74,
+     "mag_media": 3.29,
+     "mag_mediana": 3.0,
+     "mag_max": 6.71,
+     "var_interna": 12.39,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 626,
+     "dy_medio": 0.82,
+     "dx_medio": -0.04,
+     "dy_dp": 3.7,
+     "dx_dp": 3.36,
+     "mag_media": 4.69,
+     "mag_mediana": 4.47,
+     "mag_max": 8.49,
+     "var_interna": 24.94,
+     "parados": 0.003
+    },
+    "bracos": {
+     "n": 171,
+     "dy_medio": 0.37,
+     "dx_medio": 0.6,
+     "dy_dp": 3.83,
+     "dx_dp": 3.23,
+     "mag_media": 4.63,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 25.08,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 399,
+     "dy_medio": 1.26,
+     "dx_medio": -0.3,
+     "dy_dp": 3.41,
+     "dx_dp": 4.02,
+     "mag_media": 5.05,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 27.79,
+     "parados": 0.02
+    },
+    "pes": {
+     "n": 195,
+     "dy_medio": 2.52,
+     "dx_medio": -1.33,
+     "dy_dp": 3.21,
+     "dx_dp": 3.07,
+     "mag_media": 4.97,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 19.74,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 0
+    },
+    "torso": {
+     "n": 194,
+     "dy_medio": 0.23,
+     "dx_medio": -0.15,
+     "dy_dp": 4.74,
+     "dx_dp": 3.61,
+     "mag_media": 5.68,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 35.49,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 48,
+     "dy_medio": 0.65,
+     "dx_medio": 1.06,
+     "dy_dp": 4.62,
+     "dx_dp": 3.21,
+     "mag_media": 5.47,
+     "mag_mediana": 5.69,
+     "mag_max": 7.81,
+     "var_interna": 31.62,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 166,
+     "dy_medio": 1.22,
+     "dx_medio": -1.45,
+     "dy_dp": 2.9,
+     "dx_dp": 4.25,
+     "mag_media": 4.96,
+     "mag_mediana": 5.83,
+     "mag_max": 8.49,
+     "var_interna": 26.5,
+     "parados": 0.048
+    },
+    "pes": {
+     "n": 81,
+     "dy_medio": 2.15,
+     "dx_medio": -2.0,
+     "dy_dp": 3.36,
+     "dx_dp": 2.87,
+     "mag_media": 4.93,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 19.51,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.85,
+    "dx_medio": -0.27,
+    "mag_media": 4.6,
+    "var_total": 24.19,
+    "var_dentro_das_regioes": 23.16,
+    "var_entre_regioes": 1.03,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.043
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.287,
+    "vetores_distintos": 105.667,
+    "coerencia_vizinha": 0.375,
+    "teto_erro_relativo": 0.502
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 544.7,
+    "campo_por_pixel": 272.3,
+    "campo_por_regiao": 453.7,
+    "campo_unico_global": 453.7,
+    "sem_mover": 473.3
+   }
+  },
+  "combat_idle->run": {
+   "origem": "combat_idle",
+   "destino": "run",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 736,
+     "dy_medio": 0.3,
+     "dx_medio": -0.97,
+     "dy_dp": 1.87,
+     "dx_dp": 2.92,
+     "mag_media": 3.15,
+     "mag_mediana": 3.0,
+     "mag_max": 6.71,
+     "var_interna": 12.01,
+     "parados": 0.06
+    },
+    "torso": {
+     "n": 1670,
+     "dy_medio": 0.26,
+     "dx_medio": -0.75,
+     "dy_dp": 3.63,
+     "dx_dp": 3.19,
+     "mag_media": 4.5,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 23.34,
+     "parados": 0.008
+    },
+    "bracos": {
+     "n": 310,
+     "dy_medio": 0.47,
+     "dx_medio": 0.58,
+     "dy_dp": 3.13,
+     "dx_dp": 2.69,
+     "mag_media": 3.69,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 17.02,
+     "parados": 0.006
+    },
+    "pernas": {
+     "n": 756,
+     "dy_medio": 0.24,
+     "dx_medio": -1.11,
+     "dy_dp": 3.32,
+     "dx_dp": 3.28,
+     "mag_media": 4.26,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 21.81,
+     "parados": 0.022
+    },
+    "pes": {
+     "n": 358,
+     "dy_medio": 2.44,
+     "dx_medio": -0.81,
+     "dy_dp": 3.01,
+     "dx_dp": 3.31,
+     "mag_media": 4.58,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 19.98,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 59,
+     "dy_medio": 2.19,
+     "dx_medio": -1.75,
+     "dy_dp": 1.75,
+     "dx_dp": 3.42,
+     "mag_media": 4.48,
+     "mag_mediana": 4.47,
+     "mag_max": 6.71,
+     "var_interna": 14.78,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 215,
+     "dy_medio": 0.61,
+     "dx_medio": -1.1,
+     "dy_dp": 3.33,
+     "dx_dp": 3.35,
+     "mag_media": 4.68,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 22.34,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 53,
+     "dy_medio": 1.83,
+     "dx_medio": -0.45,
+     "dy_dp": 2.29,
+     "dx_dp": 2.67,
+     "mag_media": 3.7,
+     "mag_mediana": 3.61,
+     "mag_max": 6.71,
+     "var_interna": 12.39,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 98,
+     "dy_medio": 0.35,
+     "dx_medio": -2.58,
+     "dy_dp": 3.97,
+     "dx_dp": 2.59,
+     "mag_media": 5.1,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 22.49,
+     "parados": 0.01
+    },
+    "pes": {
+     "n": 50,
+     "dy_medio": 4.46,
+     "dx_medio": -4.14,
+     "dy_dp": 1.85,
+     "dx_dp": 2.03,
+     "mag_media": 6.54,
+     "mag_mediana": 6.56,
+     "mag_max": 8.49,
+     "var_interna": 7.53,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.48,
+    "dx_medio": -0.76,
+    "mag_media": 4.14,
+    "var_total": 20.61,
+    "var_dentro_das_regioes": 20.04,
+    "var_entre_regioes": 0.57,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.028
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.229,
+    "vetores_distintos": 103.125,
+    "coerencia_vizinha": 0.381,
+    "teto_erro_relativo": 0.459
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 478.8,
+    "campo_por_pixel": 219.8,
+    "campo_por_regiao": 361.0,
+    "campo_unico_global": 373.1,
+    "sem_mover": 381.4
+   }
+  },
+  "walk->idle": {
+   "origem": "walk",
+   "destino": "idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 334,
+     "dy_medio": -0.56,
+     "dx_medio": 0.0,
+     "dy_dp": 0.72,
+     "dx_dp": 0.68,
+     "mag_media": 0.62,
+     "mag_mediana": 0.0,
+     "mag_max": 7.81,
+     "var_interna": 0.98,
+     "parados": 0.503
+    },
+    "torso": {
+     "n": 424,
+     "dy_medio": -0.1,
+     "dx_medio": 0.0,
+     "dy_dp": 0.69,
+     "dx_dp": 0.59,
+     "mag_media": 0.36,
+     "mag_mediana": 0.0,
+     "mag_max": 6.08,
+     "var_interna": 0.81,
+     "parados": 0.774
+    },
+    "bracos": {
+     "n": 270,
+     "dy_medio": -0.17,
+     "dx_medio": 0.0,
+     "dy_dp": 0.38,
+     "dx_dp": 0.15,
+     "mag_media": 0.19,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.16,
+     "parados": 0.807
+    },
+    "pernas": {
+     "n": 218,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.1,
+     "mag_media": 0.01,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.01,
+     "parados": 0.991
+    },
+    "pes": {
+     "n": 160,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 180,
+     "dy_medio": -1.04,
+     "dx_medio": 0.0,
+     "dy_dp": 0.68,
+     "dx_dp": 0.92,
+     "mag_media": 1.15,
+     "mag_mediana": 1.0,
+     "mag_max": 7.81,
+     "var_interna": 1.32,
+     "parados": 0.078
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.21,
+     "dx_medio": 0.0,
+     "dy_dp": 0.96,
+     "dx_dp": 0.83,
+     "mag_media": 0.73,
+     "mag_mediana": 0.0,
+     "mag_max": 6.08,
+     "var_interna": 1.61,
+     "parados": 0.547
+    },
+    "bracos": {
+     "n": 134,
+     "dy_medio": -0.34,
+     "dx_medio": 0.0,
+     "dy_dp": 0.47,
+     "dx_dp": 0.21,
+     "mag_media": 0.39,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.27,
+     "parados": 0.612
+    },
+    "pernas": {
+     "n": 108,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.14,
+     "mag_media": 0.02,
+     "mag_mediana": 0.0,
+     "mag_max": 1.0,
+     "var_interna": 0.02,
+     "parados": 0.981
+    },
+    "pes": {
+     "n": 80,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.2,
+    "dx_medio": 0.0,
+    "mag_media": 0.3,
+    "var_total": 0.56,
+    "var_dentro_das_regioes": 0.51,
+    "var_entre_regioes": 0.05,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.085
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.003,
+    "vetores_distintos": 11.5,
+    "coerencia_vizinha": 0.915,
+    "teto_erro_relativo": 0.046
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 703.0,
+    "campo_por_pixel": 33.0,
+    "campo_por_regiao": 52.0,
+    "campo_unico_global": 81.0,
+    "sem_mover": 81.0
+   }
+  },
+  "walk->combat_idle": {
+   "origem": "walk",
+   "destino": "combat_idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 138,
+     "dy_medio": -0.04,
+     "dx_medio": -0.3,
+     "dy_dp": 2.04,
+     "dx_dp": 3.54,
+     "mag_media": 3.76,
+     "mag_mediana": 3.61,
+     "mag_max": 7.81,
+     "var_interna": 16.72,
+     "parados": 0.014
+    },
+    "torso": {
+     "n": 383,
+     "dy_medio": -1.21,
+     "dx_medio": 0.34,
+     "dy_dp": 3.42,
+     "dx_dp": 3.71,
+     "mag_media": 4.84,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 25.43,
+     "parados": 0.021
+    },
+    "bracos": {
+     "n": 30,
+     "dy_medio": -2.27,
+     "dx_medio": 1.93,
+     "dy_dp": 3.38,
+     "dx_dp": 3.51,
+     "mag_media": 5.54,
+     "mag_mediana": 5.66,
+     "mag_max": 7.81,
+     "var_interna": 23.72,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 182,
+     "dy_medio": 0.6,
+     "dx_medio": -0.16,
+     "dy_dp": 3.66,
+     "dx_dp": 3.9,
+     "mag_media": 5.22,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 28.57,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 86,
+     "dy_medio": 1.33,
+     "dx_medio": -4.3,
+     "dy_dp": 1.41,
+     "dx_dp": 0.59,
+     "mag_media": 4.7,
+     "mag_mediana": 4.47,
+     "mag_max": 6.71,
+     "var_interna": 2.34,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 53,
+     "dy_medio": 1.38,
+     "dx_medio": -0.72,
+     "dy_dp": 1.36,
+     "dx_dp": 3.6,
+     "mag_media": 3.8,
+     "mag_mediana": 4.24,
+     "mag_max": 6.71,
+     "var_interna": 14.85,
+     "parados": 0.019
+    },
+    "torso": {
+     "n": 193,
+     "dy_medio": -0.84,
+     "dx_medio": 0.44,
+     "dy_dp": 3.5,
+     "dx_dp": 3.63,
+     "mag_media": 4.74,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 25.37,
+     "parados": 0.021
+    },
+    "bracos": {
+     "n": 16,
+     "dy_medio": -2.0,
+     "dx_medio": 1.5,
+     "dy_dp": 3.41,
+     "dx_dp": 3.79,
+     "mag_media": 5.52,
+     "mag_mediana": 5.66,
+     "mag_max": 7.81,
+     "var_interna": 26.0,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 92,
+     "dy_medio": 0.66,
+     "dx_medio": -0.18,
+     "dy_dp": 3.63,
+     "dx_dp": 3.88,
+     "mag_media": 5.17,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 28.2,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 43,
+     "dy_medio": 1.33,
+     "dx_medio": -4.3,
+     "dy_dp": 1.41,
+     "dx_dp": 0.59,
+     "mag_media": 4.7,
+     "mag_mediana": 4.47,
+     "mag_max": 6.71,
+     "var_interna": 2.34,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.38,
+    "dx_medio": -0.31,
+    "mag_media": 4.75,
+    "var_total": 25.23,
+    "var_dentro_das_regioes": 22.17,
+    "var_entre_regioes": 3.05,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.121
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.209,
+    "vetores_distintos": 105.0,
+    "coerencia_vizinha": 0.383,
+    "teto_erro_relativo": 0.581
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 409.5,
+    "campo_por_pixel": 238.0,
+    "campo_por_regiao": 291.0,
+    "campo_unico_global": 328.0,
+    "sem_mover": 327.5
+   }
+  },
+  "walk->walk": {
+   "origem": "walk",
+   "destino": "walk",
+   "quadros_destino": 7,
+   "regioes": {
+    "cabeca": {
+     "n": 940,
+     "dy_medio": 0.4,
+     "dx_medio": -0.0,
+     "dy_dp": 0.76,
+     "dx_dp": 0.81,
+     "mag_media": 0.61,
+     "mag_mediana": 0.0,
+     "mag_max": 6.4,
+     "var_interna": 1.24,
+     "parados": 0.614
+    },
+    "torso": {
+     "n": 1492,
+     "dy_medio": 0.24,
+     "dx_medio": -0.02,
+     "dy_dp": 1.1,
+     "dx_dp": 0.56,
+     "mag_media": 0.65,
+     "mag_mediana": 0.0,
+     "mag_max": 7.21,
+     "var_interna": 1.52,
+     "parados": 0.603
+    },
+    "bracos": {
+     "n": 904,
+     "dy_medio": -0.08,
+     "dx_medio": 0.03,
+     "dy_dp": 1.93,
+     "dx_dp": 1.42,
+     "mag_media": 1.47,
+     "mag_mediana": 1.0,
+     "mag_max": 8.49,
+     "var_interna": 5.74,
+     "parados": 0.358
+    },
+    "pernas": {
+     "n": 824,
+     "dy_medio": 0.2,
+     "dx_medio": -0.03,
+     "dy_dp": 2.01,
+     "dx_dp": 1.91,
+     "mag_media": 2.33,
+     "mag_mediana": 2.24,
+     "mag_max": 8.49,
+     "var_interna": 7.69,
+     "parados": 0.028
+    },
+    "pes": {
+     "n": 554,
+     "dy_medio": 0.22,
+     "dx_medio": -0.07,
+     "dy_dp": 1.41,
+     "dx_dp": 1.85,
+     "mag_media": 2.15,
+     "mag_mediana": 2.24,
+     "mag_max": 6.08,
+     "var_interna": 5.42,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 154,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.0,
+     "dx_medio": 0.02,
+     "dy_dp": 0.31,
+     "dx_dp": 0.15,
+     "mag_media": 0.05,
+     "mag_mediana": 0.0,
+     "mag_max": 4.12,
+     "var_interna": 0.12,
+     "parados": 0.967
+    },
+    "bracos": {
+     "n": 136,
+     "dy_medio": 0.0,
+     "dx_medio": 0.0,
+     "dy_dp": 0.0,
+     "dx_dp": 0.0,
+     "mag_media": 0.0,
+     "mag_mediana": 0.0,
+     "mag_max": 0.0,
+     "var_interna": 0.0,
+     "parados": 1.0
+    },
+    "pernas": {
+     "n": 112,
+     "dy_medio": -0.18,
+     "dx_medio": 0.48,
+     "dy_dp": 1.14,
+     "dx_dp": 1.46,
+     "mag_media": 1.59,
+     "mag_mediana": 1.0,
+     "mag_max": 6.71,
+     "var_interna": 3.43,
+     "parados": 0.071
+    },
+    "pes": {
+     "n": 83,
+     "dy_medio": 0.19,
+     "dx_medio": 0.55,
+     "dy_dp": 1.05,
+     "dx_dp": 1.58,
+     "mag_media": 1.73,
+     "mag_mediana": 2.0,
+     "mag_max": 6.0,
+     "var_interna": 3.58,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.2,
+    "dx_medio": -0.01,
+    "mag_media": 1.27,
+    "var_total": 3.84,
+    "var_dentro_das_regioes": 3.81,
+    "var_entre_regioes": 0.03,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.007
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.023,
+    "vetores_distintos": 43.714,
+    "coerencia_vizinha": 0.791,
+    "teto_erro_relativo": 0.168
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 673.4,
+    "campo_por_pixel": 111.4,
+    "campo_por_regiao": 228.3,
+    "campo_unico_global": 253.7,
+    "sem_mover": 274.7
+   }
+  },
+  "walk->sit": {
+   "origem": "walk",
+   "destino": "sit",
+   "quadros_destino": 3,
+   "regioes": {
+    "cabeca": {
+     "n": 243,
+     "dy_medio": -0.34,
+     "dx_medio": -0.03,
+     "dy_dp": 1.87,
+     "dx_dp": 1.31,
+     "mag_media": 2.17,
+     "mag_mediana": 2.0,
+     "mag_max": 4.47,
+     "var_interna": 5.2,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 626,
+     "dy_medio": 1.24,
+     "dx_medio": 0.29,
+     "dy_dp": 3.65,
+     "dx_dp": 2.61,
+     "mag_media": 4.2,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 20.1,
+     "parados": 0.006
+    },
+    "bracos": {
+     "n": 171,
+     "dy_medio": -1.16,
+     "dx_medio": 0.37,
+     "dy_dp": 3.62,
+     "dx_dp": 2.87,
+     "mag_media": 4.6,
+     "mag_mediana": 4.24,
+     "mag_max": 7.81,
+     "var_interna": 21.35,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 399,
+     "dy_medio": 1.28,
+     "dx_medio": -0.08,
+     "dy_dp": 3.32,
+     "dx_dp": 3.32,
+     "mag_media": 4.31,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 21.99,
+     "parados": 0.005
+    },
+    "pes": {
+     "n": 195,
+     "dy_medio": 0.46,
+     "dx_medio": -0.13,
+     "dy_dp": 2.4,
+     "dx_dp": 3.21,
+     "mag_media": 3.39,
+     "mag_mediana": 2.24,
+     "mag_max": 8.49,
+     "var_interna": 16.06,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 0
+    },
+    "torso": {
+     "n": 194,
+     "dy_medio": 3.77,
+     "dx_medio": -0.12,
+     "dy_dp": 3.22,
+     "dx_dp": 2.78,
+     "mag_media": 5.52,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 18.15,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 48,
+     "dy_medio": 0.79,
+     "dx_medio": 0.52,
+     "dy_dp": 3.68,
+     "dx_dp": 2.61,
+     "mag_media": 4.52,
+     "mag_mediana": 4.24,
+     "mag_max": 6.71,
+     "var_interna": 20.37,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 166,
+     "dy_medio": 1.92,
+     "dx_medio": -0.75,
+     "dy_dp": 3.2,
+     "dx_dp": 3.11,
+     "mag_media": 4.61,
+     "mag_mediana": 4.47,
+     "mag_max": 8.49,
+     "var_interna": 19.89,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 81,
+     "dy_medio": 0.99,
+     "dx_medio": -1.99,
+     "dy_dp": 3.39,
+     "dx_dp": 3.39,
+     "mag_media": 4.88,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 22.99,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.67,
+    "dx_medio": 0.11,
+    "mag_media": 3.87,
+    "var_total": 18.76,
+    "var_dentro_das_regioes": 17.99,
+    "var_entre_regioes": 0.76,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.041
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.243,
+    "vetores_distintos": 93.333,
+    "coerencia_vizinha": 0.418,
+    "teto_erro_relativo": 0.457
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 544.7,
+    "campo_por_pixel": 247.3,
+    "campo_por_regiao": 356.3,
+    "campo_unico_global": 394.0,
+    "sem_mover": 419.7
+   }
+  },
+  "walk->run": {
+   "origem": "walk",
+   "destino": "run",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 736,
+     "dy_medio": 0.35,
+     "dx_medio": 0.0,
+     "dy_dp": 1.69,
+     "dx_dp": 2.85,
+     "mag_media": 3.08,
+     "mag_mediana": 3.16,
+     "mag_max": 7.21,
+     "var_interna": 10.94,
+     "parados": 0.019
+    },
+    "torso": {
+     "n": 1670,
+     "dy_medio": -0.4,
+     "dx_medio": -0.0,
+     "dy_dp": 2.92,
+     "dx_dp": 2.72,
+     "mag_media": 3.51,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 15.92,
+     "parados": 0.028
+    },
+    "bracos": {
+     "n": 310,
+     "dy_medio": -1.84,
+     "dx_medio": -0.02,
+     "dy_dp": 2.71,
+     "dx_dp": 3.18,
+     "mag_media": 4.35,
+     "mag_mediana": 4.12,
+     "mag_max": 7.81,
+     "var_interna": 17.44,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 756,
+     "dy_medio": 0.69,
+     "dx_medio": 0.0,
+     "dy_dp": 2.83,
+     "dx_dp": 3.33,
+     "mag_media": 4.09,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 19.11,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 358,
+     "dy_medio": 1.33,
+     "dx_medio": 0.0,
+     "dy_dp": 2.33,
+     "dx_dp": 2.8,
+     "mag_media": 3.69,
+     "mag_mediana": 3.61,
+     "mag_max": 7.21,
+     "var_interna": 13.27,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 59,
+     "dy_medio": 2.39,
+     "dx_medio": 0.12,
+     "dy_dp": 0.96,
+     "dx_dp": 3.14,
+     "mag_media": 3.79,
+     "mag_mediana": 3.61,
+     "mag_max": 7.21,
+     "var_interna": 10.78,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 215,
+     "dy_medio": 0.67,
+     "dx_medio": -0.89,
+     "dy_dp": 2.72,
+     "dx_dp": 2.52,
+     "mag_media": 3.49,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 13.75,
+     "parados": 0.019
+    },
+    "bracos": {
+     "n": 53,
+     "dy_medio": -0.43,
+     "dx_medio": 0.45,
+     "dy_dp": 2.54,
+     "dx_dp": 3.03,
+     "mag_media": 3.88,
+     "mag_mediana": 3.61,
+     "mag_max": 6.71,
+     "var_interna": 15.66,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 98,
+     "dy_medio": 0.96,
+     "dx_medio": -1.36,
+     "dy_dp": 3.23,
+     "dx_dp": 2.94,
+     "mag_media": 4.26,
+     "mag_mediana": 4.0,
+     "mag_max": 7.81,
+     "var_interna": 19.06,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 50,
+     "dy_medio": 2.58,
+     "dx_medio": 1.56,
+     "dy_dp": 1.04,
+     "dx_dp": 0.67,
+     "mag_media": 3.14,
+     "mag_mediana": 3.0,
+     "mag_max": 6.0,
+     "var_interna": 1.53,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.0,
+    "dx_medio": -0.0,
+    "mag_media": 3.62,
+    "var_total": 16.09,
+    "var_dentro_das_regioes": 15.47,
+    "var_entre_regioes": 0.63,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.039
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.11,
+    "vetores_distintos": 89.5,
+    "coerencia_vizinha": 0.413,
+    "teto_erro_relativo": 0.481
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 478.8,
+    "campo_por_pixel": 229.8,
+    "campo_por_regiao": 313.5,
+    "campo_unico_global": 324.2,
+    "sem_mover": 354.8
+   }
+  },
+  "sit->idle": {
+   "origem": "sit",
+   "destino": "idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 334,
+     "dy_medio": -3.07,
+     "dx_medio": 0.13,
+     "dy_dp": 0.97,
+     "dx_dp": 1.93,
+     "mag_media": 3.54,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 4.65,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 424,
+     "dy_medio": -0.58,
+     "dx_medio": -1.25,
+     "dy_dp": 3.27,
+     "dx_dp": 2.79,
+     "mag_media": 4.04,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 18.48,
+     "parados": 0.007
+    },
+    "bracos": {
+     "n": 270,
+     "dy_medio": -0.12,
+     "dx_medio": -0.16,
+     "dy_dp": 2.77,
+     "dx_dp": 3.13,
+     "mag_media": 4.02,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 17.51,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 218,
+     "dy_medio": 0.61,
+     "dx_medio": -0.48,
+     "dy_dp": 3.83,
+     "dx_dp": 3.72,
+     "mag_media": 4.89,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 28.5,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 160,
+     "dy_medio": 2.44,
+     "dx_medio": -0.57,
+     "dy_dp": 2.59,
+     "dx_dp": 2.91,
+     "mag_media": 4.26,
+     "mag_mediana": 5.1,
+     "mag_max": 7.21,
+     "var_interna": 15.14,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 180,
+     "dy_medio": -3.57,
+     "dx_medio": 0.17,
+     "dy_dp": 0.93,
+     "dx_dp": 2.11,
+     "mag_media": 4.04,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 5.31,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.59,
+     "dx_medio": -1.23,
+     "dy_dp": 3.31,
+     "dx_dp": 2.78,
+     "mag_media": 4.09,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 18.65,
+     "parados": 0.009
+    },
+    "bracos": {
+     "n": 134,
+     "dy_medio": -0.37,
+     "dx_medio": -0.25,
+     "dy_dp": 2.44,
+     "dx_dp": 3.03,
+     "mag_media": 3.79,
+     "mag_mediana": 3.61,
+     "mag_max": 7.81,
+     "var_interna": 15.09,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 108,
+     "dy_medio": 0.66,
+     "dx_medio": -0.49,
+     "dy_dp": 3.81,
+     "dx_dp": 3.72,
+     "mag_media": 4.87,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 28.33,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 80,
+     "dy_medio": 2.44,
+     "dx_medio": -0.57,
+     "dy_dp": 2.59,
+     "dx_dp": 2.91,
+     "mag_media": 4.26,
+     "mag_mediana": 5.1,
+     "mag_max": 7.21,
+     "var_interna": 15.14,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.55,
+    "dx_medio": -0.52,
+    "mag_media": 4.07,
+    "var_total": 19.24,
+    "var_dentro_das_regioes": 16.18,
+    "var_entre_regioes": 3.05,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.159
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.178,
+    "vetores_distintos": 113.5,
+    "coerencia_vizinha": 0.454,
+    "teto_erro_relativo": 0.416
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 703.0,
+    "campo_por_pixel": 292.5,
+    "campo_por_regiao": 497.0,
+    "campo_unico_global": 555.0,
+    "sem_mover": 590.0
+   }
+  },
+  "sit->combat_idle": {
+   "origem": "sit",
+   "destino": "combat_idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 138,
+     "dy_medio": -1.75,
+     "dx_medio": 0.92,
+     "dy_dp": 1.55,
+     "dx_dp": 2.81,
+     "mag_media": 3.39,
+     "mag_mediana": 3.0,
+     "mag_max": 7.07,
+     "var_interna": 10.31,
+     "parados": 0.029
+    },
+    "torso": {
+     "n": 383,
+     "dy_medio": -1.54,
+     "dx_medio": -0.79,
+     "dy_dp": 3.18,
+     "dx_dp": 2.88,
+     "mag_media": 4.2,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 18.39,
+     "parados": 0.003
+    },
+    "bracos": {
+     "n": 30,
+     "dy_medio": -0.67,
+     "dx_medio": 0.27,
+     "dy_dp": 2.83,
+     "dx_dp": 1.18,
+     "mag_media": 2.84,
+     "mag_mediana": 2.24,
+     "mag_max": 6.32,
+     "var_interna": 9.42,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 182,
+     "dy_medio": 1.29,
+     "dx_medio": -0.96,
+     "dy_dp": 3.9,
+     "dx_dp": 2.88,
+     "mag_media": 4.89,
+     "mag_mediana": 5.1,
+     "mag_max": 7.81,
+     "var_interna": 23.52,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 86,
+     "dy_medio": 4.79,
+     "dx_medio": -0.14,
+     "dy_dp": 1.17,
+     "dx_dp": 3.68,
+     "mag_media": 6.01,
+     "mag_mediana": 6.08,
+     "mag_max": 7.81,
+     "var_interna": 14.89,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 53,
+     "dy_medio": -0.51,
+     "dx_medio": 0.72,
+     "dy_dp": 0.77,
+     "dx_dp": 3.16,
+     "mag_media": 2.8,
+     "mag_mediana": 2.24,
+     "mag_max": 6.08,
+     "var_interna": 10.6,
+     "parados": 0.075
+    },
+    "torso": {
+     "n": 193,
+     "dy_medio": -1.15,
+     "dx_medio": -0.49,
+     "dy_dp": 2.95,
+     "dx_dp": 2.8,
+     "mag_media": 3.78,
+     "mag_mediana": 4.0,
+     "mag_max": 8.49,
+     "var_interna": 16.54,
+     "parados": 0.005
+    },
+    "bracos": {
+     "n": 16,
+     "dy_medio": -0.25,
+     "dx_medio": 0.06,
+     "dy_dp": 2.8,
+     "dx_dp": 1.25,
+     "mag_media": 2.83,
+     "mag_mediana": 3.08,
+     "mag_max": 4.47,
+     "var_interna": 9.37,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 92,
+     "dy_medio": 1.5,
+     "dx_medio": -0.88,
+     "dy_dp": 3.68,
+     "dx_dp": 2.96,
+     "mag_media": 4.83,
+     "mag_mediana": 5.05,
+     "mag_max": 7.81,
+     "var_interna": 22.31,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 43,
+     "dy_medio": 4.79,
+     "dx_medio": -0.14,
+     "dy_dp": 1.17,
+     "dx_dp": 3.68,
+     "mag_media": 6.01,
+     "mag_mediana": 6.08,
+     "mag_max": 7.81,
+     "var_interna": 14.89,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.25,
+    "dx_medio": -0.43,
+    "mag_media": 4.36,
+    "var_total": 22.29,
+    "var_dentro_das_regioes": 17.47,
+    "var_entre_regioes": 4.82,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.216
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.21,
+    "vetores_distintos": 106.0,
+    "coerencia_vizinha": 0.368,
+    "teto_erro_relativo": 0.523
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 409.5,
+    "campo_por_pixel": 214.0,
+    "campo_por_regiao": 301.0,
+    "campo_unico_global": 310.0,
+    "sem_mover": 327.0
+   }
+  },
+  "sit->walk": {
+   "origem": "sit",
+   "destino": "walk",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 1094,
+     "dy_medio": -2.1,
+     "dx_medio": 0.17,
+     "dy_dp": 0.94,
+     "dx_dp": 1.82,
+     "mag_media": 2.71,
+     "mag_mediana": 2.24,
+     "mag_max": 7.81,
+     "var_interna": 4.19,
+     "parados": 0.008
+    },
+    "torso": {
+     "n": 1704,
+     "dy_medio": -0.48,
+     "dx_medio": -1.42,
+     "dy_dp": 3.18,
+     "dx_dp": 2.86,
+     "mag_media": 3.96,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 18.31,
+     "parados": 0.006
+    },
+    "bracos": {
+     "n": 1040,
+     "dy_medio": 0.17,
+     "dx_medio": -0.14,
+     "dy_dp": 3.1,
+     "dx_dp": 3.17,
+     "mag_media": 4.18,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 19.62,
+     "parados": 0.002
+    },
+    "pernas": {
+     "n": 934,
+     "dy_medio": 0.62,
+     "dx_medio": -0.17,
+     "dy_dp": 3.73,
+     "dx_dp": 3.22,
+     "mag_media": 4.47,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 24.28,
+     "parados": 0.012
+    },
+    "pes": {
+     "n": 634,
+     "dy_medio": 2.45,
+     "dx_medio": -0.34,
+     "dy_dp": 2.69,
+     "dx_dp": 2.45,
+     "mag_media": 3.79,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 13.24,
+     "parados": 0.011
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 154,
+     "dy_medio": -2.48,
+     "dx_medio": 0.09,
+     "dy_dp": 0.64,
+     "dx_dp": 1.68,
+     "mag_media": 2.95,
+     "mag_mediana": 3.16,
+     "mag_max": 7.21,
+     "var_interna": 3.24,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": -0.47,
+     "dx_medio": -1.43,
+     "dy_dp": 3.34,
+     "dx_dp": 2.83,
+     "mag_media": 4.1,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 19.15,
+     "parados": 0.005
+    },
+    "bracos": {
+     "n": 136,
+     "dy_medio": -0.06,
+     "dx_medio": -0.07,
+     "dy_dp": 3.1,
+     "dx_dp": 3.37,
+     "mag_media": 4.36,
+     "mag_mediana": 4.24,
+     "mag_max": 8.49,
+     "var_interna": 20.99,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 112,
+     "dy_medio": 0.45,
+     "dx_medio": 0.36,
+     "dy_dp": 4.06,
+     "dx_dp": 3.2,
+     "mag_media": 4.72,
+     "mag_mediana": 5.19,
+     "mag_max": 8.49,
+     "var_interna": 26.78,
+     "parados": 0.054
+    },
+    "pes": {
+     "n": 83,
+     "dy_medio": 2.42,
+     "dx_medio": -0.05,
+     "dy_dp": 2.57,
+     "dx_dp": 2.21,
+     "mag_media": 3.36,
+     "mag_mediana": 3.61,
+     "mag_max": 7.81,
+     "var_interna": 11.47,
+     "parados": 0.084
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.15,
+    "dx_medio": -0.51,
+    "mag_media": 3.82,
+    "var_total": 18.26,
+    "var_dentro_das_regioes": 16.14,
+    "var_entre_regioes": 2.12,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.116
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.168,
+    "vetores_distintos": 113.5,
+    "coerencia_vizinha": 0.449,
+    "teto_erro_relativo": 0.428
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 675.8,
+    "campo_por_pixel": 289.1,
+    "campo_por_regiao": 490.4,
+    "campo_unico_global": 505.6,
+    "sem_mover": 538.4
+   }
+  },
+  "sit->sit": {
+   "origem": "sit",
+   "destino": "sit",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 166,
+     "dy_medio": -3.72,
+     "dx_medio": -0.08,
+     "dy_dp": 0.73,
+     "dx_dp": 1.34,
+     "mag_media": 3.96,
+     "mag_mediana": 4.0,
+     "mag_max": 6.0,
+     "var_interna": 2.33,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 410,
+     "dy_medio": 1.61,
+     "dx_medio": -0.18,
+     "dy_dp": 4.01,
+     "dx_dp": 2.15,
+     "mag_media": 4.62,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 20.73,
+     "parados": 0.002
+    },
+    "bracos": {
+     "n": 108,
+     "dy_medio": 0.37,
+     "dx_medio": -0.13,
+     "dy_dp": 4.12,
+     "dx_dp": 0.81,
+     "mag_media": 3.94,
+     "mag_mediana": 4.12,
+     "mag_max": 6.08,
+     "var_interna": 17.59,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 256,
+     "dy_medio": 2.15,
+     "dx_medio": -0.7,
+     "dy_dp": 3.49,
+     "dx_dp": 3.3,
+     "mag_media": 4.94,
+     "mag_mediana": 5.39,
+     "mag_max": 8.49,
+     "var_interna": 23.11,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 151,
+     "dy_medio": 2.06,
+     "dx_medio": -1.17,
+     "dy_dp": 2.88,
+     "dx_dp": 3.43,
+     "mag_media": 4.34,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 20.1,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 0
+    },
+    "torso": {
+     "n": 194,
+     "dy_medio": 4.88,
+     "dx_medio": -0.15,
+     "dy_dp": 0.78,
+     "dx_dp": 0.94,
+     "mag_media": 5.03,
+     "mag_mediana": 5.0,
+     "mag_max": 6.32,
+     "var_interna": 1.49,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 48,
+     "dy_medio": 4.44,
+     "dx_medio": -0.06,
+     "dy_dp": 1.61,
+     "dx_dp": 0.32,
+     "mag_media": 4.45,
+     "mag_mediana": 5.0,
+     "mag_max": 6.08,
+     "var_interna": 2.68,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 166,
+     "dy_medio": 3.23,
+     "dx_medio": -1.36,
+     "dy_dp": 3.05,
+     "dx_dp": 3.31,
+     "mag_media": 5.5,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 20.24,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 81,
+     "dy_medio": 1.78,
+     "dx_medio": -1.78,
+     "dy_dp": 3.12,
+     "dx_dp": 3.93,
+     "mag_media": 5.03,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 25.19,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.87,
+    "dx_medio": -0.42,
+    "mag_media": 4.49,
+    "var_total": 22.25,
+    "var_dentro_das_regioes": 18.09,
+    "var_entre_regioes": 4.16,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.187
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.209,
+    "vetores_distintos": 74.0,
+    "coerencia_vizinha": 0.589,
+    "teto_erro_relativo": 0.329
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 545.5,
+    "campo_por_pixel": 181.5,
+    "campo_por_regiao": 282.5,
+    "campo_unico_global": 316.0,
+    "sem_mover": 454.0
+   }
+  },
+  "sit->run": {
+   "origem": "sit",
+   "destino": "run",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 736,
+     "dy_medio": -1.91,
+     "dx_medio": 0.03,
+     "dy_dp": 1.73,
+     "dx_dp": 1.8,
+     "mag_media": 2.8,
+     "mag_mediana": 2.24,
+     "mag_max": 7.21,
+     "var_interna": 6.25,
+     "parados": 0.007
+    },
+    "torso": {
+     "n": 1670,
+     "dy_medio": -0.81,
+     "dx_medio": -1.19,
+     "dy_dp": 3.3,
+     "dx_dp": 3.03,
+     "mag_media": 4.18,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 20.06,
+     "parados": 0.018
+    },
+    "bracos": {
+     "n": 310,
+     "dy_medio": -1.19,
+     "dx_medio": -0.17,
+     "dy_dp": 2.46,
+     "dx_dp": 1.4,
+     "mag_media": 2.41,
+     "mag_mediana": 2.0,
+     "mag_max": 8.49,
+     "var_interna": 7.99,
+     "parados": 0.068
+    },
+    "pernas": {
+     "n": 756,
+     "dy_medio": 1.31,
+     "dx_medio": -0.86,
+     "dy_dp": 3.51,
+     "dx_dp": 3.21,
+     "mag_media": 4.54,
+     "mag_mediana": 4.47,
+     "mag_max": 8.49,
+     "var_interna": 22.63,
+     "parados": 0.019
+    },
+    "pes": {
+     "n": 358,
+     "dy_medio": 2.82,
+     "dx_medio": 0.33,
+     "dy_dp": 2.64,
+     "dx_dp": 3.24,
+     "mag_media": 4.43,
+     "mag_mediana": 5.0,
+     "mag_max": 8.49,
+     "var_interna": 17.46,
+     "parados": 0.039
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 59,
+     "dy_medio": -0.03,
+     "dx_medio": -0.34,
+     "dy_dp": 1.28,
+     "dx_dp": 2.26,
+     "mag_media": 2.05,
+     "mag_mediana": 1.41,
+     "mag_max": 7.21,
+     "var_interna": 6.73,
+     "parados": 0.051
+    },
+    "torso": {
+     "n": 215,
+     "dy_medio": -0.77,
+     "dx_medio": -2.15,
+     "dy_dp": 3.08,
+     "dx_dp": 2.79,
+     "mag_media": 4.14,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 17.27,
+     "parados": 0.019
+    },
+    "bracos": {
+     "n": 53,
+     "dy_medio": -0.25,
+     "dx_medio": -0.19,
+     "dy_dp": 2.35,
+     "dx_dp": 1.15,
+     "mag_media": 2.1,
+     "mag_mediana": 1.41,
+     "mag_max": 8.49,
+     "var_interna": 6.87,
+     "parados": 0.057
+    },
+    "pernas": {
+     "n": 98,
+     "dy_medio": 0.37,
+     "dx_medio": -2.22,
+     "dy_dp": 3.61,
+     "dx_dp": 2.75,
+     "mag_media": 4.86,
+     "mag_mediana": 5.0,
+     "mag_max": 7.81,
+     "var_interna": 20.61,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 50,
+     "dy_medio": 2.58,
+     "dx_medio": -1.94,
+     "dy_dp": 1.78,
+     "dx_dp": 1.97,
+     "mag_media": 3.53,
+     "mag_mediana": 2.24,
+     "mag_max": 8.49,
+     "var_interna": 7.06,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": -0.3,
+    "dx_medio": -0.66,
+    "mag_media": 3.87,
+    "var_total": 19.13,
+    "var_dentro_das_regioes": 16.69,
+    "var_entre_regioes": 2.43,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.127
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.186,
+    "vetores_distintos": 95.0,
+    "coerencia_vizinha": 0.395,
+    "teto_erro_relativo": 0.456
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 478.8,
+    "campo_por_pixel": 218.2,
+    "campo_por_regiao": 318.8,
+    "campo_unico_global": 346.8,
+    "sem_mover": 353.2
+   }
+  },
+  "run->idle": {
+   "origem": "run",
+   "destino": "idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 334,
+     "dy_medio": -1.83,
+     "dx_medio": 0.44,
+     "dy_dp": 1.06,
+     "dx_dp": 3.13,
+     "mag_media": 3.53,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 10.89,
+     "parados": 0.015
+    },
+    "torso": {
+     "n": 424,
+     "dy_medio": 0.08,
+     "dx_medio": 2.01,
+     "dy_dp": 2.35,
+     "dx_dp": 2.56,
+     "mag_media": 3.38,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 12.09,
+     "parados": 0.108
+    },
+    "bracos": {
+     "n": 270,
+     "dy_medio": 0.24,
+     "dx_medio": -0.45,
+     "dy_dp": 4.52,
+     "dx_dp": 5.06,
+     "mag_media": 6.63,
+     "mag_mediana": 7.07,
+     "mag_max": 8.49,
+     "var_interna": 46.09,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 218,
+     "dy_medio": 1.38,
+     "dx_medio": 0.61,
+     "dy_dp": 3.26,
+     "dx_dp": 2.5,
+     "mag_media": 3.97,
+     "mag_mediana": 3.61,
+     "mag_max": 7.81,
+     "var_interna": 16.89,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 160,
+     "dy_medio": 3.2,
+     "dx_medio": 1.01,
+     "dy_dp": 3.46,
+     "dx_dp": 3.27,
+     "mag_media": 5.41,
+     "mag_mediana": 6.32,
+     "mag_max": 8.49,
+     "var_interna": 22.62,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 180,
+     "dy_medio": -2.24,
+     "dx_medio": 0.42,
+     "dy_dp": 1.05,
+     "dx_dp": 3.2,
+     "mag_media": 3.83,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 11.37,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": 0.09,
+     "dx_medio": 2.01,
+     "dy_dp": 2.28,
+     "dx_dp": 2.67,
+     "mag_media": 3.41,
+     "mag_mediana": 3.16,
+     "mag_max": 7.81,
+     "var_interna": 12.34,
+     "parados": 0.104
+    },
+    "bracos": {
+     "n": 134,
+     "dy_medio": 0.25,
+     "dx_medio": -0.43,
+     "dy_dp": 4.51,
+     "dx_dp": 4.95,
+     "mag_media": 6.52,
+     "mag_mediana": 7.07,
+     "mag_max": 8.49,
+     "var_interna": 44.87,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 108,
+     "dy_medio": 1.37,
+     "dx_medio": 0.61,
+     "dy_dp": 3.25,
+     "dx_dp": 2.48,
+     "mag_media": 3.95,
+     "mag_mediana": 3.61,
+     "mag_max": 7.81,
+     "var_interna": 16.71,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 80,
+     "dy_medio": 3.2,
+     "dx_medio": 1.01,
+     "dy_dp": 3.46,
+     "dx_dp": 3.27,
+     "mag_media": 5.41,
+     "mag_mediana": 6.32,
+     "mag_max": 8.49,
+     "var_interna": 22.62,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.21,
+    "dx_medio": 0.83,
+    "mag_media": 4.36,
+    "var_total": 23.28,
+    "var_dentro_das_regioes": 20.28,
+    "var_entre_regioes": 3.01,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.129
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.263,
+    "vetores_distintos": 117.0,
+    "coerencia_vizinha": 0.344,
+    "teto_erro_relativo": 0.533
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 703.0,
+    "campo_por_pixel": 374.5,
+    "campo_por_regiao": 559.5,
+    "campo_unico_global": 569.5,
+    "sem_mover": 559.5
+   }
+  },
+  "run->combat_idle": {
+   "origem": "run",
+   "destino": "combat_idle",
+   "quadros_destino": 2,
+   "regioes": {
+    "cabeca": {
+     "n": 138,
+     "dy_medio": -0.75,
+     "dx_medio": 2.04,
+     "dy_dp": 1.38,
+     "dx_dp": 2.27,
+     "mag_media": 3.02,
+     "mag_mediana": 2.83,
+     "mag_max": 6.71,
+     "var_interna": 7.06,
+     "parados": 0.043
+    },
+    "torso": {
+     "n": 383,
+     "dy_medio": -0.23,
+     "dx_medio": -0.93,
+     "dy_dp": 3.2,
+     "dx_dp": 3.24,
+     "mag_media": 4.13,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 20.78,
+     "parados": 0.018
+    },
+    "bracos": {
+     "n": 30,
+     "dy_medio": 0.23,
+     "dx_medio": -0.57,
+     "dy_dp": 2.93,
+     "dx_dp": 0.67,
+     "mag_media": 2.44,
+     "mag_mediana": 2.0,
+     "mag_max": 6.32,
+     "var_interna": 9.02,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 182,
+     "dy_medio": 2.75,
+     "dx_medio": -1.06,
+     "dy_dp": 2.93,
+     "dx_dp": 3.78,
+     "mag_media": 5.16,
+     "mag_mediana": 5.83,
+     "mag_max": 8.49,
+     "var_interna": 22.9,
+     "parados": 0.049
+    },
+    "pes": {
+     "n": 86,
+     "dy_medio": 3.07,
+     "dx_medio": 3.12,
+     "dy_dp": 3.78,
+     "dx_dp": 3.14,
+     "mag_media": 6.38,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 24.17,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 53,
+     "dy_medio": 0.3,
+     "dx_medio": 2.11,
+     "dy_dp": 0.74,
+     "dx_dp": 2.16,
+     "mag_media": 2.71,
+     "mag_mediana": 2.0,
+     "mag_max": 5.1,
+     "var_interna": 5.22,
+     "parados": 0.038
+    },
+    "torso": {
+     "n": 193,
+     "dy_medio": 0.03,
+     "dx_medio": -0.81,
+     "dy_dp": 3.14,
+     "dx_dp": 3.19,
+     "mag_media": 3.96,
+     "mag_mediana": 4.47,
+     "mag_max": 7.81,
+     "var_interna": 20.04,
+     "parados": 0.036
+    },
+    "bracos": {
+     "n": 16,
+     "dy_medio": 0.25,
+     "dx_medio": -0.75,
+     "dy_dp": 3.36,
+     "dx_dp": 0.75,
+     "mag_media": 2.7,
+     "mag_mediana": 1.0,
+     "mag_max": 6.32,
+     "var_interna": 11.88,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 92,
+     "dy_medio": 2.83,
+     "dx_medio": -0.85,
+     "dy_dp": 2.93,
+     "dx_dp": 3.9,
+     "mag_media": 5.24,
+     "mag_mediana": 5.83,
+     "mag_max": 8.49,
+     "var_interna": 23.77,
+     "parados": 0.033
+    },
+    "pes": {
+     "n": 43,
+     "dy_medio": 3.07,
+     "dx_medio": 3.12,
+     "dy_dp": 3.78,
+     "dx_dp": 3.14,
+     "mag_media": 6.38,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 24.17,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.71,
+    "dx_medio": -0.02,
+    "mag_media": 4.34,
+    "var_total": 23.55,
+    "var_dentro_das_regioes": 18.86,
+    "var_entre_regioes": 4.68,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.199
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.323,
+    "vetores_distintos": 92.0,
+    "coerencia_vizinha": 0.416,
+    "teto_erro_relativo": 0.523
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 409.5,
+    "campo_por_pixel": 214.0,
+    "campo_por_regiao": 292.0,
+    "campo_unico_global": 324.0,
+    "sem_mover": 320.0
+   }
+  },
+  "run->walk": {
+   "origem": "run",
+   "destino": "walk",
+   "quadros_destino": 8,
+   "regioes": {
+    "cabeca": {
+     "n": 1094,
+     "dy_medio": -1.0,
+     "dx_medio": 0.54,
+     "dy_dp": 1.02,
+     "dx_dp": 3.04,
+     "mag_media": 3.07,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 10.27,
+     "parados": 0.036
+    },
+    "torso": {
+     "n": 1704,
+     "dy_medio": 0.14,
+     "dx_medio": 1.92,
+     "dy_dp": 2.48,
+     "dx_dp": 2.53,
+     "mag_media": 3.43,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 12.55,
+     "parados": 0.065
+    },
+    "bracos": {
+     "n": 1040,
+     "dy_medio": 0.14,
+     "dx_medio": -0.48,
+     "dy_dp": 4.39,
+     "dx_dp": 4.99,
+     "mag_media": 6.46,
+     "mag_mediana": 6.71,
+     "mag_max": 8.49,
+     "var_interna": 44.1,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 934,
+     "dy_medio": 1.25,
+     "dx_medio": 0.76,
+     "dy_dp": 3.26,
+     "dx_dp": 2.31,
+     "mag_media": 3.63,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 15.98,
+     "parados": 0.044
+    },
+    "pes": {
+     "n": 634,
+     "dy_medio": 2.97,
+     "dx_medio": 1.36,
+     "dy_dp": 3.45,
+     "dx_dp": 2.73,
+     "mag_media": 5.02,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 19.33,
+     "parados": 0.017
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 154,
+     "dy_medio": -1.35,
+     "dx_medio": 0.46,
+     "dy_dp": 0.85,
+     "dx_dp": 3.03,
+     "mag_media": 3.17,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 9.9,
+     "parados": 0.032
+    },
+    "torso": {
+     "n": 212,
+     "dy_medio": 0.03,
+     "dx_medio": 2.01,
+     "dy_dp": 2.43,
+     "dx_dp": 2.42,
+     "mag_media": 3.33,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 11.73,
+     "parados": 0.099
+    },
+    "bracos": {
+     "n": 136,
+     "dy_medio": 0.19,
+     "dx_medio": -0.49,
+     "dy_dp": 4.55,
+     "dx_dp": 5.18,
+     "mag_media": 6.76,
+     "mag_mediana": 7.21,
+     "mag_max": 8.49,
+     "var_interna": 47.52,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 112,
+     "dy_medio": 0.92,
+     "dx_medio": 0.96,
+     "dy_dp": 3.54,
+     "dx_dp": 1.87,
+     "mag_media": 3.57,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 16.01,
+     "parados": 0.08
+    },
+    "pes": {
+     "n": 83,
+     "dy_medio": 3.58,
+     "dx_medio": 1.48,
+     "dy_dp": 2.99,
+     "dx_dp": 2.5,
+     "mag_media": 4.98,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 15.17,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.43,
+    "dx_medio": 0.92,
+    "mag_media": 4.16,
+    "var_total": 21.62,
+    "var_dentro_das_regioes": 19.55,
+    "var_entre_regioes": 2.08,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.096
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.261,
+    "vetores_distintos": 112.625,
+    "coerencia_vizinha": 0.346,
+    "teto_erro_relativo": 0.535
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 675.8,
+    "campo_por_pixel": 361.5,
+    "campo_por_regiao": 524.2,
+    "campo_unico_global": 531.9,
+    "sem_mover": 518.8
+   }
+  },
+  "run->sit": {
+   "origem": "run",
+   "destino": "sit",
+   "quadros_destino": 3,
+   "regioes": {
+    "cabeca": {
+     "n": 243,
+     "dy_medio": -1.55,
+     "dx_medio": 0.3,
+     "dy_dp": 1.78,
+     "dx_dp": 2.6,
+     "mag_media": 3.22,
+     "mag_mediana": 3.0,
+     "mag_max": 8.49,
+     "var_interna": 9.92,
+     "parados": 0.012
+    },
+    "torso": {
+     "n": 626,
+     "dy_medio": 1.38,
+     "dx_medio": 0.81,
+     "dy_dp": 3.62,
+     "dx_dp": 3.38,
+     "mag_media": 4.83,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 24.53,
+     "parados": 0.003
+    },
+    "bracos": {
+     "n": 171,
+     "dy_medio": -0.08,
+     "dx_medio": -0.07,
+     "dy_dp": 3.65,
+     "dx_dp": 2.89,
+     "mag_media": 4.29,
+     "mag_mediana": 4.12,
+     "mag_max": 8.49,
+     "var_interna": 21.69,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 399,
+     "dy_medio": 2.19,
+     "dx_medio": 1.41,
+     "dy_dp": 3.15,
+     "dx_dp": 3.29,
+     "mag_media": 4.82,
+     "mag_mediana": 5.1,
+     "mag_max": 8.49,
+     "var_interna": 20.71,
+     "parados": 0.033
+    },
+    "pes": {
+     "n": 195,
+     "dy_medio": 2.68,
+     "dx_medio": 0.54,
+     "dy_dp": 3.72,
+     "dx_dp": 3.14,
+     "mag_media": 5.16,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 23.75,
+     "parados": 0.005
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 0
+    },
+    "torso": {
+     "n": 194,
+     "dy_medio": 4.35,
+     "dx_medio": 0.82,
+     "dy_dp": 2.69,
+     "dx_dp": 3.25,
+     "mag_media": 5.97,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 17.78,
+     "parados": 0.0
+    },
+    "bracos": {
+     "n": 48,
+     "dy_medio": 0.85,
+     "dx_medio": -0.62,
+     "dy_dp": 4.6,
+     "dx_dp": 2.59,
+     "mag_media": 5.27,
+     "mag_mediana": 5.1,
+     "mag_max": 7.21,
+     "var_interna": 27.82,
+     "parados": 0.0
+    },
+    "pernas": {
+     "n": 166,
+     "dy_medio": 3.17,
+     "dx_medio": 0.94,
+     "dy_dp": 3.14,
+     "dx_dp": 4.01,
+     "mag_media": 5.87,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 25.98,
+     "parados": 0.0
+    },
+    "pes": {
+     "n": 81,
+     "dy_medio": 2.68,
+     "dx_medio": 0.41,
+     "dy_dp": 4.02,
+     "dx_dp": 3.99,
+     "mag_media": 6.11,
+     "mag_mediana": 6.08,
+     "mag_max": 8.49,
+     "var_interna": 32.11,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 1.14,
+    "dx_medio": 0.76,
+    "mag_media": 4.57,
+    "var_total": 23.05,
+    "var_dentro_das_regioes": 21.03,
+    "var_entre_regioes": 2.02,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.087
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.302,
+    "vetores_distintos": 104.0,
+    "coerencia_vizinha": 0.337,
+    "teto_erro_relativo": 0.516
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 544.7,
+    "campo_por_pixel": 280.7,
+    "campo_por_regiao": 419.3,
+    "campo_unico_global": 424.7,
+    "sem_mover": 447.7
+   }
+  },
+  "run->run": {
+   "origem": "run",
+   "destino": "run",
+   "quadros_destino": 7,
+   "regioes": {
+    "cabeca": {
+     "n": 648,
+     "dy_medio": -0.6,
+     "dx_medio": 0.09,
+     "dy_dp": 1.55,
+     "dx_dp": 1.79,
+     "mag_media": 1.97,
+     "mag_mediana": 2.0,
+     "mag_max": 8.49,
+     "var_interna": 5.6,
+     "parados": 0.171
+    },
+    "torso": {
+     "n": 1465,
+     "dy_medio": -0.25,
+     "dx_medio": 1.27,
+     "dy_dp": 2.96,
+     "dx_dp": 3.1,
+     "mag_media": 3.89,
+     "mag_mediana": 4.0,
+     "mag_max": 8.49,
+     "var_interna": 18.38,
+     "parados": 0.033
+    },
+    "bracos": {
+     "n": 284,
+     "dy_medio": -0.24,
+     "dx_medio": -0.05,
+     "dy_dp": 3.59,
+     "dx_dp": 2.5,
+     "mag_media": 3.83,
+     "mag_mediana": 3.8,
+     "mag_max": 8.49,
+     "var_interna": 19.15,
+     "parados": 0.018
+    },
+    "pernas": {
+     "n": 675,
+     "dy_medio": 2.16,
+     "dx_medio": 0.05,
+     "dy_dp": 2.51,
+     "dx_dp": 2.7,
+     "mag_media": 3.77,
+     "mag_mediana": 3.61,
+     "mag_max": 8.49,
+     "var_interna": 13.59,
+     "parados": 0.022
+    },
+    "pes": {
+     "n": 308,
+     "dy_medio": 2.42,
+     "dx_medio": 1.57,
+     "dy_dp": 3.06,
+     "dx_dp": 3.03,
+     "mag_media": 4.69,
+     "mag_mediana": 6.0,
+     "mag_max": 8.49,
+     "var_interna": 18.53,
+     "parados": 0.003
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "regioes_k1": {
+    "cabeca": {
+     "n": 59,
+     "dy_medio": 1.32,
+     "dx_medio": -0.12,
+     "dy_dp": 1.11,
+     "dx_dp": 1.85,
+     "mag_media": 2.25,
+     "mag_mediana": 2.24,
+     "mag_max": 6.32,
+     "var_interna": 4.66,
+     "parados": 0.0
+    },
+    "torso": {
+     "n": 215,
+     "dy_medio": 1.09,
+     "dx_medio": 1.19,
+     "dy_dp": 2.98,
+     "dx_dp": 2.14,
+     "mag_media": 3.41,
+     "mag_mediana": 3.16,
+     "mag_max": 8.49,
+     "var_interna": 13.43,
+     "parados": 0.009
+    },
+    "bracos": {
+     "n": 53,
+     "dy_medio": 0.36,
+     "dx_medio": -0.47,
+     "dy_dp": 3.42,
+     "dx_dp": 1.88,
+     "mag_media": 3.51,
+     "mag_mediana": 3.16,
+     "mag_max": 6.71,
+     "var_interna": 15.23,
+     "parados": 0.038
+    },
+    "pernas": {
+     "n": 98,
+     "dy_medio": 2.02,
+     "dx_medio": -0.66,
+     "dy_dp": 2.2,
+     "dx_dp": 0.71,
+     "mag_media": 2.87,
+     "mag_mediana": 2.24,
+     "mag_max": 6.08,
+     "var_interna": 5.37,
+     "parados": 0.01
+    },
+    "pes": {
+     "n": 50,
+     "dy_medio": 0.04,
+     "dx_medio": -0.98,
+     "dy_dp": 1.54,
+     "dx_dp": 0.47,
+     "mag_media": 1.58,
+     "mag_mediana": 1.41,
+     "mag_max": 6.32,
+     "var_interna": 2.58,
+     "parados": 0.0
+    },
+    "externo": {
+     "n": 0
+    }
+   },
+   "quadro_inteiro": {
+    "dy_medio": 0.41,
+    "dx_medio": 0.72,
+    "mag_media": 3.57,
+    "var_total": 16.86,
+    "var_dentro_das_regioes": 15.05,
+    "var_entre_regioes": 1.81,
+    "fracao_da_variancia_explicada_pelas_regioes": 0.108
+   },
+   "qualidade_do_campo": {
+    "saturado": 0.204,
+    "vetores_distintos": 86.0,
+    "coerencia_vizinha": 0.444,
+    "teto_erro_relativo": 0.463
+   },
+   "erro_de_reconstrucao": {
+    "opacos": 482.9,
+    "campo_por_pixel": 223.0,
+    "campo_por_regiao": 302.1,
+    "campo_unico_global": 335.9,
+    "sem_mover": 350.9
+   }
+  }
+ },
+ "transplante_por_regiao": {
+  "walk0->combat_idle1": {
+   "pecas": 349,
+   "quadro_inteiro": {
+    "exatos": 0.178,
+    "mediana": 30.0,
+    "media": 46.2,
+    "exatos_sem_mover": 0.0,
+    "mediana_sem_mover": 191.0
+   },
+   "regioes": {
+    "cabeca": {
+     "pecas_com_pixel_na_regiao": 323,
+     "exatos": 0.195,
+     "mediana": 20.0,
+     "media": 37.2,
+     "pixels_medios": 191.3
+    },
+    "torso": {
+     "pecas_com_pixel_na_regiao": 107,
+     "exatos": 0.103,
+     "mediana": 21.0,
+     "media": 23.3,
+     "pixels_medios": 34.8
+    },
+    "bracos": {
+     "pecas_com_pixel_na_regiao": 48,
+     "exatos": 0.438,
+     "mediana": 1.0,
+     "media": 7.4,
+     "pixels_medios": 10.0
+    },
+    "pernas": {
+     "pecas_com_pixel_na_regiao": 30,
+     "exatos": 0.0,
+     "mediana": 26.5,
+     "media": 30.8,
+     "pixels_medios": 48.6
+    },
+    "pes": {
+     "pecas_com_pixel_na_regiao": 20,
+     "exatos": 0.0,
+     "mediana": 10.0,
+     "media": 12.8,
+     "pixels_medios": 32.0
+    },
+    "externo": {
+     "pecas_com_pixel_na_regiao": 6,
+     "exatos": 0.333,
+     "mediana": 8.5,
+     "media": 13.2,
+     "pixels_medios": 13.8
+    }
+   }
+  },
+  "walk0->idle1": {
+   "pecas": 349,
+   "quadro_inteiro": {
+    "exatos": 0.223,
+    "mediana": 20.0,
+    "media": 36.4,
+    "exatos_sem_mover": 0.06,
+    "mediana_sem_mover": 135.0
+   },
+   "regioes": {
+    "cabeca": {
+     "pecas_com_pixel_na_regiao": 323,
+     "exatos": 0.22,
+     "mediana": 18.0,
+     "media": 32.7,
+     "pixels_medios": 199.8
+    },
+    "torso": {
+     "pecas_com_pixel_na_regiao": 79,
+     "exatos": 0.139,
+     "mediana": 16.0,
+     "media": 17.2,
+     "pixels_medios": 66.1
+    },
+    "bracos": {
+     "pecas_com_pixel_na_regiao": 40,
+     "exatos": 0.1,
+     "mediana": 6.5,
+     "media": 7.6,
+     "pixels_medios": 26.2
+    },
+    "pernas": {
+     "pecas_com_pixel_na_regiao": 24,
+     "exatos": 0.5,
+     "mediana": 2.0,
+     "media": 11.2,
+     "pixels_medios": 66.0
+    },
+    "pes": {
+     "pecas_com_pixel_na_regiao": 18,
+     "exatos": 0.667,
+     "mediana": 0.0,
+     "media": 7.0,
+     "pixels_medios": 66.1
+    },
+    "externo": {
+     "pecas_com_pixel_na_regiao": 3,
+     "exatos": 0.0,
+     "mediana": 18.0,
+     "media": 21.7,
+     "pixels_medios": 21.7
+    }
+   }
+  },
+  "walk0->run1": {
+   "pecas": 349,
+   "quadro_inteiro": {
+    "exatos": 0.143,
+    "mediana": 35.0,
+    "media": 58.6,
+    "exatos_sem_mover": 0.0,
+    "mediana_sem_mover": 214.0
+   },
+   "regioes": {
+    "cabeca": {
+     "pecas_com_pixel_na_regiao": 320,
+     "exatos": 0.166,
+     "mediana": 23.0,
+     "media": 48.1,
+     "pixels_medios": 192.8
+    },
+    "torso": {
+     "pecas_com_pixel_na_regiao": 116,
+     "exatos": 0.19,
+     "mediana": 19.0,
+     "media": 25.6,
+     "pixels_medios": 49.7
+    },
+    "bracos": {
+     "pecas_com_pixel_na_regiao": 54,
+     "exatos": 0.037,
+     "mediana": 8.0,
+     "media": 11.0,
+     "pixels_medios": 16.6
+    },
+    "pernas": {
+     "pecas_com_pixel_na_regiao": 26,
+     "exatos": 0.0,
+     "mediana": 38.5,
+     "media": 36.3,
+     "pixels_medios": 59.2
+    },
+    "pes": {
+     "pecas_com_pixel_na_regiao": 25,
+     "exatos": 0.0,
+     "mediana": 21.0,
+     "media": 18.9,
+     "pixels_medios": 32.3
+    },
+    "externo": {
+     "pecas_com_pixel_na_regiao": 4,
+     "exatos": 0.0,
+     "mediana": 16.0,
+     "media": 16.8,
+     "pixels_medios": 16.8
+    }
+   }
+  },
+  "walk0->sit1": {
+   "pecas": 349,
+   "quadro_inteiro": {
+    "exatos": 0.0,
+    "mediana": 123.0,
+    "media": 130.5,
+    "exatos_sem_mover": 0.0,
+    "mediana_sem_mover": 339.0
+   },
+   "regioes": {
+    "cabeca": {
+     "pecas_com_pixel_na_regiao": 273,
+     "exatos": 0.0,
+     "mediana": 122.0,
+     "media": 125.5,
+     "pixels_medios": 201.4
+    },
+    "torso": {
+     "pecas_com_pixel_na_regiao": 213,
+     "exatos": 0.005,
+     "mediana": 24.0,
+     "media": 33.8,
+     "pixels_medios": 50.4
+    },
+    "bracos": {
+     "pecas_com_pixel_na_regiao": 104,
+     "exatos": 0.0,
+     "mediana": 13.0,
+     "media": 14.5,
+     "pixels_medios": 21.0
+    },
+    "pernas": {
+     "pecas_com_pixel_na_regiao": 69,
+     "exatos": 0.0,
+     "mediana": 21.0,
+     "media": 27.0,
+     "pixels_medios": 34.2
+    },
+    "pes": {
+     "pecas_com_pixel_na_regiao": 28,
+     "exatos": 0.0,
+     "mediana": 12.5,
+     "media": 23.4,
+     "pixels_medios": 34.1
+    },
+    "externo": {
+     "pecas_com_pixel_na_regiao": 3,
+     "exatos": 0.0,
+     "mediana": 18.0,
+     "media": 21.7,
+     "pixels_medios": 21.7
+    }
+   }
+  }
+ },
+ "pecas_contra_o_corpo": {
+  "walk->combat_idle1": {
+   "pecas": 376,
+   "erro_relativo_campo_proprio": 0.101,
+   "erro_relativo_campo_do_corpo": 0.742,
+   "erro_relativo_sem_mover": 0.751,
+   "exatos_campo_proprio": 0.747,
+   "exatos_campo_do_corpo": 0.0,
+   "campo_identico_ao_do_corpo": 0.073,
+   "desalinho_medio_px": 4.12,
+   "por_slot": {
+    "beard": {
+     "n": 5,
+     "identico": 0.0
+    },
+    "clothes": {
+     "n": 22,
+     "identico": 0.109
+    },
+    "hair": {
+     "n": 13,
+     "identico": 0.0
+    },
+    "hairextl": {
+     "n": 4,
+     "identico": 0.0
+    },
+    "hairextr": {
+     "n": 4,
+     "identico": 0.009
+    },
+    "hat": {
+     "n": 17,
+     "identico": 0.002
+    },
+    "head": {
+     "n": 32,
+     "identico": 0.002
+    },
+    "legs": {
+     "n": 11,
+     "identico": 0.122
+    },
+    "mustache": {
+     "n": 5,
+     "identico": 0.0
+    },
+    "neck": {
+     "n": 3,
+     "identico": 0.045
+    },
+    "shoes": {
+     "n": 10,
+     "identico": 0.443
+    },
+    "sleeves": {
+     "n": 5,
+     "identico": 0.046
+    },
+    "socks": {
+     "n": 3,
+     "identico": 0.595
+    },
+    "visor": {
+     "n": 7,
+     "identico": 0.0
+    }
+   }
+  },
+  "walk->idle1": {
+   "pecas": 376,
+   "erro_relativo_campo_proprio": 0.022,
+   "erro_relativo_campo_do_corpo": 0.529,
+   "erro_relativo_sem_mover": 0.618,
+   "exatos_campo_proprio": 0.843,
+   "exatos_campo_do_corpo": 0.08,
+   "campo_identico_ao_do_corpo": 0.724,
+   "desalinho_medio_px": 0.44,
+   "por_slot": {
+    "beard": {
+     "n": 5,
+     "identico": 0.76
+    },
+    "clothes": {
+     "n": 22,
+     "identico": 0.654
+    },
+    "hair": {
+     "n": 32,
+     "identico": 0.598
+    },
+    "hairextl": {
+     "n": 5,
+     "identico": 0.202
+    },
+    "hairextr": {
+     "n": 5,
+     "identico": 0.106
+    },
+    "hat": {
+     "n": 21,
+     "identico": 0.706
+    },
+    "head": {
+     "n": 32,
+     "identico": 0.859
+    },
+    "legs": {
+     "n": 11,
+     "identico": 0.898
+    },
+    "mustache": {
+     "n": 6,
+     "identico": 0.951
+    },
+    "neck": {
+     "n": 3,
+     "identico": 0.845
+    },
+    "shoes": {
+     "n": 10,
+     "identico": 1.0
+    },
+    "sleeves": {
+     "n": 5,
+     "identico": 0.903
+    },
+    "socks": {
+     "n": 3,
+     "identico": 1.0
+    },
+    "visor": {
+     "n": 7,
+     "identico": 0.854
+    }
+   }
+  },
+  "walk->run1": {
+   "pecas": 375,
+   "erro_relativo_campo_proprio": 0.098,
+   "erro_relativo_campo_do_corpo": 0.77,
+   "erro_relativo_sem_mover": 0.801,
+   "exatos_campo_proprio": 0.699,
+   "exatos_campo_do_corpo": 0.0,
+   "campo_identico_ao_do_corpo": 0.08,
+   "desalinho_medio_px": 2.89,
+   "por_slot": {
+    "beard": {
+     "n": 5,
+     "identico": 0.002
+    },
+    "clothes": {
+     "n": 22,
+     "identico": 0.165
+    },
+    "hair": {
+     "n": 29,
+     "identico": 0.021
+    },
+    "hairextl": {
+     "n": 4,
+     "identico": 0.0
+    },
+    "hairextr": {
+     "n": 3,
+     "identico": 0.0
+    },
+    "hat": {
+     "n": 20,
+     "identico": 0.002
+    },
+    "head": {
+     "n": 32,
+     "identico": 0.0
+    },
+    "legs": {
+     "n": 11,
+     "identico": 0.18
+    },
+    "mustache": {
+     "n": 5,
+     "identico": 0.0
+    },
+    "neck": {
+     "n": 3,
+     "identico": 0.008
+    },
+    "shoes": {
+     "n": 10,
+     "identico": 0.36
+    },
+    "sleeves": {
+     "n": 5,
+     "identico": 0.276
+    },
+    "socks": {
+     "n": 3,
+     "identico": 0.555
+    },
+    "visor": {
+     "n": 7,
+     "identico": 0.0
+    }
+   }
+  },
+  "walk->sit1": {
+   "pecas": 376,
+   "erro_relativo_campo_proprio": 0.559,
+   "erro_relativo_campo_do_corpo": 0.892,
+   "erro_relativo_sem_mover": 0.936,
+   "exatos_campo_proprio": 0.013,
+   "exatos_campo_do_corpo": 0.0,
+   "campo_identico_ao_do_corpo": 0.147,
+   "desalinho_medio_px": 3.77,
+   "por_slot": {
+    "beard": {
+     "n": 5,
+     "identico": 0.26
+    },
+    "clothes": {
+     "n": 22,
+     "identico": 0.168
+    },
+    "hair": {
+     "n": 28,
+     "identico": 0.013
+    },
+    "hairextl": {
+     "n": 5,
+     "identico": 0.0
+    },
+    "hairextr": {
+     "n": 5,
+     "identico": 0.027
+    },
+    "hat": {
+     "n": 20,
+     "identico": 0.131
+    },
+    "head": {
+     "n": 32,
+     "identico": 0.271
+    },
+    "legs": {
+     "n": 11,
+     "identico": 0.125
+    },
+    "mustache": {
+     "n": 6,
+     "identico": 0.021
+    },
+    "neck": {
+     "n": 3,
+     "identico": 0.045
+    },
+    "shoes": {
+     "n": 10,
+     "identico": 0.336
+    },
+    "sleeves": {
+     "n": 5,
+     "identico": 0.077
+    },
+    "socks": {
+     "n": 3,
+     "identico": 0.452
+    },
+    "visor": {
+     "n": 7,
+     "identico": 0.241
+    }
+   }
+  }
+ },
+ "escolha_da_doadora": {
+  "amostra": "alvos com >=2 doadoras no slot e IoU>0",
+  "pecas": 331,
+  "por_animacao": {
+   "combat_idle": {
+    "n": 331,
+    "regra_maior_iou": {
+     "exatos": 0.187,
+     "mediana": 30.0,
+     "media": 46.5
+    },
+    "oraculo": {
+     "exatos": 0.242,
+     "mediana": 16.0,
+     "media": 30.6
+    },
+    "candidata_media": {
+     "mediana": 71.5,
+     "media": 83.7
+    },
+    "pior_candidata": {
+     "mediana": 171.0,
+     "media": 183.7
+    },
+    "corr_iou_erro": -0.362
+   },
+   "idle": {
+    "n": 331,
+    "regra_maior_iou": {
+     "exatos": 0.236,
+     "mediana": 20.0,
+     "media": 36.4
+    },
+    "oraculo": {
+     "exatos": 0.302,
+     "mediana": 10.0,
+     "media": 22.8
+    },
+    "candidata_media": {
+     "mediana": 60.4,
+     "media": 74.6
+    },
+    "pior_candidata": {
+     "mediana": 148.0,
+     "media": 164.7
+    },
+    "corr_iou_erro": -0.601
+   },
+   "run": {
+    "n": 331,
+    "regra_maior_iou": {
+     "exatos": 0.151,
+     "mediana": 36.0,
+     "media": 58.9
+    },
+    "oraculo": {
+     "exatos": 0.211,
+     "mediana": 21.0,
+     "media": 36.6
+    },
+    "candidata_media": {
+     "mediana": 78.2,
+     "media": 92.1
+    },
+    "pior_candidata": {
+     "mediana": 171.0,
+     "media": 182.0
+    },
+    "corr_iou_erro": -0.001
+   },
+   "sit": {
+    "n": 331,
+    "regra_maior_iou": {
+     "exatos": 0.0,
+     "mediana": 124.0,
+     "media": 134.0
+    },
+    "oraculo": {
+     "exatos": 0.0,
+     "mediana": 122.0,
+     "media": 126.3
+    },
+    "candidata_media": {
+     "mediana": 166.0,
+     "media": 165.4
+    },
+    "pior_candidata": {
+     "mediana": 218.0,
+     "media": 206.3
+    },
+    "corr_iou_erro": -0.43
+   }
+  }
+ }
+}

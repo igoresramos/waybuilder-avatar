@@ -1,0 +1,179 @@
+<title>Transplante de animação — o que os números não mostram</title>
+<style>
+  :root {
+    --tinta: #171a1e; --painel: #222831; --linha: #2d4059;
+    --texto: #ffffff; --fraco: #9aa3af; --accent: #ff5722; --erro: #ff5a5a;
+    --sombra: 0 1px 0 rgba(255,255,255,.04), 0 8px 24px rgba(0,0,0,.4);
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+    --texto-face: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --tinta: #f4f1ed; --painel: #ffffff; --linha: #ddd6cd;
+      --texto: #1a1d21; --fraco: #6b7280; --accent: #d1410c; --erro: #c22222;
+      --sombra: 0 1px 2px rgba(23,26,30,.06), 0 8px 20px rgba(23,26,30,.08);
+    }
+  }
+  :root[data-theme="light"] {
+    --tinta: #f4f1ed; --painel: #ffffff; --linha: #ddd6cd;
+    --texto: #1a1d21; --fraco: #6b7280; --accent: #d1410c; --erro: #c22222;
+    --sombra: 0 1px 2px rgba(23,26,30,.06), 0 8px 20px rgba(23,26,30,.08);
+  }
+  :root[data-theme="dark"] {
+    --tinta: #171a1e; --painel: #222831; --linha: #2d4059;
+    --texto: #ffffff; --fraco: #9aa3af; --accent: #ff5722; --erro: #ff5a5a;
+    --sombra: 0 1px 0 rgba(255,255,255,.04), 0 8px 24px rgba(0,0,0,.4);
+  }
+  body {
+    background: var(--tinta); color: var(--texto);
+    font-family: var(--texto-face); line-height: 1.6;
+    margin: 0; padding: clamp(20px, 5vw, 56px) 20px 64px;
+  }
+  .folha { max-width: 1140px; margin: 0 auto; display: flex;
+           flex-direction: column; gap: 40px; }
+  .abre { display: flex; flex-direction: column; gap: 14px; }
+  .eyebrow {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  h1 { font-size: clamp(1.6rem, 3.6vw, 2.3rem); line-height: 1.15;
+       text-wrap: balance; margin: 0; font-weight: 650; letter-spacing: -.015em; }
+  .abre p.chamada { margin: 0; max-width: 62ch; color: var(--fraco);
+                    font-size: 1.03rem; }
+  .caso { background: var(--painel); border: 1px solid var(--linha);
+          border-radius: 10px; padding: 20px; box-shadow: var(--sombra);
+          display: flex; flex-direction: column; gap: 16px; }
+  .caso-topo { display: flex; flex-wrap: wrap; gap: 16px 28px;
+               align-items: flex-start; justify-content: space-between; }
+  .caso h2 { margin: 0; font-size: 1.12rem; font-weight: 620;
+             letter-spacing: -.01em; }
+  .doadora { margin: 2px 0 0; color: var(--fraco); font-size: .9rem; }
+  .placar { display: flex; gap: 22px; margin: 0;
+            font-variant-numeric: tabular-nums; }
+  .placar div { display: flex; flex-direction: column; gap: 1px; }
+  .placar dt { font-family: var(--mono); font-size: .66rem; letter-spacing: .1em;
+               text-transform: uppercase; color: var(--fraco); }
+  .placar dd { margin: 0; font-family: var(--mono); font-size: 1.15rem;
+               font-weight: 600; }
+  .placar .destaque { color: var(--erro); }
+  .placar[data-estado="exato"] .destaque { color: var(--accent); }
+  .quadro { overflow-x: auto; }
+  .quadro img { display: block; width: 100%; min-width: 560px; height: auto;
+                image-rendering: pixelated; border-radius: 6px; }
+  .rotulos { display: grid; grid-template-columns: repeat(4, 1fr);
+             gap: 2.15%; padding-inline: 1%; min-width: 560px;
+             margin-bottom: 8px; }
+  .rotulos span { font-family: var(--mono); font-size: .68rem;
+                  letter-spacing: .06em; color: var(--fraco);
+                  text-transform: uppercase; text-align: center; }
+  .nota { margin: 0; color: var(--fraco); font-size: .9rem; }
+  .fecho { border-top: 1px solid var(--linha); padding-top: 28px;
+           display: flex; flex-direction: column; gap: 14px; }
+  .fecho h2 { margin: 0; font-size: 1.1rem; font-weight: 620; }
+  .fecho p { margin: 0; max-width: 68ch; }
+  .fecho strong { color: var(--accent); font-weight: 620; }
+  a { color: var(--accent); }
+  a:focus-visible, .quadro:focus-visible { outline: 2px solid var(--accent);
+                                           outline-offset: 3px; }
+</style>
+
+<div class="folha">
+  <div class="abre">
+    <p class="eyebrow">Waybuilder · acervo do avatar · 2 de agosto de 2026</p>
+    <h1>Transplante de animação: o que os números não mostram</h1>
+    <p class="chamada">
+      170 das 627 peças do acervo não têm as animações novas. A ideia testada aqui:
+      gerar a peça que falta usando <em>outra peça parecida</em> como molde — a armadura
+      a partir de outra armadura, já que ambas seguem a mesma silhueta. O erro médio
+      caiu 62%, e ainda assim quase nenhuma peça saiu exata. Estes três casos mostram
+      por quê.
+    </p>
+  </div>
+
+      <section class="caso">
+        <header class="caso-topo">
+          <div>
+            <h2>Armadura Legionária</h2>
+            <p class="doadora">gerada a partir da Armadura de Placas</p>
+          </div>
+          <dl class="placar" data-estado="com defeito">
+            <div><dt>antes</dt><dd>133</dd></div>
+            <div><dt>depois</dt><dd class="destaque">29</dd></div>
+            <div><dt>da peça</dt><dd>246 px</dd></div>
+            <div><dt>errado</dt><dd>11.8%</dd></div>
+          </dl>
+        </header>
+        <div class="quadro">
+          <div class="rotulos" aria-hidden="true">
+            <span>entrada · andando</span><span>alvo real · parado</span>
+            <span>gerado</span><span>erro em vermelho</span>
+          </div>
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXYAAAFECAIAAAAMV/EWAAALS0lEQVR42u3cMWtVBxiA4ZsS8QfoYB1CIwp2qoOluLRgx4Kb4FT8D53c2qmT/8FRcHPoViFCkVCHuBUsRpzbxU0c2kEo9x7tMde8Sc6Nz7MdcpLcc+P5vLwcvrUzZzdmAAAAAPuzvsfzzl+85M2ClfbnHzv5zzQZwGQwGcBkMBnAZPjPev4TgQk6uP/XTQYwGUwGMBlMBjAZ3vjEmwUAAADsn8QAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABNa9BQATdOLVwuHrky4fMBlMBnBruPyp8xQDAAAAEJAYAAAAgIDEAAAAAAQkBgAAACBg3ePRs6DlY7582KMvL30zf/j7ztbxvsCd7S1/dDAZTAYwGUyGleMpBgAAACAgMQAAAAABiQEAAAAISAwAAABAwLrHybGgBQAAgFXkKQYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgsO4tAJi+C5ub84c721suEDAZAJPBZJgaTzEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAALWPU6OBS3Ae12/cXP+8PSptZGTb/304/zhb7/cGTn54fbzka/+9fc/3nwwGUwGMBlMBv6PpxgAAACAgMQAAAAABCQGAAAAICAxAAAAAAHrHqfOghZgNps93d0d/erC4ZXL56rfG46C8UsATAbAZDAZjgFPMQAAAAABiQEAAAAISAwAAABAQGIAAAAAAtY9To4FLcDbLmxu7v3kR4+fzR9e++77lbuEne0tf3QwGUwGMBlMhpXjKQYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQMC6x8mxoAV422CL6vhdNr4I9uuvPps/fLj9fOTkcBHsUhcImAwmA5gMJsMq8hQDAAAAEJAYAAAAgIDEAAAAAAQkBgAAACBg3ePkWNACvG0wCt53Hy2cfPrU2t5/0cGNgvHXPLhAi2DBZDAZwGQwGVaRpxgAAACAgMQAAAAABCQGAAAAICAxAAAAAAHrHifHghZg2UExfg8+XbwjHz1+NsHXDBz0R4hpTgaDAg75trr95MH84bXd2QQnw/2XC6/jhy+u+juuEE8xAAAAAAGJAQAAAAhIDAAAAEBAYgAAAAAC1j1OnaVuwGw2u3f3zvzh9Rs3934PTmQR7FIXCLzT65NLTIalFkhfuXyumgzv21S9xGeGwQUOLh9448XnG/OHG6OTYbA68f7i9seBn69+W02G26O/aGB8v+NgMgwu/9NnL/yTOFqeYgAAAAACEgMAAAAQkBgAAACAgMQAAAAABKx7PHpLrW4aOAZL3axugr1MhhOvFg7Ht6kNJsPgZh8MikMbBUttgDMZYP932WAUjH9mGKyI3s/m5qW+d6nJALzTYMHhidG77P7LhcPBYsXBUsZbD34dOXkpS33vUpPBfsep8RQDAAAAEJAYAAAAgIDEAAAAAAQkBgAAACBg3ePUHfulbsAHGN+mNn4PPt2d4mve2d7yZ4X2Lhvf/jj4VHDl8rn5w8H2x/BmNxngiP//fbIwGQb7HQ/uQ/5gzeS48d2QJsPEeYoBAAAACEgMAAAAQEBiAAAAAAISAwAAABCw7nHqLHUD2nsQ+DhHwaF9ZlhqIZx5BYdssElxqXWPS61s5KPlKQYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQMC6x9VmSRIA4DMD8GEG2x9h/zzFAAAAAAQkBgAAACAgMQAAAAABiQEAAAAIWPc4Oa9PLhzeu3tn5OTrN25O8BLGX/PgAgGTwWQAk8FkAJPBZDgePMUAAAAABCQGAAAAICAxAAAAAAGJAQAAAAhY9zh14+tMxlehTPM1AyYDYDKYDGAymAzHkqcYAAAAgIDEAAAAAAQkBgAAACAgMQAAAAAB6x5Xm1UogMkAmAyAycBEeIoBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQEBiAAAAAAISAwAAABCQGAAAAICAxAAAAAAEJAYAAAAgIDEAAAAAAYkBAAAACEgMAAAAQGB976eev3jJ+wWYDIDJAJgMwDutnTm74V0AAAAA9ulf4tYbv76x7VkAAAAASUVORK5CYII="
+               alt="Armadura Legionária: quatro quadros lado a lado — a peça na animação de andar, a peça real na animação de parado, a peça gerada pelo transplante, e o mapa de erro com 29 pixels em vermelho.">
+        </div>
+        <p class="nota">o pedido original: armadura servindo de base para armadura</p>
+      </section>
+
+      <section class="caso">
+        <header class="caso-topo">
+          <div>
+            <h2>Manga Longa Polo</h2>
+            <p class="doadora">gerada a partir da Manga Longa Abotoada</p>
+          </div>
+          <dl class="placar" data-estado="com defeito">
+            <div><dt>antes</dt><dd>139</dd></div>
+            <div><dt>depois</dt><dd class="destaque">38</dd></div>
+            <div><dt>da peça</dt><dd>366 px</dd></div>
+            <div><dt>errado</dt><dd>10.4%</dd></div>
+          </dl>
+        </header>
+        <div class="quadro">
+          <div class="rotulos" aria-hidden="true">
+            <span>entrada · andando</span><span>alvo real · parado</span>
+            <span>gerado</span><span>erro em vermelho</span>
+          </div>
+          <img src="data:image/png;base64,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"
+               alt="Manga Longa Polo: quatro quadros lado a lado — a peça na animação de andar, a peça real na animação de parado, a peça gerada pelo transplante, e o mapa de erro com 38 pixels em vermelho.">
+        </div>
+        <p class="nota">silhueta idêntica entre as duas — o caso mais favorável possível</p>
+      </section>
+
+      <section class="caso">
+        <header class="caso-topo">
+          <div>
+            <h2>Bandana</h2>
+            <p class="doadora">gerada a partir da Bandana com Borda</p>
+          </div>
+          <dl class="placar" data-estado="exato">
+            <div><dt>antes</dt><dd>111</dd></div>
+            <div><dt>depois</dt><dd class="destaque">0</dd></div>
+            <div><dt>da peça</dt><dd>128 px</dd></div>
+            <div><dt>errado</dt><dd>0.0%</dd></div>
+          </dl>
+        </header>
+        <div class="quadro">
+          <div class="rotulos" aria-hidden="true">
+            <span>entrada · andando</span><span>alvo real · parado</span>
+            <span>gerado</span><span>erro em vermelho</span>
+          </div>
+          <img src="data:image/png;base64,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"
+               alt="Bandana: quatro quadros lado a lado — a peça na animação de andar, a peça real na animação de parado, a peça gerada pelo transplante, e o mapa de erro com 0 pixels em vermelho.">
+        </div>
+        <p class="nota">uma das cinco que fecharam em zero, todas em peças pequenas</p>
+      </section>
+
+  <div class="fecho">
+    <h2>O que a figura mostra, e o que ela não mostra</h2>
+    <p>
+      A peça gerada está <strong>estruturalmente certa</strong>: volume, sombreamento e
+      forma no lugar. O defeito se concentra em regiões — o saiote da armadura, os ombros
+      da manga —, não espalhado pixel a pixel. Isso é melhor do que a média sugeria.
+    </p>
+    <p>
+      Mas 29 pixels errados numa peça de 246 é visível em arte deste tamanho, e ela ficaria
+      lado a lado com peças feitas à mão. Automático, <strong>não serve</strong>. Como ponto
+      de partida para alguém corrigir, é uma pergunta em aberto — e quem responde é quem
+      desenha, não a medição.
+    </p>
+  </div>
+</div>
