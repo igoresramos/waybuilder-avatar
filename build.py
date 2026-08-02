@@ -279,16 +279,25 @@ def arquivos_da_animacao(dirbase: str, anim: str) -> list[tuple[str | None, str]
     ANTIGO: <dirbase>/<anim>/<cor>.png
     """
     d = os.path.join(FONTE, "spritesheets", dirbase.strip("/"))
-    novo = os.path.join(d, f"{anim}.png")
-    if os.path.isfile(novo):
-        return [(None, novo)]
+
+    # O ANTIGO vem primeiro de proposito: os dois formatos COEXISTEM no mesmo
+    # diretorio em varias pecas (o Tricorne tem `idle.png` solto E uma pasta
+    # `idle/` com 24 cores). Achar o arquivo solto antes fazia a peca nascer
+    # com uma cor so -- as cores de um asset sao dele, nao da categoria, e sao
+    # justamente estas. Vale para as 241 pecas que declaram `variants`.
     subdir = os.path.join(d, anim)
     if os.path.isdir(subdir):
-        return [
+        achados = [
             (a[:-4], os.path.join(subdir, a))
             for a in sorted(os.listdir(subdir))
             if a.endswith(".png")
         ]
+        if achados:
+            return achados
+
+    novo = os.path.join(d, f"{anim}.png")
+    if os.path.isfile(novo):
+        return [(None, novo)]
     return []
 
 
@@ -323,7 +332,11 @@ def quantizar_exato(im):
     from PIL import Image
 
     rgba = im.convert("RGBA")
-    cores = rgba.getcolors(maxcolors=256)
+    # Contar CORES, nao combinacoes RGBA: com `maxcolors=256` um atlas de 200
+    # cores em dois niveis de alpha da 400 combinacoes e caia fora, mesmo
+    # cabendo folgado em 256 indices. Foi o que jogou 127 atlas para RGBA e
+    # quase dobrou o peso do acervo.
+    cores = rgba.getcolors(maxcolors=1 << 20)
     if cores is None:
         return im
 
@@ -335,7 +348,10 @@ def quantizar_exato(im):
     plana: list[int] = []
     for c in opacas:
         plana += list(c)
-    plana += [0, 0, 0] * (256 - transp)
+    # Os slots sobrando repetem a ULTIMA cor valida, nunca preto: (0,0,0) vira
+    # um atrator e o `quantize` colapsa tons escuros nele, perdendo cor.
+    resto = list(opacas[-1]) if opacas else [0, 0, 0]
+    plana += resto * (256 - transp)
 
     molde = Image.new("P", (1, 1))
     molde.putpalette(plana)
@@ -363,9 +379,8 @@ def salvar_paletizado(im, destino: str) -> int:
     from PIL import Image
 
     os.makedirs(os.path.dirname(destino), exist_ok=True)
-    cores = im.getcolors(maxcolors=256)
     saida = im
-    if cores is not None:
+    if len(cores_de(im)) <= 255:
         # Paleta EXATA, nunca ADAPTIVE: median cut e lossy mesmo abaixo de 256
         # cores e ja corrompeu o contorno do corpo em 1 bit (#271920 virou
         # 39,24,32). Como a primeira cor da rampa `light` e justamente essa, o
