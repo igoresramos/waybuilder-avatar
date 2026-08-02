@@ -74,9 +74,14 @@ export function montarCamadas(
           item.segue_cor_do_corpo && canal.material === "body" && corDoCorpo;
         const cor = herda ? corDoCorpo : pedidas[canal.nome];
         if (cor === undefined || cor in variante.cores) return [];
-        const paleta = canal.paletas[0];
-        if (paleta === undefined) return [];
-        return [{ material: canal.material, paleta, cor }];
+        // A cor pode vir qualificada como "paleta:nome". Precisa: 18 dos 19
+        // nomes repetidos entre as paletas de um canal sao RAMPAS DIFERENTES
+        // -- ha tres `white` e tres `orange` distintos. So o nome e ambiguo.
+        const [qual, nome] = cor.includes(":")
+          ? (cor.split(":") as [string, string])
+          : [canal.paletas[0], cor];
+        if (qual === undefined) return [];
+        return [{ material: canal.material, paleta: qual, cor: nome }];
       });
 
       camadas.push({
