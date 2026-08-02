@@ -1,6 +1,6 @@
 {
   "name": "waybuilder-avatar",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Acervo e renderer do avatar do Waybuilder -- recorte curado do Liberated Pixel Cup",
   "type": "module",
   "types": "./dist/indice.d.ts",

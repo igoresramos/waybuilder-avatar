@@ -1,7 +1,7 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 11
+version: 12
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
@@ -32,6 +32,11 @@ revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   chute e perderam na varredura); `sit` deixa de ser gerado; `idle` k=0 vira
   copia de `walk` k=0. Fecha o item 145. O numero de manchete da pesquisa
   (77,6%) e das pecas que ja tem a arte -- em alvo legado real e ~14%
+  @12 (2026-08-02) -- decisao do dono: DUAS direcoes (frente e perfil direito),
+  nao quatro. O build das 4 rodou e o peso bateu (116,53 MB medidos contra 118
+  projetados), mas revelou o custo que nenhuma projecao media: 35 atlas acima
+  de 64 MP, o pior exigindo ~401 MB de RAM so para o navegador decodificar. O
+  teto de textura e por DIMENSAO; o que quebra em celular e a AREA
 ---
 
 # Spec -- o avatar do personagem
@@ -255,6 +260,33 @@ Pages deste repo, e `sincronizar-avatar.sh` sai do fluxo.
      > senao o recolor quebra. E os 118 MB sao **projecao de amostra de 44
      > pecas** -- o peso real sai do relatorio de (3h) quando o build rodar,
      > e e ele que entra no repo;
+     >
+     > **@12 -- corrigido para DUAS direcoes: frente e perfil direito.**
+     > Decisao do dono, tomada depois de o build das 4 rodar e revelar um
+     > custo que nenhuma das projecoes media. O peso estava certo (116,53 MB
+     > medidos contra 118 projetados, erro de 1,2%) e nenhum atlas estourava o
+     > teto de textura (o maior ficou em 16.320 px, 64 px abaixo). O que
+     > escapou foi a **area**:
+     >
+     > | | 1 direcao | 4 direcoes | 2 direcoes |
+     > |---|---|---|---|
+     > | maior atlas | 16.320 x 1.536 | 16.320 x 6.144 | 16.320 x 3.072 |
+     > | area | 25 MP | **100 MP** | 50 MP |
+     > | RAM ao decodificar (RGBA) | ~100 MB | **~401 MB** | ~200 MB |
+     > | atlas acima de 64 MP | 0 | **35** | 0 |
+     >
+     > O teto de 16.384 e por DIMENSAO; o que quebra em campo e a area
+     > descomprimida. Um atlas de asas com 4 direcoes exigiria 401 MB de RAM
+     > so para o navegador decodificar -- passa em desktop e falha em celular,
+     > em silencio, que e o pior modo de falha. Com duas direcoes nenhum atlas
+     > passa de 64 MP.
+     >
+     > **Espelhar o perfil direito para ter o esquerdo de graca nao funciona**,
+     > e isso foi medido, nao suposto: em 353 folhas de `walk`, o esquerdo e o
+     > espelho do direito em **0,3%** e realmente diferente em **99,2%**. O LPC
+     > alterna as pernas na caminhada, entao o frame k de um lado nao
+     > corresponde ao espelho do frame k do outro. Qualquer direcao a mais
+     > custa acervo como a primeira;
   c. **empacota em atlas por SLOT** -- um PNG por (slot, camada, corpo), em vez
      de milhares de arquivos soltos. Resolve o limite de arquivos da Vercel e o
      request storm da grade; com a UI de casas (5c), abrir um picker vira **um

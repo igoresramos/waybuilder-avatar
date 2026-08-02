@@ -366,4 +366,65 @@ describe("montarCamadas", () => {
     expect(camadas[0]!.recolor).toBeUndefined();
     expect(camadas[0]!.y).toBe(64);
   });
+
+  it("cada uma das 4 direcoes cai no bloco certo dentro da animacao", () => {
+    // Contrato da decisao 3b3 @10, travado tambem em
+    // testes/test_direcoes.py::TesteEnderecoDoFrame:
+    // x_da_animacao + (indice_da_direcao * frames + k) * 64.
+    const p = peca({ id: "hair/afro", slot: "hair" });
+    p.camadas[0]!.corpos.male!.animacoes = [{ nome: "idle", frames: 3, x: 100 }];
+    const cat = catalogo([p]);
+    cat.recorte.direcoes = ["frente", "costas", "perfil_esq", "perfil_dir"];
+
+    cat.recorte.direcoes.forEach((direcao, indice) => {
+      const { camadas } = montarCamadas(cat, { hair: { id: "hair/afro" } }, "male", "idle", direcao);
+      expect(camadas[0]!.x).toBe(100 + indice * 3 * 64);
+    });
+  });
+
+  it("sem direcao pedida, o default e a frente -- endereco antigo continua valendo", () => {
+    // Requisito explicito: chamar sem direcao nenhuma tem de dar o MESMO
+    // resultado de antes das 4 direcoes existirem, senao todo consumidor que
+    // ainda nao sabe de direcao passa a levar o endereco errado.
+    const p = peca({ id: "hair/afro", slot: "hair" });
+    p.camadas[0]!.corpos.male!.animacoes = [{ nome: "idle", frames: 3, x: 100 }];
+    const cat = catalogo([p]);
+    cat.recorte.direcoes = ["frente", "costas", "perfil_esq", "perfil_dir"];
+
+    const semDirecao = montarCamadas(cat, { hair: { id: "hair/afro" } }, "male", "idle");
+    const comFrenteExplicita = montarCamadas(cat, { hair: { id: "hair/afro" } }, "male", "idle", "frente");
+    expect(semDirecao.camadas[0]!.x).toBe(100);
+    expect(semDirecao.camadas[0]!.x).toBe(comFrenteExplicita.camadas[0]!.x);
+  });
+
+  it("catalogo sem recorte.direcoes (acervo anterior a decisao) nao muda o endereco", () => {
+    // Acervo e app versionam separado: um app novo pode encontrar catalogo
+    // velho em cache, sem o campo `direcoes`. Pedir qualquer direcao tem de
+    // cair sempre no indice 0 -- o unico que o catalogo velho tem.
+    const p = peca({ id: "hair/afro", slot: "hair" });
+    p.camadas[0]!.corpos.male!.animacoes = [{ nome: "idle", frames: 3, x: 100 }];
+    const cat = catalogo([p]); // sem recorte.direcoes
+
+    const { camadas } = montarCamadas(cat, { hair: { id: "hair/afro" } }, "male", "idle", "costas");
+    expect(camadas[0]!.x).toBe(100);
+  });
+
+  it("a peca sem a animacao pedida segue caindo no fallback da decisao 12, com a direcao pedida", () => {
+    // Nao pode regredir: o congelamento no primeiro frame (decisao 12) tem de
+    // somar o offset da direcao, senao a peca travada aparece de frente
+    // quando o resto do boneco esta de costas.
+    const p = peca({ id: "hair/afro", slot: "hair" });
+    p.camadas[0]!.corpos.male!.animacoes = [{ nome: "idle", frames: 3, x: 100 }];
+    const cat = catalogo([p]);
+    cat.recorte.direcoes = ["frente", "costas", "perfil_esq", "perfil_dir"];
+
+    const { camadas, avisos } = montarCamadas(
+      cat, { hair: { id: "hair/afro" } }, "male", "run", "costas",
+    );
+    expect(camadas[0]!.frames).toBe(1);
+    expect(camadas[0]!.x).toBe(100 + 1 * 3 * 64); // indice 1 = costas
+    expect(avisos).toEqual([
+      { slot: "hair", id: "hair/afro", motivo: "animacao-substituida" },
+    ]);
+  });
 });

@@ -78,6 +78,13 @@ export interface Catalogo {
     animacoes: string[];
     corpos: string[];
     direcao: string;
+    /**
+     * As 4 direcoes, na ordem em que o build as grava lado a lado no eixo X
+     * (decisao 3b3 @10). `frente` vem primeiro de proposito -- e o endereco
+     * base, o mesmo que `direcao` (singular) ja apontava. Catalogo antigo (sem
+     * este campo) so tem frente: o app cai no fallback do indice 0.
+     */
+    direcoes?: string[];
     altura_do_frame: number;
     /**
      * Ciclo de frames por animacao, do gerador

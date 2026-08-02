@@ -12,10 +12,10 @@ Pin da fonte: `0f898bb675a1abe16ce430e82e3bf9daed278690`
 
 | artefato | arquivos | MB |
 |---|---|---|
-| atlas | 643 | 29.25 |
+| atlas | 643 | 59.15 |
 | paletas | - | 0.03 |
-| catalogo.json | 1 | 1.28 |
-| **total** | **644** | **30.56** |
+| catalogo.json | 1 | 1.29 |
+| **total** | **644** | **60.47** |
 
 ## Itens por categoria
 

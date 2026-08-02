@@ -77,6 +77,30 @@ FPS = 8
 ALTURA = 64
 LINHA_DA_FRENTE = 2
 
+# As direcoes gravadas, com a linha de origem de cada uma na folha do LPC --
+# spec, decisao 3b3 @12. DUAS: frente e perfil direito, por decisao do dono.
+#
+# A ORDEM AQUI NAO E A DO LPC, e a diferenca e proposital. Gravando a frente
+# PRIMEIRO, o endereco antigo (`x + k*64`, que o app usava quando so havia uma
+# direcao) continua caindo na frente. Se a ordem do LPC fosse preservada, o
+# mesmo endereco passaria a apontar para as COSTAS -- o acervo inteiro viraria
+# de costas sem um erro sequer, que e o modo de falha que o principio zero
+# proibe.
+#
+# ESPELHAR o perfil direito para ter o esquerdo de graca foi medido e NAO
+# funciona: em 353 folhas de `walk`, o perfil esquerdo e o espelho do direito em
+# **0,3%** dos casos, e realmente diferente em 99,2%. O LPC alterna as pernas na
+# caminhada, entao o frame k de um lado nao corresponde ao espelho do frame k do
+# outro. A terceira direcao custaria acervo como qualquer outra.
+DIRECOES = [("frente", 2), ("perfil_dir", 3)]
+
+# As direcoes vao no eixo X, ao lado dos frames -- nao empilhadas no Y junto
+# das cores. Medido no catalogo de 643 atlas: no eixo Y, empilhar 4 direcoes
+# fazia 105 deles passarem do teto de textura de 16.384 px (o pior, `wings`,
+# chegava a 65.280); no eixo X nenhum estoura. Mesma area, so muda a forma.
+#
+# Endereco de um frame: x_da_animacao + (indice_da_direcao * frames + k) * 64.
+
 # nomes que aparecem como ARQUIVO no formato novo (arquivo = animacao) e como
 # DIRETORIO no formato antigo (diretorio = animacao, arquivo = cor)
 TODAS_ANIMACOES = {
@@ -520,13 +544,13 @@ def arquivos_da_animacao(dirbase: str, anim: str) -> list[tuple[str | None, str]
 
 # -- composicao --------------------------------------------------------------
 
-def recortar_frente(im, largura_alvo: int):
-    """A linha da frente da folha, em largura fixa (sobra vira transparente)."""
+def recortar_frente(im, largura_alvo: int, linha: int = LINHA_DA_FRENTE):
+    """Uma linha da folha, em largura fixa (sobra vira transparente)."""
     from PIL import Image
 
-    y = LINHA_DA_FRENTE * ALTURA
+    y = linha * ALTURA
     if im.size[1] < y + ALTURA:
-        return None  # folha sem a linha da frente (fora do layout universal)
+        return None  # folha sem essa linha (fora do layout universal)
     faixa = im.crop((0, y, im.size[0], y + ALTURA))
     if faixa.size[0] == largura_alvo:
         return faixa
@@ -715,17 +739,25 @@ def montar_folha(dirbase: str, cor_alvo: str | None):
     if not faixas:
         return None, []
 
-    largura = sum(im.size[0] for _, im in faixas)
+    # cada animacao ocupa as 4 direcoes lado a lado: 4x a largura de antes
+    largura = sum(im.size[0] for _, im in faixas) * len(DIRECOES)
     tira = Image.new("RGBA", (largura, ALTURA), (0, 0, 0, 0))
     mapa = []
     x = 0
     for anim, im in faixas:
-        faixa = recortar_frente(im, im.size[0])
-        if faixa is None:
+        larg_anim = im.size[0]
+        posto = False
+        for i, (_nome, linha) in enumerate(DIRECOES):
+            faixa = recortar_frente(im, larg_anim, linha)
+            if faixa is None:
+                continue  # folha sem essa linha: fica transparente, e o
+                # renderer cai no fallback da decisao 12
+            tira.alpha_composite(faixa, (x + i * larg_anim, 0))
+            posto = True
+        if not posto:
             continue
-        tira.alpha_composite(faixa, (x, 0))
-        mapa.append((anim, im.size[0] // ALTURA, x))
-        x += im.size[0]
+        mapa.append((anim, larg_anim // ALTURA, x))
+        x += larg_anim * len(DIRECOES)
     if not mapa:
         return None, []
     return tira, mapa
@@ -985,7 +1017,10 @@ def main() -> int:
             "recorte": {
                 "animacoes": ANIMACOES,
                 "corpos": CORPOS,
+                # `direcao` (singular) fica por compatibilidade: diz qual e a
+                # direcao no endereco base, e continua sendo a frente.
                 "direcao": "frente",
+                "direcoes": [nome for nome, _linha in DIRECOES],
                 "altura_do_frame": ALTURA,
                 # o app anima por ciclo, nao em ordem crua
                 "ciclos": CICLOS,

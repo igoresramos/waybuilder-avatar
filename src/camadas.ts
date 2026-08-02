@@ -18,8 +18,18 @@ export function montarCamadas(
   selecao: Selecao,
   corpo: string,
   animacao: string,
+  direcao: string = "frente",
 ): Composicao {
   const porId = new Map<string, Item>(catalogo.itens.map((i) => [i.id, i]));
+
+  // (3b3 @10) as 4 direcoes ficam lado a lado no eixo X, dentro do bloco da
+  // propria animacao: x_da_animacao + (indice_da_direcao * frames + k) * 64.
+  // Catalogo sem `recorte.direcoes` (acervo anterior a decisao) cai sempre no
+  // indice 0 -- o mesmo endereco de antes, sem risco de cache velho no app
+  // desenhar o boneco de costas em silencio.
+  const indiceDirecao = catalogo.recorte.direcoes
+    ? Math.max(0, catalogo.recorte.direcoes.indexOf(direcao))
+    : 0;
 
   // (3j) o tom de pele do corpo equipado. Cabeca, nariz, orelha, rugas e
   // expressao sao slots SEPARADOS com material `body`: sem herdar, trocar a
@@ -113,7 +123,7 @@ export function montarCamadas(
 
       camadas.push({
         arq: variante.arq,
-        x: anim.x,
+        x: anim.x + indiceDirecao * anim.frames * catalogo.recorte.altura_do_frame,
         y: variante.cores[escolhida]!,
         frames: substituta ? 1 : anim.frames,
         zPos: camada.zPos,
