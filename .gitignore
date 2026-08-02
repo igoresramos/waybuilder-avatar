@@ -9,3 +9,8 @@ __pycache__/
 *.pyc
 .DS_Store
 node_modules/
+
+# frames gerados pelo `preencher.py` -- derivados, reconstruiveis em minutos e
+# de peso alto (15 mil PNGs). O que importa versionar e a PROCEDENCIA, que vai
+# no catalogo quando o passo entrar no build.
+preenchimento/
