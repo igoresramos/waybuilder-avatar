@@ -1,7 +1,7 @@
 ---
 spec: avatar-do-personagem
 project: waybuilder
-version: 7
+version: 10
 status: aprovada
 created: 2026-08-01
 revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
@@ -19,6 +19,13 @@ revisao: adversarial (fable, 2026-08-01) -- derrubou o dimensionamento do
   animacao que falta e gerada por transplante de peca analoga (deterministico,
   defeito medido e assumido pelo dono), e o que o transplante nao cobrir aparece
   parado. Tres caminhos medidos antes, relatorios em `docs/`
+  @10 (2026-08-02) -- decisao delegada ao PO (parecer em
+  `docs/2026-08-02_PO-direcoes-e-entrega.md`): as 4 direcoes entram com as 5
+  animacoes, e o acervo passa a ser servido do GitHub Pages (decisao 2a nova).
+  O teto de 100 MB deixa de reger o recorte; o item 2 de "Aberto" fecha como
+  consumo em runtime; a decisao 4 e reconciliada com o codigo.
+  (O `version` pula de 7 para 10 porque o corpo ja carregava blocos @9 que o
+  frontmatter nunca registrou -- a numeracao do corpo e que estava certa.)
 ---
 
 # Spec -- o avatar do personagem
@@ -145,6 +152,41 @@ em build (decisao 3).
 > (Ate @3 esta linha citava 56.723 / 81,2 MB, a medicao truncada. O argumento so
 > ficou mais forte com o numero certo.)
 
+**2a. O acervo e servido do GitHub Pages, fora do deploy da Vercel.**
+Adicionada em @10. O app continua um so e continua na Vercel; muda a ORIGEM
+dos assets do avatar: `RAIZ` deixa de ser `/avatar/` e passa a ser a URL do
+Pages deste repo, e `sincronizar-avatar.sh` sai do fluxo.
+
+- O Pages ja esta publicado e provado byte a byte, com
+  `Access-Control-Allow-Origin: *` em toda resposta
+  (`docs/2026-08-02_acervo-no-github-pages.md`). O gerador oficial do LPC
+  serve 129,6 MB assim.
+- O teto passa de 100 MB (Hobby) para 1 GB (Pages) -- e o que permite as 4
+  direcoes (3b3 @10) sem cortar animacao.
+- Custo no app, medido e pequeno (TODO 146): `im.crossOrigin = "anonymous"`
+  antes do `src` em `carregarImagem`, senao o `getImageData` do recolor
+  estoura `SecurityError` cross-origin **e** a resposta chega opaca, que o
+  `CacheFirst` se recusa a guardar -- o avatar nunca ficaria offline; o
+  `urlPattern` do runtime cache vira funcao matcher por origem; a entrada
+  `/^\/avatar\//` do `navigateFallbackDenylist` morre.
+- A `RAIZ` carrega sufixo de versao (`?v=<versao do acervo>`): com
+  `CacheFirst` de 90 dias, trocar o acervo sob a MESMA URL misturaria
+  catalogo novo com atlas velho em cache parcial -- render errado em
+  silencio, que e o que o principio zero proibe. Versao nova = chave de cache
+  nova, invalidacao em bloco.
+- **Nao existe instancia paralela do app.** A decisao 10 segue de pe: a
+  validacao sem risco e o preview deployment da Vercel, e o rollback e o
+  revert de um commit.
+
+> **Medido ao aplicar (2026-08-02), e corrige a premissa do item 142:** o
+> acervo NUNCA chegou ao deploy da Vercel. `app/public/avatar/` e gitignored e
+> `sincronizar-avatar.sh` nunca esteve no `buildCommand` do `vercel.json` --
+> so `sincronizar-base.sh` esta. Prova: `/avatar/catalogo.json` responde **404**
+> em `waybuilder.vercel.app` e **200** no Pages. O teto de 100 MB, portanto,
+> nunca chegou a apertar de fato: ele apertaria no dia em que o avatar fosse
+> promovido a producao. A decisao acima nao muda -- ela deixa de ser migracao e
+> passa a ser a escolha da origem antes da estreia, que e mais barato ainda.
+
 **3. Um passo de build produz o acervo do app.** E o coracao desta spec. Ele:
 
   a. **normaliza os dois formatos** num so (o app nao conhece a migracao do
@@ -198,6 +240,15 @@ em build (decisao 3).
      > Como 118 MB passa do teto, **a escolha do aperto e do dono**, nao do
      > build (decisao 3 manda apertar o recorte e registrar o que saiu).
      > Enquanto nao houver decisao, o recorte segue em 1 direcao;
+     >
+     > **@10 -- decidido: as 4 direcoes entram, com as 5 animacoes.** Nenhum
+     > aperto. O que tornava o aperto necessario era o teto de 100 MB da
+     > Vercel, e a decisao 2a o removeu: os 118 MB projetados cabem no 1 GB do
+     > Pages com folga de ~8,5x. O build passa a emitir as 4 linhas.
+     > Pre-requisito: 2a aplicada no app primeiro (crossOrigin + matcher),
+     > senao o recolor quebra. E os 118 MB sao **projecao de amostra de 44
+     > pecas** -- o peso real sai do relatorio de (3h) quando o build rodar,
+     > e e ele que entra no repo;
   c. **empacota em atlas por SLOT** -- um PNG por (slot, camada, corpo), em vez
      de milhares de arquivos soltos. Resolve o limite de arquivos da Vercel e o
      request storm da grade; com a UI de casas (5c), abrir um picker vira **um
@@ -247,6 +298,14 @@ em build (decisao 3).
 Se o acervo recortado nao couber, a saida **nao** e runtime cache: e apertar o
 recorte (menos variantes de corpo, menos animacoes) ate caber, e registrar o que
 saiu.
+
+> **@10 -- reconciliacao com o codigo.** A decisao do dono de 2026-08-01
+> (registrada em `app/vite.config.ts`) ja tinha tirado o acervo do precache:
+> ele e runtime cache `CacheFirst`, e a primeira composicao ja exigia rede.
+> O "offline de verdade" vale para o NUCLEO do app; para o avatar a garantia e
+> "depois da primeira visita, offline" -- e servir do Pages (2a) nao muda essa
+> garantia, so o dominio da primeira visita. O paragrafo acima segue valendo
+> para o nucleo, nao para o acervo.
 
 **5. O renderer.** Para cada camada selecionada, ordenada por `zPos`, desenhar
 no canvas. Ele precisa de tres coisas que o esboco inicial nao previa:
@@ -635,7 +694,13 @@ as decisoes 3b, 3b2 e 5b:
    ancestralidade morta-viva, e o custo de inclui-los depois e refazer o build,
    nao remodelar nada.
 
-2. **A ponte entre os dois repos, em aberto por decisao (@3).** Com o acervo
+2. **FECHADO em @10: a ponte nao e nenhuma das tres opcoes da tabela.** O
+   acervo nao entra no build do app; o app o consome em RUNTIME do GitHub
+   Pages (decisao 2a). `saida/` segue versionada (8b intacta) e o pin segue no
+   catalogo (6 intacta). O texto original fica abaixo, como registro do que se
+   considerou.
+
+   **A ponte entre os dois repos, em aberto por decisao (@3).** Com o acervo
    fora do waybuilder, o build da Vercel de la nao enxerga mais `saida/`. Isso
    **nao bloqueia nada hoje** -- o app nao consome o acervo, nao ha import nem
    linha no `vercel.json`. A ponte se decide no passo 2 da ordem, quando o
