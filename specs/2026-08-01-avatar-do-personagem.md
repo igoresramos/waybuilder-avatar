@@ -105,10 +105,28 @@ No formato novo o definition declara a paleta:
 
 ## Decisoes
 
-**1. Nao copiar codigo do gerador.** GPL-3.0 contaminaria o Waybuilder, e o app
-deles e Mithril contra o React daqui. A composicao e escrita do zero. Reimplementar
-o recolor a partir do `PALETTE_RECOLOR_GUIDE.md` e legitimo: e documentacao, nao
-codigo.
+**1. Nao copiar codigo do gerador -- mas CONSULTAR e obrigatorio.** Sao duas
+coisas, e a v1 desta spec as deixou coladas. Reescrita em @7, depois de o erro
+se repetir tres vezes.
+
+- **Copiar codigo: nao.** GPL-3.0 contaminaria o Waybuilder, e o app deles e
+  Mithril contra o React daqui. A composicao e escrita do zero.
+- **Ler o gerador para descobrir o formato do acervo: SIM, e antes de deduzir.**
+  Ele e a fonte da verdade sobre como o acervo funciona. Reimplementar a partir
+  do que se leu la e legitimo -- e o mesmo criterio que ja valia para o
+  `PALETTE_RECOLOR_GUIDE.md`.
+
+> Por que isto virou decisao: a redacao antiga foi lida como "nao olhe o
+> gerador", e o resultado foi **inventar tres vezes onde havia resposta pronta**:
+>
+> | inventado | ja existia no gerador |
+> |---|---|
+> | categoria pelo caminho | `type_name` no proprio definition |
+> | selecao inicial do avatar | `selectDefaults()`, `sources/state/state.ts:159` |
+> | caminho de arte literal | interpolacao de `${head}` |
+>
+> Cada um custou uma volta inteira de build. **Antes de deduzir comportamento do
+> acervo, procurar no gerador.**
 
 **2. Sem backend.** Mantem-se a decisao do projeto. O que muda em relacao ao
 esboco inicial e que **os assets nao sao servidos como estao**: sao reempacotados
@@ -153,7 +171,25 @@ em build (decisao 3).
   g. **emite os creditos** a partir do `CREDITS.csv` da raiz do repo, nao
      agregando os 768 blocos a mao;
   h. **registra o peso e a contagem medidos** num relatorio, como os portoes do
-     pipeline ja fazem.
+     pipeline ja fazem;
+  i. **resolve `${head}` nas expressoes** (@7). 12 definitions tem caminho como
+     `head/faces/${head}/neutral/`: a expressao **depende da cabeca equipada**,
+     e a arte real vive em 3 pastas (`male`, `female`, `elderly`). O valor vem
+     de `meta.replace_in_path.head`, tabela dentro do JSON da propria expressao,
+     que mapeia **so 9 cabecas humanas**. Cabeca de lagarto, alien ou animal
+     **nao tem expressao** -- no gerador o caminho fica literal e a camada
+     simplesmente nao desenha (`state/path.ts:178-181`). **Nao ha fallback para
+     `global`**: essa pasta serve so as 4 expressoes que a declaram direto, e
+     essas o build ja emitia;
+  j. **propaga `match_body_color`** (@7). 79 definitions tem a flag. Cabeca,
+     nariz, orelha, rugas e expressao sao slots SEPARADOS com material `body`:
+     sem ela, trocar o tom de pele deixa a cabeca de outra cor. O gerador forca
+     a cor do corpo nesses itens em render (`state/palettes.ts:119-123`);
+  k. **grava a paleta com as cores EXATAS** (@7). `convert("P", ADAPTIVE)` e
+     median cut e e lossy mesmo abaixo de 256 cores: medido, o contorno do corpo
+     virou `(39,24,32)` onde a fonte tem `#271920` -- justamente a primeira cor
+     da rampa `light`. Com matching exato, o recolor de pele nunca repintaria o
+     contorno.
 
 **4. O acervo cabe no precache.** Com o recorte de (3b), a estimativa e de
 ~4/17 do volume, antes do corte de cor. O numero real sai do build.
@@ -220,6 +256,12 @@ decide o render**. Duas fichas com a mesma selecao desenham diferente.
 
 O renderer ordena por `(zPos, slot, ordem_da_camada)`, e a fixture byte a byte
 das Travas **tem de variar a ordem de insercao**, senao nunca pega a regressao.
+
+> **Isto e escolha nossa, nao fidelidade ao gerador.** Ele ordena so por `zPos`,
+> com sort estavel (`canvas/renderer.ts:397`) -- ou seja, empate resolve pela
+> ordem em que o jogador equipou. Determinismo vale mais aqui do que espelhar o
+> upstream, mas se algum dia a fixture comparar com o gerador, vai divergir nos
+> empates. Registrado para nao virar susto.
 
 **5b. A grade mostra a peca NO personagem, nao isolada.** Igual ao Stardew: o
 jogador ve o proprio boneco mudando enquanto navega, nao um catalogo de pecas
@@ -433,10 +475,24 @@ tools/whip/bg                                          <- diretorio nem existe
 E os JSONs declaram animacoes proprias (`walk_128`, `thrust_oversize`,
 `slash_reverse_oversize`, `tool_whip`) em vez do conjunto universal.
 
-Cobertura atual: **609 de 637 pecas elegiveis (95,6%)**. Recuperar as 28 exige
-tratar o caso "o `dirbase` ja termina numa animacao" e os layouts `fg`/`bg`
-avulsos. Fica registrado como divida, nao como bug -- e o proximo item da lista
-se a mesa sentir falta de alguma arma.
+Cobertura atual: **609 de 637 pecas elegiveis (95,6%)**.
+
+> **A divida real e de 10 pecas, nao 28** -- corrigido em @7, lendo o gerador.
+> As 47 sem arte se repartem assim: **19** sao `child`-only (cortadas de
+> proposito), **12** sao as expressoes com `${head}` (decisao 3i), **14** usam
+> `custom_animation` e **2** estao corretas fora.
+>
+> Das 14 custom, **so 10 seriam visiveis no nosso recorte**: as 9 de `walk_128`
+> (dragonspear, longspear, trident, katana, scimitar, longsword alt e 3 arcos) e
+> o `wheelchair`, de base `sit`. As outras 4 -- club, whip, boomerang, tool rod
+> -- tem base `slash`/`thrust`, animacoes que a decisao 3b ja cortou:
+> **recupera-las adiciona zero pixel visivel**, porque o proprio gerador so as
+> desenha naquelas linhas.
+>
+> Recuperar as 10 exige recortar a linha `s` (indice 2) de celulas de **128 px**
+> e desenhar com offset `-32,-32` sobre o frame de 64 -- o inverso do
+> centramento que o gerador faz em `canvas/draw-frames.ts:32-46`. Precisa de
+> canvas com sangria, senao a lamina corta.
 
 ## Ordem
 

@@ -6,6 +6,18 @@
  */
 export function montarCamadas(catalogo, selecao, corpo, animacao) {
     const porId = new Map(catalogo.itens.map((i) => [i.id, i]));
+    // (3j) o tom de pele do corpo equipado. Cabeca, nariz, orelha, rugas e
+    // expressao sao slots SEPARADOS com material `body`: sem herdar, trocar a
+    // pele deixa a cabeca de outra cor. O gerador forca isso em render
+    // (`state/palettes.ts:119-123`).
+    const corDoCorpo = (() => {
+        const escolha = selecao["body"];
+        if (!escolha?.cores)
+            return undefined;
+        const item = porId.get(escolha.id);
+        const canal = item?.canais_de_cor?.[0]?.nome ?? "cor";
+        return escolha.cores[canal];
+    })();
     const camadas = [];
     const avisos = [];
     for (const [slot, escolha] of Object.entries(selecao)) {
@@ -28,8 +40,10 @@ export function montarCamadas(catalogo, selecao, corpo, animacao) {
             const escolhida = pedidaPrincipal !== undefined && pedidaPrincipal in variante.cores
                 ? pedidaPrincipal
                 : nomes[0];
-            const anim = variante.animacoes.find((a) => a.nome === animacao) ??
-                variante.animacoes[0];
+            // Peca que nao tem a animacao atual NAO desenha nesta linha. Cair na
+            // primeira desenharia a tira errada -- a peca ficaria parada enquanto o
+            // resto anda. E o que o gerador faz (`canvas/renderer.ts:343`).
+            const anim = variante.animacoes.find((a) => a.nome === animacao);
             if (!anim)
                 continue;
             // Cor pedida que nao e faixa do atlas vira recolor em runtime, um por
@@ -37,7 +51,11 @@ export function montarCamadas(catalogo, selecao, corpo, animacao) {
             // deixa explicitamente para o app. Um elmo tem metal e tecido, dois
             // canais independentes.
             const recolors = (item.canais_de_cor ?? []).flatMap((canal) => {
-                const cor = pedidas[canal.nome];
+                // cor explicita na peca vence a heranca
+                const cor = pedidas[canal.nome] ??
+                    (item.segue_cor_do_corpo && canal.material === "body"
+                        ? corDoCorpo
+                        : undefined);
                 if (cor === undefined || cor in variante.cores)
                     return [];
                 const paleta = canal.paletas[0];

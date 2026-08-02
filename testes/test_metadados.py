@@ -10,7 +10,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from build import (GRUPO_DE_SLOT, grupo_do_slot, normalizar_recolors,
-                   parear_por_prefixo, sem_arte_em)
+                   parear_por_prefixo, segue_cor_do_corpo, sem_arte_em)
 
 
 class TestPareamento(unittest.TestCase):
@@ -122,6 +122,22 @@ class TestNormalizarRecolors(unittest.TestCase):
     def test_sem_recolors_nao_gera_canal(self):
         self.assertEqual(normalizar_recolors(None), [])
         self.assertEqual(normalizar_recolors({}), [])
+
+class TestSegueCorDoCorpo(unittest.TestCase):
+    """`match_body_color` -- 79 definitions do acervo.
+
+    Cabeca, nariz, orelha e expressao sao slots SEPARADOS com material `body`.
+    Sem a flag, trocar o tom de pele deixa a cabeca de outra cor: o gerador
+    forca a cor do corpo nesses itens em tempo de render
+    (`sources/state/palettes.ts:119-123`).
+    """
+
+    def test_marca_o_item_que_segue_a_cor_do_corpo(self):
+        self.assertTrue(segue_cor_do_corpo({"match_body_color": True}))
+
+    def test_item_comum_nao_e_marcado(self):
+        self.assertFalse(segue_cor_do_corpo({}))
+        self.assertFalse(segue_cor_do_corpo({"match_body_color": False}))
 
 if __name__ == "__main__":
     unittest.main()

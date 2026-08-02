@@ -130,6 +130,17 @@ def grupo_do_slot(slot: str) -> str:
     return _DE_SLOT.get(slot, "Outros")
 
 
+def segue_cor_do_corpo(d: dict) -> bool:
+    """A peca herda o tom de pele do corpo (`match_body_color`, 79 no acervo).
+
+    Cabeca, nariz, orelha, rugas e expressao sao slots SEPARADOS com material
+    `body`. Sem esta regra, trocar o tom de pele deixa a cabeca de outra cor --
+    o gerador forca a cor do corpo nesses itens em tempo de render
+    (`sources/state/palettes.ts:119-123`).
+    """
+    return bool(d.get("match_body_color"))
+
+
 def normalizar_recolors(r: dict | None) -> list[dict]:
     """Um formato so de cor, como manda a decisao 3a.
 
@@ -298,6 +309,55 @@ def recortar_frente(im, largura_alvo: int):
     return tela
 
 
+def quantizar_exato(im):
+    """Indexa mantendo cada cor RGB intacta.
+
+    `convert("P", palette=ADAPTIVE)` reescreve as cores por median cut, e e
+    lossy mesmo abaixo de 256 cores: mediu-se o contorno do corpo virando
+    (39,24,32) onde a fonte tem #271920 -- a primeira cor da rampa `light`.
+
+    Aqui a paleta E a lista de cores da imagem, e o mapeamento roda em C
+    (`quantize` com `dither=NONE`): a cor mais proxima de uma cor que esta na
+    paleta e ela mesma, com distancia zero. Em Python puro isto levava horas.
+    """
+    from PIL import Image
+
+    rgba = im.convert("RGBA")
+    cores = rgba.getcolors(maxcolors=256)
+    if cores is None:
+        return im
+
+    opacas = sorted({c[:3] for _, c in cores if c[3] != 0})
+    if not opacas or len(opacas) > 255:
+        return im  # sem indice sobrando para a transparencia: fica RGBA
+
+    transp = len(opacas)
+    plana: list[int] = []
+    for c in opacas:
+        plana += list(c)
+    plana += [0, 0, 0] * (256 - transp)
+
+    molde = Image.new("P", (1, 1))
+    molde.putpalette(plana)
+    saida = rgba.convert("RGB").quantize(palette=molde, dither=Image.NONE)
+
+    alfa = rgba.getchannel("A")
+    saida.paste(transp, mask=alfa.point(lambda a: 255 if a == 0 else 0))
+    saida.info["transparency"] = transp
+    return saida
+
+
+def cores_de(im) -> set:
+    """As cores RGB visiveis de uma imagem -- para o portao de fidelidade."""
+    rgba = im.convert("RGBA")
+    achadas = rgba.getcolors(maxcolors=1 << 20) or []
+    return {c[:3] for _, c in achadas if c[3] != 0}
+
+
+# atlas que ficaram RGBA porque indexar perderia cor -- contados no relatorio
+RGBA_POR_FIDELIDADE: list[str] = []
+
+
 def salvar_paletizado(im, destino: str) -> int:
     """PNG indexado quando cabe em 256 cores -- ~15% do acervo vem em RGBA."""
     from PIL import Image
@@ -306,7 +366,20 @@ def salvar_paletizado(im, destino: str) -> int:
     cores = im.getcolors(maxcolors=256)
     saida = im
     if cores is not None:
-        saida = im.convert("P", palette=Image.ADAPTIVE, colors=max(2, len(cores)))
+        # Paleta EXATA, nunca ADAPTIVE: median cut e lossy mesmo abaixo de 256
+        # cores e ja corrompeu o contorno do corpo em 1 bit (#271920 virou
+        # 39,24,32). Como a primeira cor da rampa `light` e justamente essa, o
+        # recolor de pele passava a depender da tolerancia para nao falhar.
+        indexada = quantizar_exato(im)
+        # Portao: indexar NAO pode mexer em cor nenhuma -- uma diferenca de 1
+        # bit ja aproxima o recolor do limite de tolerancia e falharia calado.
+        # Quando nao da para indexar sem perder cor, fica RGBA: pesa mais e e
+        # exato por definicao. Melhor alguns KB do que um tom de pele que nao
+        # repinta.
+        if cores_de(im) == cores_de(indexada):
+            saida = indexada
+        else:
+            RGBA_POR_FIDELIDADE.append(destino)
     buf = io.BytesIO()
     saida.save(buf, "PNG", optimize=True, compress_level=9)
     with open(destino, "wb") as f:
@@ -511,6 +584,8 @@ def main() -> int:
         canais = normalizar_recolors(d.get("recolors"))
         if canais:
             entrada["canais_de_cor"] = canais
+        if segue_cor_do_corpo(d):
+            entrada["segue_cor_do_corpo"] = True
 
         alguma = False
         for ordem, camada in camadas(d):

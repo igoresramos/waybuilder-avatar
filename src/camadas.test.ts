@@ -133,10 +133,18 @@ describe("montarCamadas", () => {
     expect(camadas[0]!.y).toBe(0);
   });
 
-  it("animacao ausente na peca cai na primeira disponivel", () => {
+  it("peca sem a animacao atual NAO desenha, em vez de congelar noutra", () => {
+    // O gerador omite a camada naquela linha (`canvas/renderer.ts:343`). Cair
+    // na primeira animacao desenharia a tira errada -- a peca ficaria parada
+    // enquanto o resto anda.
     const cat = catalogo([peca({ id: "hair/afro", slot: "hair" })]);
-    const { camadas } = montarCamadas(cat, { hair: { id: "hair/afro" } }, "male", "run");
-    expect(camadas[0]!.frames).toBe(2);
+    const { camadas, avisos } = montarCamadas(
+      cat, { hair: { id: "hair/afro" } }, "male", "run",
+    );
+    expect(camadas).toEqual([]);
+    expect(avisos).toEqual([
+      { slot: "hair", id: "hair/afro", motivo: "sem-arte-no-corpo" },
+    ]);
   });
 
   it("pede recolor quando a peca declara paleta e a cor nao e faixa do atlas", () => {
@@ -170,6 +178,49 @@ describe("montarCamadas", () => {
     expect(camadas[0]!.recolor).toEqual([
       { material: "metal", paleta: "ulpc", cor: "steel" },
       { material: "cloth", paleta: "ulpc", cor: "brown" },
+    ]);
+  });
+
+  it("peca que segue a cor do corpo herda o tom de pele equipado", () => {
+    // 54 itens tem `match_body_color`: cabeca, nariz, orelha, rugas e
+    // expressao sao slots SEPARADOS com material `body`. Sem herdar, trocar o
+    // tom de pele deixa a cabeca de outra cor -- quebrado na cara.
+    const corpo = peca({ id: "body/body-color", slot: "body" });
+    corpo.canais_de_cor = [{ nome: "cor", material: "body", paletas: ["ulpc"] }];
+    const cabeca = peca({ id: "head/human-male", slot: "head" });
+    cabeca.canais_de_cor = [{ nome: "color_1", material: "body", paletas: ["ulpc"] }];
+    cabeca.segue_cor_do_corpo = true;
+
+    const { camadas } = montarCamadas(
+      catalogo([corpo, cabeca]),
+      { body: { id: "body/body-color", cores: { cor: "bronze" } },
+        head: { id: "head/human-male" } },
+      "male",
+      "idle",
+    );
+
+    const daCabeca = camadas.find((c) => c.slot === "head")!;
+    expect(daCabeca.recolor).toEqual([
+      { material: "body", paleta: "ulpc", cor: "bronze" },
+    ]);
+  });
+
+  it("cor explicita na peca vence a heranca do corpo", () => {
+    const corpo = peca({ id: "body/body-color", slot: "body" });
+    corpo.canais_de_cor = [{ nome: "cor", material: "body", paletas: ["ulpc"] }];
+    const cabeca = peca({ id: "head/human-male", slot: "head" });
+    cabeca.canais_de_cor = [{ nome: "color_1", material: "body", paletas: ["ulpc"] }];
+    cabeca.segue_cor_do_corpo = true;
+
+    const { camadas } = montarCamadas(
+      catalogo([corpo, cabeca]),
+      { body: { id: "body/body-color", cores: { cor: "bronze" } },
+        head: { id: "head/human-male", cores: { color_1: "olive" } } },
+      "male",
+      "idle",
+    );
+    expect(camadas.find((c) => c.slot === "head")!.recolor).toEqual([
+      { material: "body", paleta: "ulpc", cor: "olive" },
     ]);
   });
 

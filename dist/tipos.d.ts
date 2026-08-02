@@ -43,6 +43,8 @@ export interface Item {
     grupo: string;
     camadas: Camada[];
     canais_de_cor?: CanalDeCor[];
+    /** Herda o tom de pele do corpo equipado (`match_body_color`, 54 itens). */
+    segue_cor_do_corpo?: boolean;
     /** Corpos em que a peca nao aparece -- a celula da grade precisa marcar. */
     sem_arte?: string[];
     /** Ids de pecas com que esta combina (trim -> chapeu). */
