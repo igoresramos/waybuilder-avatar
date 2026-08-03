@@ -31,7 +31,12 @@ from transplante import (
     sobreposicao,
 )
 
-RAIZ = "/home/igor0/waybuilder/app/public/avatar/"
+# A fonte de verdade e o `saida/` DESTE repo, nao a copia dentro do app.
+# Aquela copia existia quando `sincronizar-avatar.sh` levava o acervo para
+# `public/`; desde a decisao 2a o app consome do GitHub Pages e o script saiu,
+# entao o diretorio la ficou congelado -- ler dele significa gerar arte contra
+# um acervo de meses atras sem nenhum aviso.
+RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saida") + os.sep
 Q = 64
 
 # Quantos frames DISTINTOS cada animacao tem. O ciclo repete alguns (`idle` toca
@@ -80,14 +85,20 @@ def animacoes(v: dict) -> set[str]:
     return {a["nome"] for a in v["animacoes"]}
 
 
-def quadro(v: dict, anim: str, k: int = 0):
-    """Um frame de 64x64, ou `None` se a peca nao tem aquela animacao."""
+def quadro(v: dict, anim: str, k: int = 0, direcao: int = 0):
+    """Um frame de 64x64, ou `None` se a peca nao tem aquela animacao.
+
+    O endereco leva a DIRECAO: `x + (direcao * frames + k) * 64`. Sem isso
+    todo frame sai da frente, e as pecas legadas ficariam sem arte gerada de
+    perfil -- o acervo passou a ter duas direcoes na spec @12 e o gerador nao
+    tinha acompanhado.
+    """
     a = next((x for x in v["animacoes"] if x["nome"] == anim), None)
     if a is None:
         return None
     # a faixa `base` e a arte crua; pecas com cores embutidas usam a primeira
     y = v["cores"].get("base", next(iter(v["cores"].values())))
-    x = a["x"] + min(k, a["frames"] - 1) * Q
+    x = a["x"] + (direcao * a["frames"] + min(k, a["frames"] - 1)) * Q
     return carregar(v["arq"])[y:y + Q, x:x + Q, :]
 
 
@@ -116,15 +127,25 @@ def achar_doadora(alvo_v, tem, falta, candidatos, corpo, camada):
     return melhor, melhor_s, comum
 
 
-def gerar(alvo_v, doadora_v, falta, comum):
-    """Os frames da animacao que falta, na ordem, para a peca alvo."""
-    partida = quadro(alvo_v, comum)
+def gerar(alvo_v, doadora_v, falta, comum, direcoes: int = 1):
+    """Os frames da animacao que falta, na ordem, para a peca alvo.
+
+    A tira sai no MESMO layout do atlas -- as direcoes lado a lado, cada uma
+    com os seus quadros --, para que o passo que a integrar ao build nao tenha
+    de reembaralhar nada.
+
+    Cada direcao aprende com ela mesma: a doadora de perfil ensina o perfil. O
+    campo de deslocamento de uma pose frontal aplicado a arte de perfil nao
+    descreve movimento nenhum.
+    """
     saida = []
-    for k in range(DISTINTOS[falta]):
-        destino = quadro(doadora_v, falta, k)
-        origem = quadro(doadora_v, comum)
-        campo, silhueta = campo_de_deslocamento(origem, destino)
-        saida.append(aplicar_campo(campo, partida, silhueta))
+    for d in range(direcoes):
+        partida = quadro(alvo_v, comum, 0, d)
+        origem = quadro(doadora_v, comum, 0, d)
+        for k in range(DISTINTOS[falta]):
+            destino = quadro(doadora_v, falta, k, d)
+            campo, silhueta = campo_de_deslocamento(origem, destino)
+            saida.append(aplicar_campo(campo, partida, silhueta))
     return saida
 
 
@@ -183,6 +204,9 @@ def main() -> int:
 
     cat = json.load(open(RAIZ + "catalogo.json"))
     anims_do_recorte = cat["recorte"]["animacoes"]
+    # o acervo passou a ter mais de uma direcao (spec @12); a arte gerada tem
+    # de cobrir todas, senao a peca legada some ao girar o boneco
+    n_direcoes = len(cat["recorte"].get("direcoes") or ["frente"])
     corpos = cat["recorte"]["corpos"]
     os.makedirs(os.path.join(args.saida, "frames"), exist_ok=True)
 
@@ -210,13 +234,16 @@ def main() -> int:
                     # O k=0 e copia de `walk` k=0 e o k=1 sai do roteador por
                     # rigidez, que decide entre transladar e nao mexer.
                     if falta == "idle" and "walk" in tem:
-                        base = quadro(av, "walk", 0)
                         treino = treino_do_slot(
                             presentes, alvo, alvo.get("slot"), corpo, c,
                             anims_do_recorte)
                         acao, (dy, dx) = decidir(treino)
-                        frames = [base, transladar(base, dy, dx)
-                                  if acao == "transladar" else base]
+                        # uma direcao de cada vez, no layout do atlas
+                        frames = []
+                        for d in range(n_direcoes):
+                            base = quadro(av, "walk", 0, d)
+                            frames += [base, transladar(base, dy, dx)
+                                       if acao == "transladar" else base]
                         tira = np.concatenate(frames, axis=1)
                         destino = os.path.join(
                             args.saida, "frames", alvo["id"].replace("/", "__"),
@@ -230,6 +257,7 @@ def main() -> int:
                             "via": acao, "deslocamento": [dy, dx],
                             "treino": len(treino),
                             "partiu_de": "walk", "frames": len(frames),
+                        "direcoes": n_direcoes,
                         })
                         conta[acao] += 1
                         n += 1
@@ -252,7 +280,7 @@ def main() -> int:
                         conta["sem saida"] += 1
                         continue
 
-                    frames = gerar(av, dv, falta, comum)
+                    frames = gerar(av, dv, falta, comum, n_direcoes)
                     tira = np.concatenate(frames, axis=1)
                     destino = os.path.join(
                         args.saida, "frames", alvo["id"].replace("/", "__"),
@@ -265,6 +293,7 @@ def main() -> int:
                         "animacao": falta, "doadora": doadora["id"],
                         "via": via, "iou": round(iou, 3),
                         "partiu_de": comum, "frames": len(frames),
+                        "direcoes": n_direcoes,
                     })
                     conta[via] += 1
                     n += 1
